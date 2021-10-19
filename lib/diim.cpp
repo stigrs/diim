@@ -21,8 +21,7 @@ Diim::Diim(
 
     // Parse config file:
 
-    const std::string key = "DIIM";
-    auto pos = find_token(inp_config, key);
+    auto pos = find_token(inp_config, std::string("DIIM"));
     if (pos != -1) {
         // clang-format off
         get_token_value(inp_config, pos, "psector", config.psector);
