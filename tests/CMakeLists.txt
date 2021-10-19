@@ -16,9 +16,15 @@ endif()
 # Copy *.inp files to build directory.
 file(GLOB INP_FILES RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}"
     "${CMAKE_CURRENT_SOURCE_DIR}/*.inp")
-
 foreach(inp_file_name ${INP_FILES})
     file(COPY "${inp_file_name}" DESTINATION "${CMAKE_BINARY_DIR}/tests")
+endforeach()
+
+# Copy *.csv files to build directory.
+file(GLOB CSV_FILES RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}"
+    "${CMAKE_CURRENT_SOURCE_DIR}/*.csv")
+foreach(csv_file_name ${CSV_FILES})
+    file(COPY "${csv_file_name}" DESTINATION "${CMAKE_BINARY_DIR}/tests")
 endforeach()
 
 if(GIT_FOUND)

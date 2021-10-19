@@ -1,0 +1,11 @@
+DIIM
+  psector
+    1 [ "Electric" ]
+  cvalue
+    1 [ 0.0 ]
+  amatrix_type
+    IO
+  calc_mode
+    Supply
+End
+

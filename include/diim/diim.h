@@ -75,7 +75,33 @@ private:
     // Note:
     //   If input-output table is provided, last row must provide
     //   total outputs.
-    // void read_io_table(std::istream& from);
+    void read_io_table(std::istream& istrm);
+
+    // Calculate Leontief technical coefficients matrix (A) from input-output
+    // table.
+    //
+    // Algorithm:
+    //   Santos & Haimes (2004), eq. 2.
+    //
+    void tech_coeff_matrix();
+
+    // Calculate demand-driven or supply-driven interdependency matrix and the
+    // S matrix from technical coefficients.
+    //
+    // Algorithm:
+    //   Santos & Haimes (2004), eq. 28 (A* matrix).
+    //   Leung et al. (2007), p. 301 (A^s matrix).
+    //   Setola et al. (2009), eq. 7 (S matrix).
+    //
+    void calc_interdependency_matrix();
+
+    // Check if the dominant eigenvalue of matrix A* is smaller in absolute
+    // value than 1.
+    //
+    // Reference:
+    //   Setola et al. (2009), eq. 6.
+    //
+    void check_stability();
 
     // Struct for holding configuration of DIIM run.
     struct Config {

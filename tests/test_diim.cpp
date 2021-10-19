@@ -26,4 +26,14 @@ TEST_CASE("test_diim")
 
         Diim diim(ctime_, inp_config, inp_csv);
     }
+
+    SECTION("test_case4")
+    {
+        std::ifstream inp_config;
+        std::ifstream inp_csv;
+        Stdutils::fopen(inp_config, "test_case4.inp");
+        Stdutils::fopen(inp_csv, "test_case4.csv");
+
+        Diim diim(ctime_, inp_config, inp_csv);
+    }
 }
