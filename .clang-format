@@ -1,0 +1,28 @@
+Language: Cpp
+Standard: Cpp11
+ColumnLimit: 80
+
+UseTab: Never
+IndentWidth: 4
+AccessModifierOffset: -4
+NamespaceIndentation: Inner
+
+BinPackParameters: false
+BreakBeforeBraces: Stroustrup
+AlwaysBreakTemplateDeclarations: true
+BreakConstructorInitializersBeforeComma: false
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+AllowShortBlocksOnASingleLine: true
+AllowShortFunctionsOnASingleLine: All
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+
+PointerAlignment: Left
+AlignConsecutiveAssignments: false
+AlignTrailingComments: true
+
+SortIncludes: false
+SpaceAfterCStyleCast: true
+SpaceAfterTemplateKeyword: true
+FixNamespaceComments: true
+IndentCaseLabels: false

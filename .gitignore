@@ -1,0 +1,18 @@
+# Files:
+*~
+*.x
+*.exe
+*.o
+*.d
+*.out
+*.log
+*.tmp
+*.swp
+tmp.*
+tags
+
+# Directories:
+build
+tmp
+.vs
+.vscode
