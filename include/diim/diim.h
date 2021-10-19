@@ -54,7 +54,10 @@ class Diim {
 public:
     Diim() = default;
 
-    Diim(std::function<double(double, double)> ct_, std::istream& from);
+    Diim(std::function<Numlib::Vec<double>(const Numlib::Vec<double>&, double)>
+             ct_,
+         std::istream& inp_config,
+         std::istream& inp_csv);
 
     // Copy semantics:
     Diim(const Diim&) = default;
@@ -67,7 +70,28 @@ public:
     ~Diim() = default;
 
 private:
-    std::function<double(double, double)> ct; // time-dependent degradation
+    // Read input-output table or A* matrix from CSV file.
+    //
+    // Note:
+    //   If input-output table is provided, last row must provide
+    //   total outputs.
+    // void read_io_table(std::istream& from);
+
+    // Struct for holding configuration of DIIM run.
+    struct Config {
+        Numlib::Vec<std::string> psector; // list with perturbed sectors
+        Numlib::Vec<double> cvalue;       // list of perturbations
+        std::string amatrix_t;            // type of interdependency matrix
+        std::string calc_mode_t;          // type of calculation mode
+        std::string tau_file;             // file with tau values
+        std::string kmat_file;            // file with K matrix
+        std::string q0_file;              // file with q(0) values
+        double lambda;                    // q(tau) value
+    };
+    Config config;
+
+    // Time-dependent degradation, c(t)
+    std::function<Numlib::Vec<double>(const Numlib::Vec<double>&, double)> ct;
 
     std::vector<std::string> sectors; // list of sectors
 

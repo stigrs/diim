@@ -5,19 +5,25 @@
 // and conditions.
 
 #include <diim/diim.h>
+#include <numlib/matrix.h>
 #include <stdutils/stdutils.h>
 #include <catch2/catch.hpp>
 #include <iostream>
 
-double ctime(double c0, double /* t */) { return c0; }
+Numlib::Vec<double> ctime_(const Numlib::Vec<double>& c0, double /* t */)
+{
+    return c0;
+}
 
 TEST_CASE("test_diim")
 {
-    SECTION("test1")
+    SECTION("test_case1")
     {
-        std::ifstream from;
-        Stdutils::fopen(from, "test_diim.inp");
+        std::ifstream inp_config;
+        std::ifstream inp_csv;
+        Stdutils::fopen(inp_config, "test_case1.inp");
+        Stdutils::fopen(inp_csv, "test_case1.csv");
 
-        Diim diim(ctime, from);
+        Diim diim(ctime_, inp_config, inp_csv);
     }
 }

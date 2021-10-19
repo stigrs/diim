@@ -1,0 +1,10 @@
+DIIM 
+  psector
+    1 ["Sector2"]
+  cvalue
+    1 [0.6]
+  amatrix_type
+    A
+  calc_mode
+    Demand
+End
