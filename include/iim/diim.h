@@ -4,18 +4,19 @@
 // LICENSE.txt or http://www.opensource.org/licenses/mit-license.php for terms
 // and conditions.
 
-#ifndef DIIM_DIIM_H
-#define DIIM_DIIM_H
+#ifndef IIM_DIIM_H
+#define IIM_DIIM_H
 
 #include <iostream>
-#include <functional>
 #include <string>
 #include <vector>
 #include <numlib/matrix.h>
+#include <iim/perturbation.h>
+#include <iim/types.h>
 
 // DIIM provides the Demand-Reduction and Recovery Dynamic Inoperability
-// Input-Output Model (DIIM) for Interdependent Infrastructure Sectors as
-// described in the papers:
+// Input-Output Model (DIIM) for interdependent functions as described in
+// the papers:
 //
 // - Haimes, Y. Y., Horowitz, B. M., Lambert, J. H., Santos, J. R., Lian, C. &
 //   Crowther, K. G. (2005). Inoperability input-output model for interdependent
@@ -27,8 +28,8 @@
 //   Input-Output Model. Systems Engineering, 9, 241-258.
 //
 // DIIM also provides the Static Demand-Driven and Supply-Driven Inoperability
-// Input-Output Models (IIM) for Interdependent Infrastructure Sectors as
-// described in the papers:
+// Input-Output Models (IIM) for interdependent functions as described in the
+// papers:
 //
 // - Haimes, Y. Y & Jiang, P. (2001). Leontief-based model of risk in complex
 //   interconnected infrastructures. Journal of Infrastructure Systems, 7, 1-12.
@@ -54,10 +55,7 @@ class Diim {
 public:
     Diim() = default;
 
-    Diim(std::function<Numlib::Vec<double>(const Numlib::Vec<double>&, double)>
-             ct_,
-         std::istream& inp_config,
-         std::istream& inp_csv);
+    Diim(std::istream& inp_config, std::istream& inp_csv);
 
     // Copy semantics:
     Diim(const Diim&) = default;
@@ -68,6 +66,9 @@ public:
     Diim& operator=(Diim&&) = default;
 
     ~Diim() = default;
+
+    // Number of functions (infrastructure systems) in the system.
+    Index num_functions() const { return narrow_cast<Index>(functions.size()); }
 
 private:
     // Read input-output table or A* matrix from CSV file.
@@ -103,33 +104,31 @@ private:
     //
     void check_stability();
 
-    // Struct for holding configuration of DIIM run.
-    struct Config {
-        Numlib::Vec<std::string> psector; // list with perturbed sectors
-        Numlib::Vec<double> cvalue;       // list of perturbations
-        std::string amatrix_t;            // type of interdependency matrix
-        std::string calc_mode_t;          // type of calculation mode
-        std::string tau_file;             // file with tau values
-        std::string kmat_file;            // file with K matrix
-        std::string q0_file;              // file with q(0) values
-        double lambda;                    // q(tau) value
-    };
-    Config config;
+    // Initialise tau values by reading from CSV file.
+    void init_tau_values(const std::string& tau_file);
 
-    // Time-dependent degradation, c(t)
-    std::function<Numlib::Vec<double>(const Numlib::Vec<double>&, double)> ct;
+    // Initialise K matrix by reading from CSV file. Set to identity matrix
+    // if no file is provided.
+    void init_kmatrix(const std::string& kmat_file);
 
-    std::vector<std::string> sectors; // list of sectors
+    Perturbation perturb; // representation of perturbation
+
+    Amatrix_t amatrix_type; // type of interdependency matrix
+    Calc_mode_t calc_mode;  // type of calculation mode
+
+    double lambda; // q(tau) value
+
+    std::vector<std::string> functions; // list of functions
 
     Numlib::Mat<double> io_table; // industry x industry input-output table
     Numlib::Mat<double> amat;     // Leontief technical coefficients
     Numlib::Mat<double> astar;    // interdependency matrix
     Numlib::Mat<double> smat;     // S matrix
 
-    Numlib::Vec<double> xoutput; // as-planned production per sector
-    Numlib::Vec<double> tau;     // recovery ties to q(tau)
+    Numlib::Vec<double> xoutput; // as-planned production per function
+    Numlib::Vec<double> tau;     // recovery times to q(tau)
     Numlib::Vec<double> q0;      // inoperabilities at start, q(0)
     Numlib::Vec<double> c0;      // degradation in demand/supply, c(t) = c(0)
 };
 
-#endif /* DIIM_DIIM_H */
+#endif /* IIM_DIIM_H */

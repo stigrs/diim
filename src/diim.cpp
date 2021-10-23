@@ -9,7 +9,7 @@
 #pragma warning(disable : 4018 4267) // caused by cxxopts.hpp
 #endif
 
-#include <diim/diim.h>
+#include <iim/diim.h>
 #include <stdutils/stdutils.h>
 #include <cxxopts.hpp>
 #include <exception>
@@ -24,10 +24,11 @@
 int main(int argc, char* argv[])
 {
     // clang-format off
-    cxxopts::Options options(argv[0], "Gilbert's biased random walk model");
+    cxxopts::Options options(argv[0], "Dynamic Inoperability Input-Output Model");
     options.add_options()
         ("h,help", "display help message")
-        ("f,file", "input file", cxxopts::value<std::string>());
+        ("c,config", "config file", cxxopts::value<std::string>());
+        ("f,file", "CSV file", cxxopts::value<std::string>());
     // clang-format on
 
     auto result = options.parse(argc, argv);

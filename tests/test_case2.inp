@@ -1,6 +1,6 @@
 DIIM 
   amatrix_type
-    interdependency 
+    sparse_interdependency 
   calc_mode
     demand
 End

@@ -4,35 +4,54 @@
 // LICENSE.txt or http://www.opensource.org/licenses/mit-license.php for terms
 // and conditions.
 
-#include <diim/diim.h>
+#include <iim/diim.h>
+#include <iim/utils.h>
 #include <stdutils/stdutils.h>
 #include <numlib/math.h>
+#include <fstream>
 #include <sstream>
 #include <complex>
 #include <exception>
 
-Diim::Diim(
-    std::function<Numlib::Vec<double>(const Numlib::Vec<double>&, double)> ct_,
-    std::istream& inp_config,
-    std::istream& inp_csv)
-    : ct(ct_)
+Diim::Diim(std::istream& inp_config, std::istream& inp_csv)
+    : perturb(inp_config)
 {
     using namespace Stdutils;
 
     // Parse config file:
 
+    std::string amatrix_type_str;
+    std::string calc_mode_str;
+    std::string tau_file;
+    std::string kmat_file;
+
     auto pos = find_token(inp_config, std::string("DIIM"));
     if (pos != -1) {
         // clang-format off
-        get_token_value(inp_config, pos, "psector", config.psector);
-        get_token_value(inp_config, pos, "cvalue", config.cvalue);
-        get_token_value(inp_config, pos, "amatrix_type", config.amatrix_t, std::string("IO"));
-        get_token_value(inp_config, pos, "calc_mode", config.calc_mode_t, std::string("Demand"));
-        get_token_value(inp_config, pos, "lambda", config.lambda, 0.01);
-        get_token_value(inp_config, pos, "tau_file", config.tau_file);
-        get_token_value(inp_config, pos, "kmat_file", config.kmat_file);
-        get_token_value(inp_config, pos, "q0_file", config.q0_file);
+        get_token_value(inp_config, pos, "amatrix_type", amatrix_type_str, std::string("input-output"));
+        get_token_value(inp_config, pos, "calc_mode", calc_mode_str, std::string("demand"));
+        get_token_value(inp_config, pos, "lambda", lambda, 0.01);
+        get_token_value(inp_config, pos, "tau_file", tau_file, std::string(""));
+        get_token_value(inp_config, pos, "kmat_file", kmat_file, std::string(""));
         // clang-format on
+    }
+    if (amatrix_type_str == "input-output") {
+        amatrix_type = input_output;
+    }
+    else if (amatrix_type_str == "interdependency") {
+        amatrix_type = interdependency;
+    }
+    else if (amatrix_type_str == "sparse_interdependency") {
+        amatrix_type = sparse_interdependency;
+    }
+    else {
+        throw std::runtime_error("bad amatrix_type: " + amatrix_type_str);
+    }
+    if (calc_mode_str == "demand" || calc_mode_str == "Demand") {
+        calc_mode = demand;
+    }
+    else if (calc_mode_str == "supply" || calc_mode_str == "Supply") {
+        calc_mode = supply;
     }
 
     // Read input-output table or A* matrix from CSV file:
@@ -46,53 +65,35 @@ Diim::Diim(
 
     // Check stability of A* matrix:
     check_stability();
+
+    // Initialise tau values:
+    init_tau_values(tau_file);
 }
 
 void Diim::read_io_table(std::istream& istrm)
 {
-    std::string line;
-    std::string value;
-
-    // Read header:
-
-    std::getline(istrm, line);
-    std::stringstream iss(line);
-    while (std::getline(iss, value, ',')) {
-        sectors.push_back(Stdutils::trim(value, " "));
-    }
-
-    // Read data values:
-
-    int nrows = 0;
-    std::vector<double> tmp;
-    while (std::getline(istrm, line)) {
-        if (line.empty()) {
-            continue;
+    if (amatrix_type == input_output || amatrix_type == interdependency) {
+        Numlib::Mat<double> io_tmp;
+        csv_reader(istrm, functions, io_tmp);
+        if (amatrix_type == input_output) {
+            xoutput = io_tmp.row(io_tmp.rows() - 1);
+            io_table = io_tmp(Numlib::slice(0, io_tmp.rows() - 1),
+                              Numlib::slice(0, io_tmp.cols()));
         }
-        iss = std::stringstream(line);
-        while (std::getline(iss, value, ',')) {
-            tmp.push_back(std::stod(value));
+        else if (amatrix_type == interdependency) {
+            io_table = io_tmp; // A* matrix is provided
         }
-        ++nrows;
     }
-    Numlib::Matrix_slice<2> ms(0, {nrows, static_cast<Index>(sectors.size())});
-    auto io_tmp = Numlib::Mat<double>(ms, tmp.data());
-
-    if (config.amatrix_t == "IO") {
-        xoutput = io_tmp.row(io_tmp.rows() - 1);
-        io_table = io_tmp(Numlib::slice(0, io_tmp.rows() - 1),
-                          Numlib::slice(0, io_tmp.cols()));
-    }
-    else {
-        io_table = io_tmp; // A* matrix is provided
+    else if (amatrix_type == sparse_interdependency) {
+        csv_reader_sparse(istrm, functions, io_table);
     }
 }
 
 void Diim::tech_coeff_matrix()
 {
-    Index n = sectors.size();
+    Index n = num_functions();
     amat = Numlib::zeros<Numlib::Mat<double>>(n, n);
-    if (config.amatrix_t == "IO") { // industry x industry I-O table is provided
+    if (amatrix_type == input_output) {
         for (Index i = 0; i < n; ++i) {
             for (Index j = 0; j < n; ++j) {
                 if (xoutput(j) != 0.0) {
@@ -105,19 +106,14 @@ void Diim::tech_coeff_matrix()
 
 void Diim::calc_interdependency_matrix()
 {
-    Index n = sectors.size();
+    Index n = num_functions();
     astar = Numlib::zeros<Numlib::Mat<double>>(n, n);
 
-    if (config.calc_mode_t == "Supply") {
-        if (config.amatrix_t == "IO") {
+    if (amatrix_type == input_output) {
+        if (calc_mode == supply) {
             astar = Numlib::transpose(amat); // Leung (2007), p. 301
         }
-        else { // interdependency matrix is provided as input
-            astar = io_table;
-        }
-    }
-    else { // demand-driven
-        if (config.amatrix_t == "IO") {
+        else if (calc_mode == demand) {
             for (Index i = 0; i < n; ++i) {
                 for (Index j = 0; j < n; ++j) {
                     if (xoutput(i) != 0.0) {
@@ -126,9 +122,9 @@ void Diim::calc_interdependency_matrix()
                 }
             }
         }
-        else { // interdependency matrix is provided
-            astar = io_table;
-        }
+    }
+    else { // interdependency matrix is provided
+        astar = io_table;
     }
     smat = Numlib::inv(Numlib::identity(n) - astar);
 }
@@ -141,14 +137,51 @@ void Diim::check_stability()
 
     Numlib::eig(astar_tmp, evec, eval);
 
-    double lambda_0 = std::abs(eval(0)); // the magnitude is used for comparison
+    double eval_largest = std::abs(eval(0)); // magnitude is used for comparison
     for (auto& ei : eval) {
-        if (std::abs(ei) > lambda_0) {
-            lambda_0 = std::abs(ei);
+        if (std::abs(ei) > eval_largest) {
+            eval_largest = std::abs(ei);
         }
     }
-    if (std::abs(lambda_0) >= 1.0) {
+    if (std::abs(eval_largest) >= 1.0) {
         throw std::runtime_error("A* is not stable, dominant eigenvalue is " +
-                                 std::to_string(lambda_0));
+                                 std::to_string(eval_largest));
+    }
+}
+
+void Diim::init_tau_values(const std::string& tau_file)
+{
+    if (!tau_file.empty()) {
+        std::ifstream istrm;
+        Stdutils::fopen(istrm, tau_file);
+
+        std::vector<std::string> header;
+        Numlib::Mat<double> values;
+
+        csv_reader(istrm, header, values);
+        assert(header.size() == functions.size());
+
+        tau = values.row(0);
+    }
+}
+
+void Diim::init_kmatrix(const std::string& kmat_file)
+{
+    if (!kmat_file.empty()) {
+        std::ifstream istrm;
+        Stdutils::fopen(istrm, kmat_file);
+
+        std::vector<std::string> header;
+        Numlib::Mat<double> values;
+
+        csv_reader(istrm, header, values);
+        assert(header.size() == functions.size());
+        kmat.diag() = values.row(0);
+        trunc_to_range(kmat, 0.0, 1.0); // fix any bad input values
+    }
+    else if (!tau.empty()) {
+    }
+    else {
+        kmat = Numlib::identity(num_functions());
     }
 }

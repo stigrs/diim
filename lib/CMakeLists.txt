@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.4.3)
-project(libdiim CXX)
+project(libiim CXX)
 
 include_directories(${DIIM_SOURCE_DIR}/include)
 include_directories(${Stdutils_INCLUDE_DIRS})
@@ -16,21 +16,22 @@ endif()
 set(
     SRC_FILES
     diim.cpp
+    perturbation.cpp
+    utils.cpp
 )
 add_library(
-    diim 
+    iim 
     ${SRC_FILES}
 )
-add_dependencies(diim Stdutils Numlib)
+add_dependencies(iim Stdutils Numlib)
 target_link_libraries(
-    diim 
+    iim 
     ${BLAS_LIBRARIES}
     ${Numlib_LIBRARIES} 
 ) 
 
 install(
-    TARGETS diim
+    TARGETS iim
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
 )
-

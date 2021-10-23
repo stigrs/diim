@@ -67,7 +67,7 @@ function(add_diim_test name)
     target_link_libraries (
         ${name} 
         test_catch2
-        diim
+        iim
 	${BLAS_LIBRARIES}
         ${Numlib_LIBRARIES}
     ) 
@@ -91,4 +91,3 @@ foreach(program ${PROGRAMS})
 	    endif()
 	endif()
 endforeach()
-

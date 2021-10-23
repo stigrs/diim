@@ -139,7 +139,7 @@ endif()
 
 # Install target.
 install(
-    DIRECTORY include/diim
+    DIRECTORY include/iim
     DESTINATION include
     FILES_MATCHING PATTERN "*.h"
 )

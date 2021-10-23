@@ -45,7 +45,7 @@ function(add_app name)
     add_executable(${name} ${name}.cpp)
     target_link_libraries (
         ${name} 
-        diim
+        iim
 	    ${BLAS_LIBRARIES}
         ${Numlib_LIBRARIES}
         Cxxopts
@@ -54,7 +54,7 @@ function(add_app name)
 endfunction()
 
 set(PROGRAMS 
-    diim_run
+    diim
 )
 
 foreach(program ${PROGRAMS})
