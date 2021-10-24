@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 #include <numlib/matrix.h>
+#include <numlib/math.h>
 #include <iim/perturbation.h>
 #include <iim/types.h>
 
@@ -70,6 +71,12 @@ public:
     // Number of functions (infrastructure systems) in the system.
     Index num_functions() const { return narrow_cast<Index>(functions.size()); }
 
+    // Return Leontief technical coefficients.
+    const Numlib::Mat<double>& tech_coeff() const { return amat; }
+
+    // Return interdependency matrix.
+    const Numlib::Mat<double>& interdependency_matrix() const { return astar; }
+
     // Calculate overall risk of inoperability for the infrastructure functions
     // at equilibrium.
     //
@@ -80,7 +87,7 @@ public:
     Numlib::Vec<double> inoperability() const
     {
         auto q = smat * perturb.cstar();
-        trunc_to_range(q, 0.0, 1.0);
+        Numlib::closed_interval(q, 0.0, 1.0);
         return q;
     }
 
@@ -98,7 +105,7 @@ private:
     // Algorithm:
     //   Santos & Haimes (2004), eq. 2.
     //
-    void tech_coeff_matrix();
+    void calc_tech_coeff_matrix();
 
     // Calculate demand-driven or supply-driven interdependency matrix and the
     // S matrix from technical coefficients.

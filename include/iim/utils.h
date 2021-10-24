@@ -46,10 +46,4 @@ void csv_reader_sparse(std::istream& istrm,
                        std::vector<std::string>& header,
                        Numlib::Mat<double>& values);
 
-// Truncate array values to the range [lower, upper].
-void trunc_to_range(Numlib::Vec<double>& vec, double lower, double upper);
-
-// Truncate matrix values to the range [lower, upper].
-void trunc_to_range(Numlib::Mat<double>& mat, double lower, double upper);
-
 #endif /* IIM_UTILS_H */

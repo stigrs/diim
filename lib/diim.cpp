@@ -60,7 +60,7 @@ Diim::Diim(std::istream& inp_config, std::istream& inp_csv)
     read_io_table(inp_csv);
 
     // Compute Leontief technical coefficients:
-    tech_coeff_matrix();
+    calc_tech_coeff_matrix();
 
     // Calculate interdependency matrix:
     calc_interdependency_matrix();
@@ -100,7 +100,7 @@ void Diim::read_io_table(std::istream& istrm)
     }
 }
 
-void Diim::tech_coeff_matrix()
+void Diim::calc_tech_coeff_matrix()
 {
     Index n = num_functions();
     amat = Numlib::zeros<Numlib::Mat<double>>(n, n);
@@ -185,7 +185,7 @@ void Diim::init_kmatrix(const std::string& kmat_file)
         csv_reader(istrm, header, values);
         assert(header.size() == functions.size());
         kmat.diag() = values;
-        trunc_to_range(kmat, 0.0, 1.0); // fix any bad input values
+        Numlib::closed_interval(kmat, 0.0, 1.0); // fix any bad input values
     }
     else if (!tau.empty()) {
         calc_kmatrix();
@@ -222,7 +222,7 @@ void Diim::init_q0(const std::string& q0_file)
 
         csv_reader(istrm, header, q0);
         assert(header.size() == functions.size());
-        trunc_to_range(q0, 0.0, 1.0); // fix any bad input values
+        Numlib::closed_interval(q0, 0.0, 1.0); // fix any bad input values
     }
     else {
         q0 = Numlib::zeros<Numlib::Vec<double>>(num_functions());

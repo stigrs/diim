@@ -98,27 +98,3 @@ void csv_reader_sparse(std::istream& istrm,
         values(i, j) = aij;
     }
 }
-
-void trunc_to_range(Numlib::Vec<double>& vec, double lower, double upper)
-{
-    for (auto vi : vec) {
-        if (vi > upper) {
-            vi = upper;
-        }
-        if (vi < lower) {
-            vi = lower;
-        }
-    }
-}
-
-void trunc_to_range(Numlib::Mat<double>& mat, double lower, double upper)
-{
-    for (auto mi : mat) {
-        if (mi > upper) {
-            mi = upper;
-        }
-        if (mi < lower) {
-            mi = lower;
-        }
-    }
-}
