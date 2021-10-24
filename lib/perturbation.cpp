@@ -73,6 +73,7 @@ void Iim::Perturbation::init_perturbation()
                 std::find(functions.begin(), functions.end(), pfunction(i));
             if (pos != functions.end()) {
                 Index indx = narrow_cast<Index>(pos - functions.begin());
+                pindex.push_back(indx); // store for later use
                 if (time_steps == 0 || ptime[0][0] == 0) {
                     c0(indx) = cvalue(i);
                 }

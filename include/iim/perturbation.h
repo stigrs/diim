@@ -43,6 +43,7 @@ private:
     void init_perturbation();
 
     std::vector<std::string> functions;    // list of infrastructure functions
+    std::vector<Index> pindex;             // indices of perturbed functions
     std::vector<std::array<int, 2>> ptime; // timings for perturbations
 
     Numlib::Vec<std::string> pfunction; // list with perturbed functions
