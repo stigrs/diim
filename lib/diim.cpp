@@ -14,6 +14,10 @@
 #include <cmath>
 #include <exception>
 
+//------------------------------------------------------------------------------
+// Public functions:
+//------------------------------------------------------------------------------
+
 Diim::Diim(std::istream& inp_config, std::istream& inp_csv)
 {
     using namespace Stdutils;
@@ -78,14 +82,114 @@ Diim::Diim(std::istream& inp_config, std::istream& inp_csv)
     init_q0(q0_file);
 
     // Create perturbation:
-    perturb = Perturbation(inp_config, functions);
+    perturb = Perturbation(inp_config, funcs);
 }
+
+Numlib::Vec<double> Diim::dependency() const
+{
+    Index n = num_functions();
+    Numlib::Vec<double> res = Numlib::zeros<Numlib::Vec<double>>(n);
+    if (calc_mode == demand) {
+        for (Index i = 0; i < n; ++i) {
+            double di = 0.0;
+            for (Index j = 0; j < n; ++j) {
+                if (j != i) {
+                    di += astar(i, j);
+                }
+            }
+            res(i) = di;
+        }
+        res /= static_cast<double>(n - 1);
+    }
+    return res;
+}
+
+Numlib::Vec<double> Diim::influence() const
+{
+    Index n = num_functions();
+    Numlib::Vec<double> res = Numlib::zeros<Numlib::Vec<double>>(n);
+    if (calc_mode == demand) {
+        for (Index j = 0; j < n; ++j) {
+            double rj = 0.0;
+            for (Index i = 0; i < n; ++i) {
+                if (i != j) {
+                    rj += astar(i, j);
+                }
+            }
+            res(j) = rj;
+        }
+        res /= static_cast<double>(n - 1);
+    }
+    return res;
+}
+
+Numlib::Vec<double> Diim::overall_dependency() const
+{
+    Index n = num_functions();
+    Numlib::Vec<double> res = Numlib::zeros<Numlib::Vec<double>>(n);
+    if (calc_mode == demand) {
+        for (Index i = 0; i < n; ++i) {
+            double di = 0.0;
+            for (Index j = 0; j < n; ++j) {
+                if (j != i) {
+                    di += smat(i, j);
+                }
+            }
+            res(i) = di;
+        }
+        res /= static_cast<double>(n - 1);
+    }
+    return res;
+}
+
+Numlib::Vec<double> Diim::overall_influence() const
+{
+    Index n = num_functions();
+    Numlib::Vec<double> res = Numlib::zeros<Numlib::Vec<double>>(n);
+    if (calc_mode == demand) {
+        for (Index j = 0; j < n; ++j) {
+            double rj = 0.0;
+            for (Index i = 0; i < n; ++i) {
+                if (i != j) {
+                    rj += smat(i, j);
+                }
+            }
+            res(j) = rj;
+        }
+        res /= static_cast<double>(n - 1);
+    }
+    return res;
+}
+
+#if 0
+std::vector<Max_nth_order_interdep>
+Diim::max_nth_order_interdependency(int order)
+{
+    assert(order >= 1);
+    auto astar_n = Numlib::matrix_power(astar, order);
+
+    std::vector<Max_nth_order_interdep> res;
+    Index n = num_functions();
+    for (Index i = 0; i < n; ++i) {
+        auto j = Numlib::argmax(astar_n.row(i));
+        Max_nth_order_interdep tmp;
+        tmp.function[0] = funcs[i];
+        tmp.function[1] = funcs[j];
+        tmp.value = astar_n(i, j);
+        res.push_back(tmp);
+    }
+    return res;
+}
+#endif
+//------------------------------------------------------------------------------
+// Private functions:
+//------------------------------------------------------------------------------
 
 void Diim::read_io_table(std::istream& istrm)
 {
     if (amatrix_type == input_output || amatrix_type == interdependency) {
         Numlib::Mat<double> io_tmp;
-        csv_reader(istrm, functions, io_tmp);
+        csv_reader(istrm, funcs, io_tmp);
         if (amatrix_type == input_output) {
             xoutput = io_tmp.row(io_tmp.rows() - 1);
             io_table = io_tmp(Numlib::slice(0, io_tmp.rows() - 1),
@@ -96,7 +200,7 @@ void Diim::read_io_table(std::istream& istrm)
         }
     }
     else if (amatrix_type == sparse_interdependency) {
-        csv_reader_sparse(istrm, functions, io_table);
+        csv_reader_sparse(istrm, funcs, io_table);
     }
 }
 
@@ -183,7 +287,7 @@ void Diim::init_kmatrix(const std::string& kmat_file)
         Numlib::Vec<double> values;
 
         csv_reader(istrm, header, values);
-        assert(header.size() == functions.size());
+        assert(header.size() == funcs.size());
         kmat.diag() = values;
         Numlib::closed_interval(kmat, 0.0, 1.0); // fix any bad input values
     }
@@ -221,7 +325,7 @@ void Diim::init_q0(const std::string& q0_file)
         std::vector<std::string> header;
 
         csv_reader(istrm, header, q0);
-        assert(header.size() == functions.size());
+        assert(header.size() == funcs.size());
         Numlib::closed_interval(q0, 0.0, 1.0); // fix any bad input values
     }
     else {

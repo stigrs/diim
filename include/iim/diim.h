@@ -10,6 +10,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <algorithm>
 #include <numlib/matrix.h>
 #include <numlib/math.h>
 #include <iim/perturbation.h>
@@ -69,13 +70,68 @@ public:
     ~Diim() = default;
 
     // Number of functions (infrastructure systems) in the system.
-    Index num_functions() const { return narrow_cast<Index>(functions.size()); }
+    Index num_functions() const { return narrow_cast<Index>(funcs.size()); }
+
+    // Return infrastructure functions;
+    const std::vector<std::string>& functions() const { return funcs; }
+
+    // Return as-planned production per infrastructure function.
+    const Numlib::Vec<double>& as_planned_production() const { return xoutput; }
 
     // Return Leontief technical coefficients.
     const Numlib::Mat<double>& tech_coeff() const { return amat; }
 
     // Return interdependency matrix.
     const Numlib::Mat<double>& interdependency_matrix() const { return astar; }
+
+    // Calculate dependency index.
+    //
+    // Algorithm:
+    //   Setola et al. (2009), eq. 3.
+    //
+    // Note:
+    //   Only defined for demand-driven IIM.
+    //
+    Numlib::Vec<double> dependency() const;
+
+    // Calculate influence gain.
+    //
+    // Algorithm:
+    //   Setola et al. (2009), eq. 4.
+    //
+    // Note:
+    //   Only defined for demand-driven IIM.
+    //
+    Numlib::Vec<double> influence() const;
+
+    // Calculate overall dependency index.
+    //
+    // Algorithm:
+    //   Setola et al. (2009), eq. 9.
+    //
+    // Note:
+    //   Only defined for demand-driven IIM.
+    //
+    Numlib::Vec<double> overall_dependency() const;
+
+    // Calculate overall influence gain.
+    //
+    // Algorithm:
+    //   Setola et al. (2009), eq. 10.
+    //
+    // Note:
+    //   Only defined for demand-driven IIM.
+    //
+    Numlib::Vec<double> overall_influence() const;
+
+    // Calculate n-th order interdependency index between two functions i and j.
+    double interdependency_index(const std::string& ifunc,
+                                 const std::string& jfunc,
+                                 int order = 1);
+
+    // Calculate maximum n-th order interdependency index for each function.
+    std::vector<Max_nth_order_interdep>
+    max_nth_order_interdependency(int order = 1);
 
     // Calculate overall risk of inoperability for the infrastructure functions
     // at equilibrium.
@@ -146,7 +202,7 @@ private:
 
     double lambda; // q(tau) value
 
-    std::vector<std::string> functions; // list of functions
+    std::vector<std::string> funcs; // list of functions
 
     Numlib::Mat<double> io_table; // industry x industry input-output table
     Numlib::Mat<double> amat;     // Leontief technical coefficients
@@ -158,5 +214,24 @@ private:
     Numlib::Vec<double> tau;     // recovery times to q(tau)
     Numlib::Vec<double> q0;      // inoperabilities at start, q(0)
 };
+
+inline double Diim::interdependency_index(const std::string& ifunc,
+                                          const std::string& jfunc,
+                                          int order)
+{
+    assert(order >= 1);
+    auto pos_i = std::find(funcs.begin(), funcs.end(), ifunc);
+    auto pos_j = std::find(funcs.begin(), funcs.end(), jfunc);
+    Index ii = 0;
+    Index jj = 0;
+    if (pos_i != funcs.end()) {
+        ii = pos_i - funcs.begin();
+    }
+    if (pos_j != funcs.end()) {
+        jj = pos_j - funcs.begin();
+    }
+    auto res = Numlib::matrix_power(astar, order);
+    return res(ii, jj);
+}
 
 #endif /* IIM_DIIM_H */

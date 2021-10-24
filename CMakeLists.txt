@@ -62,6 +62,7 @@ find_package(Git)
 
 # Boost is required.
 find_package(Boost 1.54 REQUIRED)
+add_definitions(-DBOOST_ALLOW_DEPRECATED_HEADERS) # silence warnings
 
 # BLAS and LAPACK is required.
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)

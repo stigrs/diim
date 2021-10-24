@@ -163,13 +163,42 @@ TEST_CASE("test_diim")
         }
     }
 
+    SECTION("test_case8")
+    {
+        // Numpy calculations:
+        const double ans1 = 0.9;
+        const double ans2 = 0.288;
+        const double ans3 = 0.324;
+        const double ans4 = 0.0;
+
+        std::ifstream inp_config;
+        std::ifstream inp_csv;
+        Stdutils::fopen(inp_config, "test_case8.inp");
+        Stdutils::fopen(inp_csv, "test_case8.csv");
+
+        Diim diim(inp_config, inp_csv);
+        auto res1 = diim.interdependency_index("Sector3", "Sector2", 2);
+        auto res2 = diim.interdependency_index("Sector3", "Sector2", 3);
+        auto res3 = diim.interdependency_index("Sector1", "Sector2", 3);
+        auto res4 = diim.interdependency_index("Sector4", "Sector4", 3);
+        CHECK(std::abs(res1 - ans1) < 0.001);
+        CHECK(std::abs(res2 - ans2) < 0.001);
+        CHECK(std::abs(res3 - ans3) < 0.001);
+        CHECK(std::abs(res4 - ans4) < 0.001);
+    }
+
     SECTION("test_case9")
     {
         std::ifstream inp_config;
         std::ifstream inp_csv;
         Stdutils::fopen(inp_config, "test_case9.inp");
-        Stdutils::fopen(inp_csv, "test_case9_amat.csv");
+        Stdutils::fopen(inp_csv, "test_case9.csv");
 
         Diim diim(inp_config, inp_csv);
+        auto res = diim.max_nth_order_interdependency(2);
+        for (auto& ri : res) {
+            std::cout << ri.function[0] << '\t' << ri.function[1] << '\t'
+                      << ri.value << '\n';
+        }
     }
 }
