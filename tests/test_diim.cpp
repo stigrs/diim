@@ -5,6 +5,7 @@
 // and conditions.
 
 #include <iim/diim.h>
+#include <iim/types.h>
 #include <numlib/matrix.h>
 #include <stdutils/stdutils.h>
 #include <catch2/catch.hpp>
@@ -189,16 +190,37 @@ TEST_CASE("test_diim")
 
     SECTION("test_case9")
     {
+        // Numpy calculations:
+        std::vector<Max_nth_order_interdep> ans;
+        Max_nth_order_interdep tmp;
+        tmp.function[0] = "Sector1";
+        tmp.function[1] = "Sector2";
+        tmp.value = 0.324;
+        ans.push_back(tmp);
+        tmp.function[0] = "Sector2";
+        tmp.function[1] = "Sector1";
+        tmp.value = 0.144;
+        ans.push_back(tmp);
+        tmp.function[0] = "Sector3";
+        tmp.function[1] = "Sector1";
+        tmp.value = 0.36;
+        ans.push_back(tmp);
+        tmp.function[0] = "Sector4";
+        tmp.function[1] = "Sector1";
+        tmp.value = 0.36;
+        ans.push_back(tmp);
+
         std::ifstream inp_config;
         std::ifstream inp_csv;
         Stdutils::fopen(inp_config, "test_case9.inp");
         Stdutils::fopen(inp_csv, "test_case9.csv");
 
         Diim diim(inp_config, inp_csv);
-        auto res = diim.max_nth_order_interdependency(2);
-        for (auto& ri : res) {
-            std::cout << ri.function[0] << '\t' << ri.function[1] << '\t'
-                      << ri.value << '\n';
+        auto res = diim.max_nth_order_interdependency(3);
+        for (std::size_t i = 0; i < res.size(); ++i) {
+            CHECK(res[i].function[0] == ans[i].function[0]);
+            CHECK(res[i].function[1] == ans[i].function[1]);
+            CHECK(std::abs(res[i].value - ans[i].value) < 0.001);
         }
     }
 }

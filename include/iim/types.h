@@ -20,6 +20,6 @@ enum Calc_mode_t { demand, supply };
 struct Max_nth_order_interdep {
     std::array<std::string, 2> function;
     double value;
-}
+};
 
 #endif /* IIM_TYPES_H */

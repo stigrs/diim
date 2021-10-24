@@ -161,7 +161,6 @@ Numlib::Vec<double> Diim::overall_influence() const
     return res;
 }
 
-#if 0
 std::vector<Max_nth_order_interdep>
 Diim::max_nth_order_interdependency(int order)
 {
@@ -180,7 +179,7 @@ Diim::max_nth_order_interdependency(int order)
     }
     return res;
 }
-#endif
+
 //------------------------------------------------------------------------------
 // Private functions:
 //------------------------------------------------------------------------------
