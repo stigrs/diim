@@ -1,26 +1,42 @@
-# ChemApps - A C++ Chemistry Toolkit [![Build Status](https://travis-ci.org/stigrs/chemapps.svg?branch=master)](https://travis-ci.org/stigrs/chemapps)
+# Dynamic Inoperability Input-Output Model [![Build Status](https://ci.appveyor.com/api/projects/status/github/stigrs/diim?svg=true)](https://ci.appveyor.com/project/stigrs/diim)
 
-ChemApps provides a suite of utility tools and programs for thermochemistry
-and chemical kinetics.
 
-## Features
+DIIM provides the Demand-Reduction and Recovery Dynamic Inoperability
+Input-Output Model (DIIM) for interdependent functions as described in
+the papers:
 
-* Conversion of Cartesian coordinates to Z matrix
-* Conversion of Z matrix to Cartesian coordinates
-* Rotational analysis of molecules
-* Vibrational analysis of molecules [1]
-* Calculation of thermochemical properties for molecules [2]
-* Calculation of reduced moment of inertia for torsional modes by using
-  the curvilinear scheme [3]
-* Calculation of partition function for torsional modes by using the
-  CT-Cw scheme [4]
-* Calculation of reaction rate coefficients using conventional Transition 
-  State Theory
-* Calculation of Wigner [5] and Eckart tunneling corrections [6-8]
-* Conformer search using an internal coordinate Monte Carlo Multiple 
-  Minima (MCMM) technique with uniform usage scheme [9,10]
-* Conformer search using a genetic algorithm [11]
-* Interface to MOPAC 7, MOPAC 5.022mn, and Gaussian
+* Haimes, Y. Y., Horowitz, B. M., Lambert, J. H., Santos, J. R., Lian, C. &
+  Crowther, K. G. (2005). Inoperability input-output model for interdependent
+  infrastructure sectors. I: Theory and methodology. Journal of
+  Infrastructure Systems, 11, 67-79.
+
+* Lian, C. & Haimes, Y. Y. (2006). Managing the Risk of Terrorism to
+  Interdependent Infrastructure Systems Through the Dynamic Inoperability
+  Input-Output Model. Systems Engineering, 9, 241-258.
+
+DIIM also provides the Static Demand-Driven and Supply-Driven Inoperability
+Input-Output Models (IIM) for interdependent functions as described in the
+papers:
+
+* Haimes, Y. Y & Jiang, P. (2001). Leontief-based model of risk in complex
+  interconnected infrastructures. Journal of Infrastructure Systems, 7, 1-12.
+
+* Haimes, Y. Y., Horowitz, B. M., Lambert, J. H., Santos, J. R., Lian, C. &
+  Crowther, K. G. (2005). Inoperability input-output model for interdependent
+  infrastructure sectors. I: Theory and methodology. Journal of
+  Infrastructure Systems, 11, 67-79.
+
+* Leung, M., Haimes, Y. Y. & Santos, J. R. (2007). Supply- and output-side
+  extensions to the inoperability input-output model for interdependent
+  infrastructures. Journal of Infrastructure Systems, 13, 299-310.
+
+* Santos, J. R. & Haimes, Y. Y. (2004). Modeling the demand reduction
+  input-output (I-O) inoperability due to terrorism of interconnected
+  infrastructures. Risk Analysis, 24, 1437-1451.
+
+* Setola, R., De Porcellinis, S. & Sforna, M. (2009). Critical infrastructure
+  dependency assessment using the input-output inoperability model.
+  International Journal of Critical Infrastructure Protection, 2, 170-178.
 
 ## Code of Conduct
 
@@ -28,18 +44,11 @@ This project has adopted the [Covenant Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## Licensing
 
-ChemApps is released under the [MIT](LICENSE) license.
+DIIM is released under the [MIT](LICENSE) license.
 
 ## Usage of Third Party Libraries
 
-This project makes use of the [Catch](https://https://github.com/philsquared/catch) 
-testing library, code from the [qcl](https://github.com/ben-albrecht/qcl) 
-project, and the [cxxopts](https://github.com/jarro2783/cxxopts) library. 
-Please see the [ThirdPartyNotices.txt](ThirdPartyNotices.txt) file for details 
-regarding the licensing of Catch, qcl, and cxxopts, and cxxopts.
-
-The user of this software needs to obtain separate licenses for [MOPAC](http://openmopac.net/index.html), 
-[MOPAC 5.022mn](https://comp.chem.umn.edu/mopac/) or [Gaussian](http://gaussian.com/). 
+This project makes use of the [Catch2](https://https://github.com/catchorg/Catch2) testing library and the [cxxopts](https://github.com/jarro2783/cxxopts) library. Please see the [ThirdPartyNotices.txt](ThirdPartyNotices.txt) file for details regarding the licensing of Catch2 and cxxopts.
 
 ## Quick Start 
 
@@ -52,28 +61,28 @@ The user of this software needs to obtain separate licenses for [MOPAC](http://o
 
 ### Supported Platforms
 
-The test suite that exercises ChemApps has been built and passes successfully 
+The test suite that exercises DIIM has been built and passes successfully 
 on the following platforms:
-* GNU/Linux using GCC 6.4.0, 7.3.0
+* GNU/Linux using GCC 6.5.0, 7.5.0
 * GNU/Linux using Clang 6.0
-* OS X Sierra (10.12) using Apple Xcode 9.2
-* OS X High Sierra (10.13) using Apple Xcode 9.4, 10.0 
+* macOS 10.14.6 using Apple Xcode 11.0 
+* macOS 10.15.5 using Apple Xcode 12.0.1 
 * Windows using Visual Studio 2017 (x86 and x64)
 
 ### Obtaining the Source Code
 
 The source code can be obtained from
 
-        git clone git@github.com:stigrs/chemapps.git
+        git clone git@github.com:stigrs/diim.git
 
 ### Building the Software
 
 These steps assumes that the source code of this repository has been cloned
-into a directory called `chemapps`.
+into a directory called `diim`.
 
 1. Create a directory to contain the build outputs:
 
-        cd chemapps
+        cd diim
         mkdir build
         cd build
 
@@ -95,27 +104,3 @@ into a directory called `chemapps`.
         cmake --build . --config Release --target install
 
 All tests should pass, indicating that your platform is fully supported. 
-
->NOTE: Test cases involving MOPAC could fail because of numerical roundoff 
-errors in MOPAC on different platforms.
-
-## Notes and References
-
-1.  Vibrational analysis of molecules is computed in accordance with the 
-    methods implemented in Gaussian (see the Vibrational Analysis Whitepaper 
-    available at http://www.gaussian.com)
-2.  The thermochemical values are computed in accordance with the methods
-    implemented in Gaussian (see the Thermochemistry Whitepaper available
-    at http://www.gaussian.com)
-3.  Pitzer, K. S. J. Chem. Phys. 1946, vol. 14, p. 239.
-4.  Chuang, Y. Y.; Truhlar, D. G. J. Chem. Phys. 2000, vol. 112, p. 1221.
-5.  Wigner, E. Z. Physik. Chem. (Leipzig), 1932, vol. B19, p. 203.;
-6.  Eckart, E. Phys. Rev., 1962, vol. 35, p. 1303.
-7.  Brown, R. L. J. Research NIST, 1981, vol. 86, p. 357.
-8.  Johnston, H. S.; Heicklen, J. J. Phys. Chem., 1962, vol. 66, p. 532.
-9.  Li, Z.; Scheraga, H. A. Proc. Natl. Acad. Sci., 1987, vol. 84, p. 6611.
-10. Chang, G.; Guida, W. C.; Still, C. J. Am. Chem. Soc., 1989, vol. 111,
-    p. 4379.
-11. Sudapy, A.; Blum, V.; Baldauf, C. J. Chem. Inf. Model, 2015, vol. 55,
-    p. 2338.
-
