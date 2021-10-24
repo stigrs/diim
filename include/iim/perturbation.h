@@ -20,7 +20,8 @@ class Perturbation {
 public:
     Perturbation() = default;
 
-    Perturbation(std::istream& istrm);
+    Perturbation(std::istream& istrm,
+                 const std::vector<std::string>& functions_);
 
     // Copy semantics:
     Perturbation(const Perturbation&) = default;
@@ -32,10 +33,21 @@ public:
 
     ~Perturbation() = default;
 
+    // Return perturbation [c*(t)].
+    Numlib::Vec<double> cstar(int time = 0) const;
+
 private:
-    Numlib::Vec<std::string> pfunction;    // list with perturbed functions
-    Numlib::Vec<double> cvalue;            // list of perturbation magnitudes
+    // Initialise perturbation.
+    void init_perturbation();
+
+    std::vector<std::string> functions;    // list of infrastructure functions
     std::vector<std::array<int, 2>> ptime; // timings for perturbations
+
+    Numlib::Vec<std::string> pfunction; // list with perturbed functions
+    Numlib::Vec<double> cvalue;         // list of perturbation magnitudes
+    Numlib::Vec<double> c0;             // initial degradation, c(t) = c(0)
+
+    int time_steps; // number of time steps
 };
 
 #endif /* IIM_DIIM_PERTURBATION_H */

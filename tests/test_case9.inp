@@ -3,6 +3,8 @@ DIIM
     interdependency 
   calc_mode
     demand
+  tau_file
+    test_case9_tau.csv
 End
 
 Perturbation
@@ -10,4 +12,7 @@ Perturbation
     1 [ Sector2 ]
   cvalue
     1 [ 0.6 ]
+  ptime
+    1
+    0 12
 End

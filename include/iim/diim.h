@@ -70,6 +70,20 @@ public:
     // Number of functions (infrastructure systems) in the system.
     Index num_functions() const { return narrow_cast<Index>(functions.size()); }
 
+    // Calculate overall risk of inoperability for the infrastructure functions
+    // at equilibrium.
+    //
+    // Algorithm:
+    //   Haimes & Jiang (2001), eq. 14.
+    //   Haimes et al. (2005), eq. 38.
+    //
+    Numlib::Vec<double> inoperability() const
+    {
+        auto q = smat * perturb.cstar();
+        trunc_to_range(q, 0.0, 1.0);
+        return q;
+    }
+
 private:
     // Read input-output table or A* matrix from CSV file.
     //
@@ -111,7 +125,14 @@ private:
     // if no file is provided.
     void init_kmatrix(const std::string& kmat_file);
 
-    Perturbation perturb; // representation of perturbation
+    // Calculate K matrix from lambda and tau values.
+    void calc_kmatrix();
+
+    // Initialise q(0) by reading from CSV file. Set to zero if no file is
+    // provided.
+    void init_q0(const std::string& q0_file);
+
+    Perturbation perturb; // representation of perturbation, c(t)
 
     Amatrix_t amatrix_type; // type of interdependency matrix
     Calc_mode_t calc_mode;  // type of calculation mode
@@ -124,11 +145,11 @@ private:
     Numlib::Mat<double> amat;     // Leontief technical coefficients
     Numlib::Mat<double> astar;    // interdependency matrix
     Numlib::Mat<double> smat;     // S matrix
+    Numlib::Mat<double> kmat;     // K matrix
 
     Numlib::Vec<double> xoutput; // as-planned production per function
     Numlib::Vec<double> tau;     // recovery times to q(tau)
     Numlib::Vec<double> q0;      // inoperabilities at start, q(0)
-    Numlib::Vec<double> c0;      // degradation in demand/supply, c(t) = c(0)
 };
 
 #endif /* IIM_DIIM_H */

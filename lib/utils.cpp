@@ -4,9 +4,33 @@
 // LICENSE.txt or http://www.opensource.org/licenses/mit-license.php for terms
 // and conditions.
 
-#include <iim/io_utils.h>
+#include <iim/utils.h>
 #include <stdutils/stdutils.h>
 #include <sstream>
+
+void csv_reader(std::istream& istrm,
+                std::vector<std::string>& header,
+                Numlib::Vec<double>& values)
+{
+    header.clear();
+
+    std::vector<double> data;
+    std::string line;
+    std::string val;
+
+    while (std::getline(istrm, line)) {
+        if (line.empty()) {
+            continue;
+        }
+        std::stringstream ss(line);
+        std::getline(ss, val, ',');
+        header.push_back(val);
+        std::getline(ss, val, ',');
+        data.push_back(std::stod(val));
+    }
+    Numlib::Matrix_slice<1> ms(0, {narrow_cast<Index>(data.size())});
+    values = Numlib::Vec<double>(ms, data.data());
+}
 
 void csv_reader(std::istream& istrm,
                 std::vector<std::string>& header,
@@ -75,16 +99,26 @@ void csv_reader_sparse(std::istream& istrm,
     }
 }
 
+void trunc_to_range(Numlib::Vec<double>& vec, double lower, double upper)
+{
+    for (auto vi : vec) {
+        if (vi > upper) {
+            vi = upper;
+        }
+        if (vi < lower) {
+            vi = lower;
+        }
+    }
+}
+
 void trunc_to_range(Numlib::Mat<double>& mat, double lower, double upper)
 {
-    for (Index i = 0; i < mat.rows(); ++i) { // fix bad input values
-        for (Index j = 0; j < mat.cols(); ++j) {
-            if (mat(i, j) > upper) {
-                mat(i, j) = upper;
-            }
-            if (mat(i, j) < lower) {
-                mat(i, j) = lower;
-            }
+    for (auto mi : mat) {
+        if (mi > upper) {
+            mi = upper;
+        }
+        if (mi < lower) {
+            mi = lower;
         }
     }
 }

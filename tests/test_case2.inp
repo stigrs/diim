@@ -6,11 +6,8 @@ DIIM
 End
 
 Perturbation
-  psector
+  pfunction
     1 [ Sector2 ]
   cvalue
     1 [ 0.6 ]
-  ptime
-    1
-    0 12
 End

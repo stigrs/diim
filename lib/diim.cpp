@@ -11,10 +11,10 @@
 #include <fstream>
 #include <sstream>
 #include <complex>
+#include <cmath>
 #include <exception>
 
 Diim::Diim(std::istream& inp_config, std::istream& inp_csv)
-    : perturb(inp_config)
 {
     using namespace Stdutils;
 
@@ -24,6 +24,7 @@ Diim::Diim(std::istream& inp_config, std::istream& inp_csv)
     std::string calc_mode_str;
     std::string tau_file;
     std::string kmat_file;
+    std::string q0_file;
 
     auto pos = find_token(inp_config, std::string("DIIM"));
     if (pos != -1) {
@@ -33,6 +34,7 @@ Diim::Diim(std::istream& inp_config, std::istream& inp_csv)
         get_token_value(inp_config, pos, "lambda", lambda, 0.01);
         get_token_value(inp_config, pos, "tau_file", tau_file, std::string(""));
         get_token_value(inp_config, pos, "kmat_file", kmat_file, std::string(""));
+        get_token_value(inp_config, pos, "q0_file", q0_file, std::string(""));
         // clang-format on
     }
     if (amatrix_type_str == "input-output") {
@@ -68,6 +70,15 @@ Diim::Diim(std::istream& inp_config, std::istream& inp_csv)
 
     // Initialise tau values:
     init_tau_values(tau_file);
+
+    // Initialise K matrix.
+    init_kmatrix(kmat_file);
+
+    // Initialise q(0) values.
+    init_q0(q0_file);
+
+    // Create perturbation:
+    perturb = Perturbation(inp_config, functions);
 }
 
 void Diim::read_io_table(std::istream& istrm)
@@ -156,12 +167,9 @@ void Diim::init_tau_values(const std::string& tau_file)
         Stdutils::fopen(istrm, tau_file);
 
         std::vector<std::string> header;
-        Numlib::Mat<double> values;
 
-        csv_reader(istrm, header, values);
-        assert(header.size() == functions.size());
-
-        tau = values.row(0);
+        csv_reader(istrm, header, tau);
+        assert(narrow_cast<Index>(header.size()) == tau.size());
     }
 }
 
@@ -172,16 +180,51 @@ void Diim::init_kmatrix(const std::string& kmat_file)
         Stdutils::fopen(istrm, kmat_file);
 
         std::vector<std::string> header;
-        Numlib::Mat<double> values;
+        Numlib::Vec<double> values;
 
         csv_reader(istrm, header, values);
         assert(header.size() == functions.size());
-        kmat.diag() = values.row(0);
+        kmat.diag() = values;
         trunc_to_range(kmat, 0.0, 1.0); // fix any bad input values
     }
     else if (!tau.empty()) {
+        calc_kmatrix();
     }
     else {
         kmat = Numlib::identity(num_functions());
+    }
+}
+
+void Diim::calc_kmatrix()
+{
+    kmat = Numlib::zeros<Numlib::Mat<double>>(num_functions(), num_functions());
+    auto kmat_diag = kmat.diag();
+    for (Index i = 0; i < kmat_diag.size(); ++i) {
+        if ((1.0 - astar(i, i)) > 0.0) {
+            kmat_diag(i) = (-std::log(lambda) / tau(i)) / (1.0 - astar(i, i));
+            if (kmat_diag(i) > 1.0) {
+                kmat_diag(i) = 1.0; // truncate to the range [0.0, 1.0]
+            }
+        }
+        else { // truncate to the range [0.0, 1.0]
+            kmat_diag(i) = 1.0;
+        }
+    }
+}
+
+void Diim::init_q0(const std::string& q0_file)
+{
+    if (!q0_file.empty()) {
+        std::ifstream istrm;
+        Stdutils::fopen(istrm, q0_file);
+
+        std::vector<std::string> header;
+
+        csv_reader(istrm, header, q0);
+        assert(header.size() == functions.size());
+        trunc_to_range(q0, 0.0, 1.0); // fix any bad input values
+    }
+    else {
+        q0 = Numlib::zeros<Numlib::Vec<double>>(num_functions());
     }
 }
