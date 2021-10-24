@@ -8,9 +8,9 @@
 #include <stdutils/stdutils.h>
 #include <sstream>
 
-void csv_reader(std::istream& istrm,
-                std::vector<std::string>& header,
-                Numlib::Vec<double>& values)
+void Iim::csv_reader(std::istream& istrm,
+                     std::vector<std::string>& header,
+                     Numlib::Vec<double>& values)
 {
     header.clear();
 
@@ -32,9 +32,9 @@ void csv_reader(std::istream& istrm,
     values = Numlib::Vec<double>(ms, data.data());
 }
 
-void csv_reader(std::istream& istrm,
-                std::vector<std::string>& header,
-                Numlib::Mat<double>& values)
+void Iim::csv_reader(std::istream& istrm,
+                     std::vector<std::string>& header,
+                     Numlib::Mat<double>& values)
 {
     header.clear();
 
@@ -65,9 +65,9 @@ void csv_reader(std::istream& istrm,
     values = Numlib::Mat<double>(ms, tmp.data());
 }
 
-void csv_reader_sparse(std::istream& istrm,
-                       std::vector<std::string>& header,
-                       Numlib::Mat<double>& values)
+void Iim::csv_reader_sparse(std::istream& istrm,
+                            std::vector<std::string>& header,
+                            Numlib::Mat<double>& values)
 {
     header.clear();
 

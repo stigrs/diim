@@ -16,6 +16,8 @@
 #include <iim/perturbation.h>
 #include <iim/types.h>
 
+namespace Iim {
+
 // DIIM provides the Demand-Reduction and Recovery Dynamic Inoperability
 // Input-Output Model (DIIM) for interdependent functions as described in
 // the papers:
@@ -233,5 +235,7 @@ inline double Diim::interdependency_index(const std::string& ifunc,
     auto res = Numlib::matrix_power(astar, order);
     return res(ii, jj);
 }
+
+} // namespace Iim
 
 #endif /* IIM_DIIM_H */

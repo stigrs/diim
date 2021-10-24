@@ -13,6 +13,8 @@
 #include <vector>
 #include <array>
 
+namespace Iim {
+
 // Class for creating perturbations for the Dynamic Inoperability Input-Output
 // Model.
 //
@@ -49,5 +51,7 @@ private:
 
     int time_steps; // number of time steps
 };
+
+} // namespace Iim
 
 #endif /* IIM_DIIM_PERTURBATION_H */

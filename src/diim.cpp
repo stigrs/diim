@@ -33,5 +33,5 @@ int main(int argc, char* argv[])
 
     auto result = options.parse(argc, argv);
 
-    Diim diim;
+    Iim::Diim diim;
 }

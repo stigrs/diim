@@ -26,7 +26,7 @@ TEST_CASE("test_diim")
         Stdutils::fopen(inp_config, "test_case1.inp");
         Stdutils::fopen(inp_csv, "test_case1.csv");
 
-        Diim diim(inp_config, inp_csv);
+        Iim::Diim diim(inp_config, inp_csv);
         auto q = diim.inoperability();
 
         for (Index i = 0; i < q.size(); ++i) {
@@ -46,7 +46,7 @@ TEST_CASE("test_diim")
         Stdutils::fopen(inp_config, "test_case2.inp");
         Stdutils::fopen(inp_csv, "test_case2.csv");
 
-        Diim diim(inp_config, inp_csv);
+        Iim::Diim diim(inp_config, inp_csv);
         auto q = diim.inoperability();
 
         for (Index i = 0; i < q.size(); ++i) {
@@ -66,7 +66,7 @@ TEST_CASE("test_diim")
         Stdutils::fopen(inp_config, "test_case3.inp");
         Stdutils::fopen(inp_csv, "test_case3.csv");
 
-        Diim diim(inp_config, inp_csv);
+        Iim::Diim diim(inp_config, inp_csv);
         auto q = diim.inoperability();
 
         for (Index i = 0; i < q.size(); ++i) {
@@ -86,7 +86,7 @@ TEST_CASE("test_diim")
         Stdutils::fopen(inp_config, "test_case4.inp");
         Stdutils::fopen(inp_csv, "test_case4.csv");
 
-        Diim diim(inp_config, inp_csv);
+        Iim::Diim diim(inp_config, inp_csv);
         auto q = diim.inoperability();
 
         for (Index i = 0; i < q.size(); ++i) {
@@ -109,7 +109,7 @@ TEST_CASE("test_diim")
         Stdutils::fopen(inp_config, "test_case5.inp");
         Stdutils::fopen(inp_csv, "test_case5.csv");
 
-        Diim diim(inp_config, inp_csv);
+        Iim::Diim diim(inp_config, inp_csv);
         const auto& amat = diim.tech_coeff();
 
         for (Index i = 0; i < amat.rows(); ++i) {
@@ -134,7 +134,7 @@ TEST_CASE("test_diim")
         Stdutils::fopen(inp_config, "test_case6.inp");
         Stdutils::fopen(inp_csv, "test_case6.csv");
 
-        Diim diim(inp_config, inp_csv);
+        Iim::Diim diim(inp_config, inp_csv);
         auto astar = diim.interdependency_matrix();
 
         for (Index i = 0; i < astar.rows(); ++i) {
@@ -156,7 +156,7 @@ TEST_CASE("test_diim")
         Stdutils::fopen(inp_config, "test_case7.inp");
         Stdutils::fopen(inp_csv, "test_case7.csv");
 
-        Diim diim(inp_config, inp_csv);
+        Iim::Diim diim(inp_config, inp_csv);
         auto q = diim.inoperability();
 
         for (Index i = 0; i < q.size(); ++i) {
@@ -177,7 +177,7 @@ TEST_CASE("test_diim")
         Stdutils::fopen(inp_config, "test_case8.inp");
         Stdutils::fopen(inp_csv, "test_case8.csv");
 
-        Diim diim(inp_config, inp_csv);
+        Iim::Diim diim(inp_config, inp_csv);
         auto res1 = diim.interdependency_index("Sector3", "Sector2", 2);
         auto res2 = diim.interdependency_index("Sector3", "Sector2", 3);
         auto res3 = diim.interdependency_index("Sector1", "Sector2", 3);
@@ -191,8 +191,8 @@ TEST_CASE("test_diim")
     SECTION("test_case9")
     {
         // Numpy calculations:
-        std::vector<Max_nth_order_interdep> ans;
-        Max_nth_order_interdep tmp;
+        std::vector<Iim::Max_nth_order_interdep> ans;
+        Iim::Max_nth_order_interdep tmp;
         tmp.function[0] = "Sector1";
         tmp.function[1] = "Sector2";
         tmp.value = 0.324;
@@ -215,7 +215,7 @@ TEST_CASE("test_diim")
         Stdutils::fopen(inp_config, "test_case9.inp");
         Stdutils::fopen(inp_csv, "test_case9.csv");
 
-        Diim diim(inp_config, inp_csv);
+        Iim::Diim diim(inp_config, inp_csv);
         auto res = diim.max_nth_order_interdependency(3);
         for (std::size_t i = 0; i < res.size(); ++i) {
             CHECK(res[i].function[0] == ans[i].function[0]);

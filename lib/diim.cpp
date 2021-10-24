@@ -18,7 +18,7 @@
 // Public functions:
 //------------------------------------------------------------------------------
 
-Diim::Diim(std::istream& inp_config, std::istream& inp_csv)
+Iim::Diim::Diim(std::istream& inp_config, std::istream& inp_csv)
 {
     using namespace Stdutils;
 
@@ -85,7 +85,7 @@ Diim::Diim(std::istream& inp_config, std::istream& inp_csv)
     perturb = Perturbation(inp_config, funcs);
 }
 
-Numlib::Vec<double> Diim::dependency() const
+Numlib::Vec<double> Iim::Diim::dependency() const
 {
     Index n = num_functions();
     Numlib::Vec<double> res = Numlib::zeros<Numlib::Vec<double>>(n);
@@ -104,7 +104,7 @@ Numlib::Vec<double> Diim::dependency() const
     return res;
 }
 
-Numlib::Vec<double> Diim::influence() const
+Numlib::Vec<double> Iim::Diim::influence() const
 {
     Index n = num_functions();
     Numlib::Vec<double> res = Numlib::zeros<Numlib::Vec<double>>(n);
@@ -123,7 +123,7 @@ Numlib::Vec<double> Diim::influence() const
     return res;
 }
 
-Numlib::Vec<double> Diim::overall_dependency() const
+Numlib::Vec<double> Iim::Diim::overall_dependency() const
 {
     Index n = num_functions();
     Numlib::Vec<double> res = Numlib::zeros<Numlib::Vec<double>>(n);
@@ -142,7 +142,7 @@ Numlib::Vec<double> Diim::overall_dependency() const
     return res;
 }
 
-Numlib::Vec<double> Diim::overall_influence() const
+Numlib::Vec<double> Iim::Diim::overall_influence() const
 {
     Index n = num_functions();
     Numlib::Vec<double> res = Numlib::zeros<Numlib::Vec<double>>(n);
@@ -161,8 +161,8 @@ Numlib::Vec<double> Diim::overall_influence() const
     return res;
 }
 
-std::vector<Max_nth_order_interdep>
-Diim::max_nth_order_interdependency(int order)
+std::vector<Iim::Max_nth_order_interdep>
+Iim::Diim::max_nth_order_interdependency(int order)
 {
     assert(order >= 1);
     auto astar_n = Numlib::matrix_power(astar, order);
@@ -184,7 +184,7 @@ Diim::max_nth_order_interdependency(int order)
 // Private functions:
 //------------------------------------------------------------------------------
 
-void Diim::read_io_table(std::istream& istrm)
+void Iim::Diim::read_io_table(std::istream& istrm)
 {
     if (amatrix_type == input_output || amatrix_type == interdependency) {
         Numlib::Mat<double> io_tmp;
@@ -203,7 +203,7 @@ void Diim::read_io_table(std::istream& istrm)
     }
 }
 
-void Diim::calc_tech_coeff_matrix()
+void Iim::Diim::calc_tech_coeff_matrix()
 {
     Index n = num_functions();
     amat = Numlib::zeros<Numlib::Mat<double>>(n, n);
@@ -218,7 +218,7 @@ void Diim::calc_tech_coeff_matrix()
     }
 }
 
-void Diim::calc_interdependency_matrix()
+void Iim::Diim::calc_interdependency_matrix()
 {
     Index n = num_functions();
     astar = Numlib::zeros<Numlib::Mat<double>>(n, n);
@@ -243,7 +243,7 @@ void Diim::calc_interdependency_matrix()
     smat = Numlib::inv(Numlib::identity(n) - astar);
 }
 
-void Diim::check_stability()
+void Iim::Diim::check_stability()
 {
     Numlib::Mat<double> astar_tmp(astar); // astar will be over-written by eig
     Numlib::Mat<std::complex<double>> evec;
@@ -263,7 +263,7 @@ void Diim::check_stability()
     }
 }
 
-void Diim::init_tau_values(const std::string& tau_file)
+void Iim::Diim::init_tau_values(const std::string& tau_file)
 {
     if (!tau_file.empty()) {
         std::ifstream istrm;
@@ -276,7 +276,7 @@ void Diim::init_tau_values(const std::string& tau_file)
     }
 }
 
-void Diim::init_kmatrix(const std::string& kmat_file)
+void Iim::Diim::init_kmatrix(const std::string& kmat_file)
 {
     if (!kmat_file.empty()) {
         std::ifstream istrm;
@@ -298,7 +298,7 @@ void Diim::init_kmatrix(const std::string& kmat_file)
     }
 }
 
-void Diim::calc_kmatrix()
+void Iim::Diim::calc_kmatrix()
 {
     kmat = Numlib::zeros<Numlib::Mat<double>>(num_functions(), num_functions());
     auto kmat_diag = kmat.diag();
@@ -315,7 +315,7 @@ void Diim::calc_kmatrix()
     }
 }
 
-void Diim::init_q0(const std::string& q0_file)
+void Iim::Diim::init_q0(const std::string& q0_file)
 {
     if (!q0_file.empty()) {
         std::ifstream istrm;

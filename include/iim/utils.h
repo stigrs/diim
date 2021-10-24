@@ -13,6 +13,8 @@
 #include <vector>
 #include <numlib/matrix.h>
 
+namespace Iim {
+
 // Helper function for reading arrays from CSV files.
 //
 // Data are read as:
@@ -45,5 +47,7 @@ void csv_reader(std::istream& istrm,
 void csv_reader_sparse(std::istream& istrm,
                        std::vector<std::string>& header,
                        Numlib::Mat<double>& values);
+
+} // namespace Iim
 
 #endif /* IIM_UTILS_H */

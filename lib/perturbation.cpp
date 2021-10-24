@@ -10,8 +10,8 @@
 #include <sstream>
 #include <cassert>
 
-Perturbation::Perturbation(std::istream& istrm,
-                           const std::vector<std::string>& functions_)
+Iim::Perturbation::Perturbation(std::istream& istrm,
+                                const std::vector<std::string>& functions_)
     : functions(functions_)
 {
     using namespace Stdutils;
@@ -53,7 +53,7 @@ Perturbation::Perturbation(std::istream& istrm,
     init_perturbation();
 }
 
-Numlib::Vec<double> Perturbation::cstar(int time) const
+Numlib::Vec<double> Iim::Perturbation::cstar(int time) const
 {
     Numlib::Vec<double> res;
     if (time_steps == 0) { // static run
@@ -62,7 +62,7 @@ Numlib::Vec<double> Perturbation::cstar(int time) const
     return res;
 }
 
-void Perturbation::init_perturbation()
+void Iim::Perturbation::init_perturbation()
 {
     Index n = narrow_cast<Index>(functions.size());
     c0 = Numlib::zeros<Numlib::Vec<double>>(n);

@@ -10,6 +10,8 @@
 #include <array>
 #include <string>
 
+namespace Iim {
+
 // Enumeration of types of interdependency matrices.
 enum Amatrix_t { input_output, interdependency, sparse_interdependency };
 
@@ -21,5 +23,7 @@ struct Max_nth_order_interdep {
     std::array<std::string, 2> function;
     double value;
 };
+
+} // namespace Iim
 
 #endif /* IIM_TYPES_H */
