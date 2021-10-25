@@ -255,6 +255,30 @@ TEST_CASE("test_diim")
         Stdutils::fopen(inp_csv, "test_case11_amat.csv");
 
         Iim::Diim diim(inp_config, inp_csv);
-        auto qres = diim.dynamic_recovery();
+        auto qt = diim.dynamic_recovery();
+        auto qres = qt.row(qt.rows() - 1)(Numlib::slice(1));
+
+        for (Index i = 0; i < qres.size(); ++i) {
+            CHECK(std::abs(qres(i) - qans(i)) < 1.0e-6);
+        }
+    }
+
+    SECTION("test_case12")
+    {
+        // Integrated using Numpy:
+        Numlib::Vec<double> qtot_ans = {1.980144350, 3.366317449};
+
+        std::ifstream inp_config;
+        std::ifstream inp_csv;
+        Stdutils::fopen(inp_config, "test_case12.inp");
+        Stdutils::fopen(inp_csv, "test_case12_amat.csv");
+
+        Iim::Diim diim(inp_config, inp_csv);
+        auto qt = diim.dynamic_inoperability();
+        auto qtot = diim.impact(qt);
+
+        for (Index i = 0; i < qtot.size(); ++i) {
+            CHECK(std::abs(qtot(i) - qtot_ans(i)) < 1.0e-6);
+        }
     }
 }

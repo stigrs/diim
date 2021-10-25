@@ -164,6 +164,9 @@ public:
     //
     Numlib::Mat<double> dynamic_recovery() const;
 
+    // Compute impact by integrating q(t).
+    Numlib::Vec<double> impact(const Numlib::Mat<double>& qt) const;
+
 private:
     // Read input-output table or A* matrix from CSV file.
     //

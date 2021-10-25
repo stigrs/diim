@@ -209,10 +209,26 @@ Numlib::Mat<double> Iim::Diim::dynamic_recovery() const
     auto tmp = kmat * (Numlib::identity(n) - astar);
 
     for (int tk = 0; tk < time_steps; ++tk) {
-        qk = Numlib::expm(-1.0 * tmp * static_cast<double>(tk)) * q0;
-        std::cout << qk << '\n';
+        qk = Numlib::expm(-tmp * static_cast<double>(tk)) * q0;
+        Numlib::closed_interval(qk, 0.0, 1.0);
+        auto qt_k = qt.row(tk);
+        qt_k(0) = tk;
+        qt_k(Numlib::slice(1)) = qk;
     }
     return qt;
+}
+
+Numlib::Vec<double> Iim::Diim::impact(const Numlib::Mat<double>& qt) const
+{
+    Numlib::Vec<double> qtot(num_functions());
+
+    double ti = qt(0, 0);
+    double tf = qt(qt.rows() - 1, 0);
+
+    for (Index j = 0; j < num_functions(); ++j) {
+        qtot(j) = Numlib::trapz(ti, tf, qt.column(j + 1));
+    }
+    return qtot;
 }
 
 //------------------------------------------------------------------------------
