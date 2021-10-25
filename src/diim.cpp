@@ -27,11 +27,42 @@ int main(int argc, char* argv[])
     cxxopts::Options options(argv[0], "Dynamic Inoperability Input-Output Model");
     options.add_options()
         ("h,help", "display help message")
-        ("f,file", "config file", cxxopts::value<std::string>());
-        ("r,run_type", "run type", cxxopts::value<std::string>());
+        ("f,file", "input file", cxxopts::value<std::string>());
+        ("r,run_type", "run type (analysis, static, dynamic, recovery)", cxxopts::value<std::string>());
     // clang-format on
 
-    auto result = options.parse(argc, argv);
+    std::string input_file;
+    std::string run_type = "analysis";
 
-    Iim::Diim diim;
+    auto args = options.parse(argc, argv);
+    if (args.count("help")) {
+        std::cout << options.help({"", "Group"}) << '\n';
+        return 0;
+    }
+    if (args.count("run_type")) {
+        run_type = args["run_type"].as<std::string>();
+    }
+    if (run_type != "analysis" || run_type != "static" ||
+        run_type != "dynamic" || run_type != "recovery") {
+        std::cerr << options.help({"", "Group"}) << '\n';
+        return 1;
+    }
+    if (args.count("file")) {
+        input_file = args["file"].as<std::string>();
+    }
+    else {
+        std::cerr << options.help({"", "Group"}) << '\n';
+        return 1;
+    }
+
+    try {
+        std::ifstream istrm;
+        Stdutils::fopen(istrm, input_file);
+
+        Iim::Diim diim(istrm);
+    }
+    catch (std::exception& e) {
+        std::cerr << "what: " << e.what() << '\n';
+        return 1;
+    }
 }
