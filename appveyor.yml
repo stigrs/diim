@@ -1,5 +1,3 @@
-# based on github.com/Microsoft/GSL
-
 shallow_clone: true
 
 platform:
@@ -24,7 +22,6 @@ install:
         7z x -y cmake-3.8.0-win32-x86.zip -oC:\
       }
       nuget install OpenBLAS -o "C:\local\"
-      nuget install armadillo-code -o "C:\local\"
       $env:BOOST_ROOT="C:\Libraries\boost_1_67_0"
       $env:PATH="C:\cmake-3.8.0-win32-x86\bin;C:\local\OpenBLAS.0.2.14.1\lib\native\win32\bin;C:\local\OpenBLAS.0.2.14.1\lib\native\x64\bin;$env:PATH"
 
