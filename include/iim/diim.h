@@ -157,6 +157,13 @@ public:
     //
     Numlib::Mat<double> dynamic_inoperability() const;
 
+    // Calculate the dynamic recovery of the infrastructure functions.
+    //
+    // Algorithm:
+    //   Lian & Haimes (2006), eq. 26.
+    //
+    Numlib::Mat<double> dynamic_recovery() const;
+
 private:
     // Read input-output table or A* matrix from CSV file.
     //

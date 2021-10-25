@@ -229,7 +229,6 @@ TEST_CASE("test_diim")
         // Correct answer (Lian & Haimes, 2006):
         // --------------------------------------
         // For c* = [0.0, 0.1], q = [0.066, 0.112]
-        Numlib::Vec<double> qans = {0.066, 0.112};
 
         std::ifstream inp_config;
         std::ifstream inp_csv;
@@ -237,6 +236,25 @@ TEST_CASE("test_diim")
         Stdutils::fopen(inp_csv, "test_case10_amat.csv");
 
         Iim::Diim diim(inp_config, inp_csv);
+        auto qans = diim.inoperability();
         auto qt = diim.dynamic_inoperability();
+        auto qres = qt.row(qt.rows() - 1)(Numlib::slice(1));
+
+        for (Index i = 0; i < qres.size(); ++i) {
+            CHECK(std::abs(qres(i) - qans(i)) < 1.0e-6);
+        }
+    }
+
+    SECTION("test_case11")
+    {
+        Numlib::Vec<double> qans = {0.0, 0.0};
+
+        std::ifstream inp_config;
+        std::ifstream inp_csv;
+        Stdutils::fopen(inp_config, "test_case11.inp");
+        Stdutils::fopen(inp_csv, "test_case11_amat.csv");
+
+        Iim::Diim diim(inp_config, inp_csv);
+        auto qres = diim.dynamic_recovery();
     }
 }

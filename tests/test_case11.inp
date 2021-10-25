@@ -1,0 +1,13 @@
+DIIM 
+  amatrix_type
+    interdependency 
+  calc_mode
+    demand
+  kmat_file
+    test_case11_kmat.csv
+  q0_file
+    test_case11_q0.csv
+  time_steps
+    100
+End
+

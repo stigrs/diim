@@ -189,8 +189,28 @@ Numlib::Mat<double> Iim::Diim::dynamic_inoperability() const
     Index n = num_functions();
     auto qt = Numlib::zeros<Numlib::Mat<double>>(time_steps, n + 1);
 
+    Numlib::Vec<double> qk = q0;
+
     for (int tk = 1; tk < time_steps; ++tk) {
-        std::cout << perturb.cstar(tk) << '\n';
+        qk = kmat * (astar * qk + perturb.cstar(tk) - qk) + qk;
+        Numlib::closed_interval(qk, 0.0, 1.0);
+        auto qt_k = qt.row(tk);
+        qt_k(0) = tk;
+        qt_k(Numlib::slice(1)) = qk;
+    }
+    return qt;
+}
+
+Numlib::Mat<double> Iim::Diim::dynamic_recovery() const
+{
+    Index n = num_functions();
+    auto qt = Numlib::zeros<Numlib::Mat<double>>(time_steps, n + 1);
+    auto qk = Numlib::zeros<Numlib::Vec<double>>(n);
+    auto tmp = kmat * (Numlib::identity(n) - astar);
+
+    for (int tk = 0; tk < time_steps; ++tk) {
+        qk = Numlib::expm(-1.0 * tmp * static_cast<double>(tk)) * q0;
+        std::cout << qk << '\n';
     }
     return qt;
 }
@@ -293,6 +313,7 @@ void Iim::Diim::init_tau_values(const std::string& tau_file)
 
 void Iim::Diim::init_kmatrix(const std::string& kmat_file)
 {
+    kmat = Numlib::identity(num_functions());
     if (!kmat_file.empty()) {
         std::ifstream istrm;
         Stdutils::fopen(istrm, kmat_file);
@@ -308,14 +329,10 @@ void Iim::Diim::init_kmatrix(const std::string& kmat_file)
     else if (!tau.empty()) {
         calc_kmatrix();
     }
-    else {
-        kmat = Numlib::identity(num_functions());
-    }
 }
 
 void Iim::Diim::calc_kmatrix()
 {
-    kmat = Numlib::zeros<Numlib::Mat<double>>(num_functions(), num_functions());
     auto kmat_diag = kmat.diag();
     for (Index i = 0; i < kmat_diag.size(); ++i) {
         if ((1.0 - astar(i, i)) > 0.0) {
@@ -324,7 +341,7 @@ void Iim::Diim::calc_kmatrix()
                 kmat_diag(i) = 1.0; // truncate to the range [0.0, 1.0]
             }
         }
-        else { // truncate to the range [0.0, 1.0]
+        else { // truncate to the interval [0.0, 1.0]
             kmat_diag(i) = 1.0;
         }
     }
