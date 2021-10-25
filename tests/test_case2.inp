@@ -3,6 +3,8 @@ DIIM
     sparse_interdependency 
   calc_mode
     demand
+  amat_file
+    test_case2.csv
 End
 
 Perturbation

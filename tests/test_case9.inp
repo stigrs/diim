@@ -3,5 +3,7 @@ DIIM
     interdependency 
   calc_mode
     demand
+  amat_file
+    test_case9.csv
 End
 

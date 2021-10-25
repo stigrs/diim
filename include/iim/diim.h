@@ -59,7 +59,7 @@ class Diim {
 public:
     Diim() = default;
 
-    Diim(std::istream& inp_config, std::istream& inp_csv);
+    Diim(std::istream& istrm);
 
     // Copy semantics:
     Diim(const Diim&) = default;
@@ -173,7 +173,7 @@ private:
     // Note:
     //   If input-output table is provided, last row must provide
     //   total outputs.
-    void read_io_table(std::istream& istrm);
+    void read_io_table(const std::string& amat_file);
 
     // Calculate Leontief technical coefficients matrix (A) from input-output
     // table.

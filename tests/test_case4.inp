@@ -3,6 +3,8 @@ DIIM
     interdependency 
   calc_mode
     demand
+  amat_file
+    test_case4.csv
 End
 
 Perturbation

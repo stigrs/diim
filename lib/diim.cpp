@@ -18,7 +18,7 @@
 // Public functions:
 //------------------------------------------------------------------------------
 
-Iim::Diim::Diim(std::istream& inp_config, std::istream& inp_csv)
+Iim::Diim::Diim(std::istream& istrm)
 {
     using namespace Stdutils;
 
@@ -26,22 +26,24 @@ Iim::Diim::Diim(std::istream& inp_config, std::istream& inp_csv)
 
     std::string amatrix_type_str;
     std::string calc_mode_str;
-    std::string tau_file;
+    std::string amat_file;
     std::string kmat_file;
+    std::string tau_file;
     std::string q0_file;
 
     time_steps = 0;
 
-    auto pos = find_token(inp_config, std::string("DIIM"));
+    auto pos = find_token(istrm, std::string("DIIM"));
     if (pos != -1) {
         // clang-format off
-        get_token_value(inp_config, pos, "amatrix_type", amatrix_type_str, std::string("input-output"));
-        get_token_value(inp_config, pos, "calc_mode", calc_mode_str, std::string("demand"));
-        get_token_value(inp_config, pos, "lambda", lambda, 0.01);
-        get_token_value(inp_config, pos, "tau_file", tau_file, std::string(""));
-        get_token_value(inp_config, pos, "kmat_file", kmat_file, std::string(""));
-        get_token_value(inp_config, pos, "q0_file", q0_file, std::string(""));
-        get_token_value(inp_config, pos, "time_steps", time_steps, time_steps);
+        get_token_value(istrm, pos, "amatrix_type", amatrix_type_str, std::string("input-output"));
+        get_token_value(istrm, pos, "calc_mode", calc_mode_str, std::string("demand"));
+        get_token_value(istrm, pos, "lambda", lambda, 0.01);
+        get_token_value(istrm, pos, "amat_file", amat_file);
+        get_token_value(istrm, pos, "kmat_file", kmat_file, std::string(""));
+        get_token_value(istrm, pos, "tau_file", tau_file, std::string(""));
+        get_token_value(istrm, pos, "q0_file", q0_file, std::string(""));
+        get_token_value(istrm, pos, "time_steps", time_steps, time_steps);
         // clang-format on
     }
     if (amatrix_type_str == "input-output") {
@@ -65,7 +67,7 @@ Iim::Diim::Diim(std::istream& inp_config, std::istream& inp_csv)
     assert(time_steps >= 0);
 
     // Read input-output table or A* matrix from CSV file:
-    read_io_table(inp_csv);
+    read_io_table(amat_file);
 
     // Compute Leontief technical coefficients:
     calc_tech_coeff_matrix();
@@ -86,7 +88,7 @@ Iim::Diim::Diim(std::istream& inp_config, std::istream& inp_csv)
     init_q0(q0_file);
 
     // Create perturbation:
-    perturb = Perturbation(inp_config, funcs);
+    perturb = Perturbation(istrm, funcs);
 }
 
 Numlib::Vec<double> Iim::Diim::dependency() const
@@ -235,8 +237,10 @@ Numlib::Vec<double> Iim::Diim::impact(const Numlib::Mat<double>& qt) const
 // Private functions:
 //------------------------------------------------------------------------------
 
-void Iim::Diim::read_io_table(std::istream& istrm)
+void Iim::Diim::read_io_table(const std::string& amat_file)
 {
+    std::ifstream istrm;
+    Stdutils::fopen(istrm, amat_file);
     if (amatrix_type == input_output || amatrix_type == interdependency) {
         Numlib::Mat<double> io_tmp;
         csv_reader(istrm, funcs, io_tmp);

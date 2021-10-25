@@ -3,6 +3,8 @@ DIIM
     interdependency 
   calc_mode
     demand
+  amat_file
+    test_case11_amat.csv
   kmat_file
     test_case11_kmat.csv
   q0_file
