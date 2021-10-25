@@ -23,10 +23,6 @@
 #	  link_directories(${MKL_LIBRARY_DIRS})
 #     target_link_libraries(TARGET ${MKL_LIBRARIES})
 # endif()
-#
-# Note: 
-# - Currently, the Intel LP64 interface layer is used for Intel(R) 64
-#   architecture.
 
 if(WIN32)
 	if(${CMAKE_CL_64} EQUAL 1)
@@ -55,7 +51,7 @@ elseif(APPLE)
 	set(MAT_LIB "-lm")
 	set(LDL_LIB "-ldl")
 else()
-	set(INT_LIB "-lmkl_intel_lp64")
+	set(INT_LIB "-lmkl_intel_ilp64")
 	set(SEQ_LIB "-lmkl_gnu_thread")
 	set(COR_LIB "-lmkl_core")
 	set(OMP_LIB "-lgomp")
@@ -74,7 +70,11 @@ if(WIN32)
 	set(MKL_DEFINITIONS /DUSE_MKL)
 else()
 	find_path(MKL_LIBRARY_DIRS libmkl_core.a HINTS $ENV{MKLROOT}/lib $ENV{MKLROOT}/lib/intel64)
-    set(MKL_DEFINITIONS -DUSE_MKL)
+    if(APPLE)
+        set(MKL_DEFINITIONS -DUSE_MKL)
+    else()
+        set(MKL_DEFINITIONS -DUSE_MKL -DMKL_ILP64)
+    endif()
 endif()
 
 if(MKL_INCLUDE_DIRS AND MKL_LIBRARY_DIRS)

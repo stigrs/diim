@@ -58,11 +58,10 @@ else()
     set(BLAS_BINARY_DIRS "${BLAS_DIR}/lib")
 endif()
 
-find_path(BLAS_INCLUDE_DIRS cblas.h HINTS ${BLAS_DIR}/include)
+find_path(BLAS_INCLUDE_DIRS cblas.h HINTS ${BLAS_DIR}/include ${BLAS_DIR}/include/x86_64-linux-gnu)
 find_path(LAPACKE_INCLUDE_DIRS lapacke.h HINTS ${BLAS_DIR}/include)
 
 if(BLAS_INCLUDE_DIRS AND LAPACKE_INCLUDE_DIRS AND BLAS_LIBRARIES)
     set(BLAS_FOUND ON)
-    message("-- OpenBLAS found")
 endif()
 

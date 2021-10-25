@@ -27,8 +27,8 @@ int main(int argc, char* argv[])
     cxxopts::Options options(argv[0], "Dynamic Inoperability Input-Output Model");
     options.add_options()
         ("h,help", "display help message")
-        ("c,config", "config file", cxxopts::value<std::string>());
-        ("f,file", "CSV file", cxxopts::value<std::string>());
+        ("f,file", "config file", cxxopts::value<std::string>());
+        ("r,run_type", "run type", cxxopts::value<std::string>());
     // clang-format on
 
     auto result = options.parse(argc, argv);
