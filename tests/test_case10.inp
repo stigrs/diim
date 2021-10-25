@@ -1,0 +1,21 @@
+DIIM 
+  amatrix_type
+    interdependency 
+  calc_mode
+    demand
+  kmat_file
+    test_case10_kmat.csv
+  time_steps
+    100
+End
+
+Perturbation
+  pfunction
+    1 [ Sector2 ]
+  cvalue
+    1 [ 0.1 ]
+  ptime
+    1 
+    0 100
+End
+

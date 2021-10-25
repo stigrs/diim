@@ -30,6 +30,8 @@ Iim::Diim::Diim(std::istream& inp_config, std::istream& inp_csv)
     std::string kmat_file;
     std::string q0_file;
 
+    time_steps = 0;
+
     auto pos = find_token(inp_config, std::string("DIIM"));
     if (pos != -1) {
         // clang-format off
@@ -39,6 +41,7 @@ Iim::Diim::Diim(std::istream& inp_config, std::istream& inp_csv)
         get_token_value(inp_config, pos, "tau_file", tau_file, std::string(""));
         get_token_value(inp_config, pos, "kmat_file", kmat_file, std::string(""));
         get_token_value(inp_config, pos, "q0_file", q0_file, std::string(""));
+        get_token_value(inp_config, pos, "time_steps", time_steps, time_steps);
         // clang-format on
     }
     if (amatrix_type_str == "input-output") {
@@ -59,6 +62,7 @@ Iim::Diim::Diim(std::istream& inp_config, std::istream& inp_csv)
     else if (calc_mode_str == "supply" || calc_mode_str == "Supply") {
         calc_mode = supply;
     }
+    assert(time_steps >= 0);
 
     // Read input-output table or A* matrix from CSV file:
     read_io_table(inp_csv);
@@ -178,6 +182,17 @@ Iim::Diim::max_nth_order_interdependency(int order)
         res.push_back(tmp);
     }
     return res;
+}
+
+Numlib::Mat<double> Iim::Diim::dynamic_inoperability() const
+{
+    Index n = num_functions();
+    auto qt = Numlib::zeros<Numlib::Mat<double>>(time_steps, n + 1);
+
+    for (int tk = 1; tk < time_steps; ++tk) {
+        std::cout << perturb.cstar(tk) << '\n';
+    }
+    return qt;
 }
 
 //------------------------------------------------------------------------------

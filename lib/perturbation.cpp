@@ -20,10 +20,8 @@ Iim::Perturbation::Perturbation(std::istream& istrm,
     if (pos != -1) {
         get_token_value(istrm, pos, "pfunction", pfunction, pfunction);
         get_token_value(istrm, pos, "cvalue", cvalue, cvalue);
-        get_token_value(istrm, pos, "time_steps", time_steps, 0);
     }
     assert(pfunction.size() == cvalue.size());
-    assert(time_steps >= 0);
 
     std::string line;
     int ntime; // number of timings to be read
@@ -55,11 +53,13 @@ Iim::Perturbation::Perturbation(std::istream& istrm,
 
 Numlib::Vec<double> Iim::Perturbation::cstar(int time) const
 {
-    Numlib::Vec<double> res;
-    if (time_steps == 0) { // static run
-        res = c0;
+    Numlib::Vec<double> ct = c0;
+    for (std::size_t i = 0; i < ptime.size(); ++i) {
+        if (time >= ptime[i][0] && time <= ptime[i][1]) {
+            ct(pindex[i]) = cvalue(i);
+        }
     }
-    return res;
+    return ct;
 }
 
 void Iim::Perturbation::init_perturbation()
@@ -74,9 +74,6 @@ void Iim::Perturbation::init_perturbation()
             if (pos != functions.end()) {
                 Index indx = narrow_cast<Index>(pos - functions.begin());
                 pindex.push_back(indx); // store for later use
-                if (time_steps == 0 || ptime[0][0] == 0) {
-                    c0(indx) = cvalue(i);
-                }
             }
         }
     }

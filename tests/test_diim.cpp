@@ -223,4 +223,20 @@ TEST_CASE("test_diim")
             CHECK(std::abs(res[i].value - ans[i].value) < 0.001);
         }
     }
+
+    SECTION("test_case10")
+    {
+        // Correct answer (Lian & Haimes, 2006):
+        // --------------------------------------
+        // For c* = [0.0, 0.1], q = [0.066, 0.112]
+        Numlib::Vec<double> qans = {0.066, 0.112};
+
+        std::ifstream inp_config;
+        std::ifstream inp_csv;
+        Stdutils::fopen(inp_config, "test_case10.inp");
+        Stdutils::fopen(inp_csv, "test_case10_amat.csv");
+
+        Iim::Diim diim(inp_config, inp_csv);
+        auto qt = diim.dynamic_inoperability();
+    }
 }

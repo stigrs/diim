@@ -49,8 +49,6 @@ private:
     Numlib::Vec<std::string> pfunction; // list with perturbed functions
     Numlib::Vec<double> cvalue;         // list of perturbation magnitudes
     Numlib::Vec<double> c0;             // initial degradation, c(t) = c(0)
-
-    int time_steps; // number of time steps
 };
 
 } // namespace Iim

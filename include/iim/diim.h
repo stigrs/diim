@@ -135,8 +135,7 @@ public:
     std::vector<Max_nth_order_interdep>
     max_nth_order_interdependency(int order = 1);
 
-    // Calculate overall risk of inoperability for the infrastructure functions
-    // at equilibrium.
+    // Calculate inoperability for the infrastructure functions at equilibrium.
     //
     // Algorithm:
     //   Haimes & Jiang (2001), eq. 14.
@@ -148,6 +147,15 @@ public:
         Numlib::closed_interval(q, 0.0, 1.0);
         return q;
     }
+
+    // Calculate demand-reduction dynamic inoperability of the infrastructure
+    // functions.
+    //
+    // Algorithm:
+    //   Haimes et al. (2005), eq. 51.
+    //   Lian & Haimes (2006), eq. 21.
+    //
+    Numlib::Mat<double> dynamic_inoperability() const;
 
 private:
     // Read input-output table or A* matrix from CSV file.
@@ -202,8 +210,6 @@ private:
     Amatrix_t amatrix_type; // type of interdependency matrix
     Calc_mode_t calc_mode;  // type of calculation mode
 
-    double lambda; // q(tau) value
-
     std::vector<std::string> funcs; // list of functions
 
     Numlib::Mat<double> io_table; // industry x industry input-output table
@@ -215,6 +221,9 @@ private:
     Numlib::Vec<double> xoutput; // as-planned production per function
     Numlib::Vec<double> tau;     // recovery times to q(tau)
     Numlib::Vec<double> q0;      // inoperabilities at start, q(0)
+
+    double lambda;  // q(tau) value
+    int time_steps; // number of time steps
 };
 
 inline double Diim::interdependency_index(const std::string& ifunc,
