@@ -16,7 +16,6 @@
 
 //------------------------------------------------------------------------------
 // Public functions:
-//------------------------------------------------------------------------------
 
 Iim::Diim::Diim(std::istream& istrm)
 {
@@ -168,7 +167,7 @@ Numlib::Vec<double> Iim::Diim::overall_influence() const
 }
 
 std::vector<Iim::Max_nth_order_interdep>
-Iim::Diim::max_nth_order_interdependency(int order)
+Iim::Diim::max_nth_order_interdependency(int order) const
 {
     assert(order >= 1);
     auto astar_n = Numlib::matrix_power(astar, order);
@@ -233,9 +232,27 @@ Numlib::Vec<double> Iim::Diim::impact(const Numlib::Mat<double>& qt) const
     return qtot;
 }
 
+void Iim::Diim::analysis(const std::string& run_type) const
+{
+    if (run_type == "influence" || run_type == "Influence") {
+        auto delta = dependency();
+        auto delta_overall = overall_dependency();
+        auto rho = influence();
+        auto rho_overall = overall_influence();
+        std::cout << "Function" << ',' << "Delta" << ',' << "Delta_overall"
+                  << ',' << "Influence" << ',' << "Influence_overall\n";
+        for (std::size_t i = 0; i < funcs.size(); ++i) {
+            std::cout << funcs[i] << ',' << delta(i) << ',' << delta_overall(i)
+                      << ',' << rho(i) << ',' << rho_overall(i) << '\n';
+        }
+    }
+    else {
+        throw std::runtime_error("bad run_type: " + run_type);
+    }
+}
+
 //------------------------------------------------------------------------------
 // Private functions:
-//------------------------------------------------------------------------------
 
 void Iim::Diim::read_io_table(const std::string& amat_file)
 {

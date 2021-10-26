@@ -133,7 +133,7 @@ public:
 
     // Calculate maximum n-th order interdependency index for each function.
     std::vector<Max_nth_order_interdep>
-    max_nth_order_interdependency(int order = 1);
+    max_nth_order_interdependency(int order = 1) const;
 
     // Calculate inoperability for the infrastructure functions at equilibrium.
     //
@@ -166,6 +166,9 @@ public:
 
     // Compute impact by integrating q(t).
     Numlib::Vec<double> impact(const Numlib::Mat<double>& qt) const;
+
+    // Run DIIM analysis.
+    void analysis(const std::string& run_type) const;
 
 private:
     // Read input-output table or A* matrix from CSV file.
