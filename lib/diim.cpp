@@ -232,41 +232,6 @@ Numlib::Vec<double> Iim::Diim::impact(const Numlib::Mat<double>& qt) const
     return qtot;
 }
 
-void Iim::Diim::analyse_influence(std::ostream& ostrm) const
-{
-    const auto& delta = dependency();
-    const auto& delta_overall = overall_dependency();
-    const auto& rho = influence();
-    const auto& rho_overall = overall_influence();
-
-    ostrm << "function" << ',' << "delta" << ',' << "delta_overall" << ','
-          << "rho" << ',' << "rho_overall\n";
-    for (Index i = 0; i < num_systems(); ++i) {
-        ostrm << infra[i] << ',' << delta(i) << ',' << delta_overall(i) << ','
-              << rho(i) << ',' << rho_overall(i) << '\n';
-    }
-}
-
-void Iim::Diim::analyse_interdependency(std::ostream& ostrm) const
-{
-    const auto& first_order = max_nth_order_interdependency(1);
-    const auto& second_order = max_nth_order_interdependency(2);
-    const auto& third_order = max_nth_order_interdependency(3);
-
-    ostrm << 'i' << ',' << 'j' << ',' << "max(aij)" << ',' << 'i' << ',' << 'j'
-          << ',' << "max(aij^2)" << ',' << 'i' << ',' << 'j' << ','
-          << "max(aij^3)\n";
-    for (Index i = 0; i < num_systems(); ++i) {
-        ostrm << first_order[i].function[0] << ',' << first_order[i].function[1]
-              << ',' << first_order[i].value << ','
-              << second_order[i].function[0] << ','
-              << second_order[i].function[1] << ',' << second_order[i].value
-              << ',' << third_order[i].function[0] << ','
-              << third_order[i].function[1] << ',' << third_order[i].value
-              << '\n';
-    }
-}
-
 //------------------------------------------------------------------------------
 // Private functions:
 
@@ -414,5 +379,40 @@ void Iim::Diim::init_q0(const std::string& q0_file)
     }
     else {
         q0 = Numlib::zeros<Numlib::Vec<double>>(num_systems());
+    }
+}
+
+void Iim::Diim::analyse_influence(std::ostream& ostrm) const
+{
+    const auto& delta = dependency();
+    const auto& delta_overall = overall_dependency();
+    const auto& rho = influence();
+    const auto& rho_overall = overall_influence();
+
+    ostrm << "function" << ',' << "delta" << ',' << "delta_overall" << ','
+          << "rho" << ',' << "rho_overall\n";
+    for (Index i = 0; i < num_systems(); ++i) {
+        ostrm << infra[i] << ',' << delta(i) << ',' << delta_overall(i) << ','
+              << rho(i) << ',' << rho_overall(i) << '\n';
+    }
+}
+
+void Iim::Diim::analyse_interdependency(std::ostream& ostrm) const
+{
+    const auto& first_order = max_nth_order_interdependency(1);
+    const auto& second_order = max_nth_order_interdependency(2);
+    const auto& third_order = max_nth_order_interdependency(3);
+
+    ostrm << 'i' << ',' << 'j' << ',' << "max(aij)" << ',' << 'i' << ',' << 'j'
+          << ',' << "max(aij^2)" << ',' << 'i' << ',' << 'j' << ','
+          << "max(aij^3)\n";
+    for (Index i = 0; i < num_systems(); ++i) {
+        ostrm << first_order[i].function[0] << ',' << first_order[i].function[1]
+              << ',' << first_order[i].value << ','
+              << second_order[i].function[0] << ','
+              << second_order[i].function[1] << ',' << second_order[i].value
+              << ',' << third_order[i].function[0] << ','
+              << third_order[i].function[1] << ',' << third_order[i].value
+              << '\n';
     }
 }
