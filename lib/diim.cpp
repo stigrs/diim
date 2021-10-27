@@ -87,12 +87,12 @@ Iim::Diim::Diim(std::istream& istrm)
     init_q0(q0_file);
 
     // Create perturbation:
-    perturb = Perturbation(istrm, funcs);
+    perturb = Perturbation(istrm, infra);
 }
 
 Numlib::Vec<double> Iim::Diim::dependency() const
 {
-    Index n = num_functions();
+    Index n = num_systems();
     Numlib::Vec<double> res = Numlib::zeros<Numlib::Vec<double>>(n);
     if (calc_mode == demand) {
         for (Index i = 0; i < n; ++i) {
@@ -111,7 +111,7 @@ Numlib::Vec<double> Iim::Diim::dependency() const
 
 Numlib::Vec<double> Iim::Diim::influence() const
 {
-    Index n = num_functions();
+    Index n = num_systems();
     Numlib::Vec<double> res = Numlib::zeros<Numlib::Vec<double>>(n);
     if (calc_mode == demand) {
         for (Index j = 0; j < n; ++j) {
@@ -130,7 +130,7 @@ Numlib::Vec<double> Iim::Diim::influence() const
 
 Numlib::Vec<double> Iim::Diim::overall_dependency() const
 {
-    Index n = num_functions();
+    Index n = num_systems();
     Numlib::Vec<double> res = Numlib::zeros<Numlib::Vec<double>>(n);
     if (calc_mode == demand) {
         for (Index i = 0; i < n; ++i) {
@@ -149,7 +149,7 @@ Numlib::Vec<double> Iim::Diim::overall_dependency() const
 
 Numlib::Vec<double> Iim::Diim::overall_influence() const
 {
-    Index n = num_functions();
+    Index n = num_systems();
     Numlib::Vec<double> res = Numlib::zeros<Numlib::Vec<double>>(n);
     if (calc_mode == demand) {
         for (Index j = 0; j < n; ++j) {
@@ -173,12 +173,12 @@ Iim::Diim::max_nth_order_interdependency(int order) const
     auto astar_n = Numlib::matrix_power(astar, order);
 
     std::vector<Max_nth_order_interdep> res;
-    Index n = num_functions();
+    Index n = num_systems();
     for (Index i = 0; i < n; ++i) {
         auto j = Numlib::argmax(astar_n.row(i));
         Max_nth_order_interdep tmp;
-        tmp.function[0] = funcs[i];
-        tmp.function[1] = funcs[j];
+        tmp.function[0] = infra[i];
+        tmp.function[1] = infra[j];
         tmp.value = astar_n(i, j);
         res.push_back(tmp);
     }
@@ -187,7 +187,7 @@ Iim::Diim::max_nth_order_interdependency(int order) const
 
 Numlib::Mat<double> Iim::Diim::dynamic_inoperability() const
 {
-    Index n = num_functions();
+    Index n = num_systems();
     auto qt = Numlib::zeros<Numlib::Mat<double>>(time_steps, n + 1);
 
     Numlib::Vec<double> qk = q0;
@@ -204,7 +204,7 @@ Numlib::Mat<double> Iim::Diim::dynamic_inoperability() const
 
 Numlib::Mat<double> Iim::Diim::dynamic_recovery() const
 {
-    Index n = num_functions();
+    Index n = num_systems();
     auto qt = Numlib::zeros<Numlib::Mat<double>>(time_steps, n + 1);
     auto qk = Numlib::zeros<Numlib::Vec<double>>(n);
     auto tmp = kmat * (Numlib::identity(n) - astar);
@@ -221,33 +221,49 @@ Numlib::Mat<double> Iim::Diim::dynamic_recovery() const
 
 Numlib::Vec<double> Iim::Diim::impact(const Numlib::Mat<double>& qt) const
 {
-    Numlib::Vec<double> qtot(num_functions());
+    Numlib::Vec<double> qtot(num_systems());
 
     double ti = qt(0, 0);
     double tf = qt(qt.rows() - 1, 0);
 
-    for (Index j = 0; j < num_functions(); ++j) {
+    for (Index j = 0; j < num_systems(); ++j) {
         qtot(j) = Numlib::trapz(ti, tf, qt.column(j + 1));
     }
     return qtot;
 }
 
-void Iim::Diim::analysis(const std::string& run_type) const
+void Iim::Diim::analyse_influence(std::ostream& ostrm) const
 {
-    if (run_type == "influence" || run_type == "Influence") {
-        auto delta = dependency();
-        auto delta_overall = overall_dependency();
-        auto rho = influence();
-        auto rho_overall = overall_influence();
-        std::cout << "Function" << ',' << "Delta" << ',' << "Delta_overall"
-                  << ',' << "Influence" << ',' << "Influence_overall\n";
-        for (std::size_t i = 0; i < funcs.size(); ++i) {
-            std::cout << funcs[i] << ',' << delta(i) << ',' << delta_overall(i)
-                      << ',' << rho(i) << ',' << rho_overall(i) << '\n';
-        }
+    const auto& delta = dependency();
+    const auto& delta_overall = overall_dependency();
+    const auto& rho = influence();
+    const auto& rho_overall = overall_influence();
+
+    ostrm << "function" << ',' << "delta" << ',' << "delta_overall" << ','
+          << "rho" << ',' << "rho_overall\n";
+    for (Index i = 0; i < num_systems(); ++i) {
+        ostrm << infra[i] << ',' << delta(i) << ',' << delta_overall(i) << ','
+              << rho(i) << ',' << rho_overall(i) << '\n';
     }
-    else {
-        throw std::runtime_error("bad run_type: " + run_type);
+}
+
+void Iim::Diim::analyse_interdependency(std::ostream& ostrm) const
+{
+    const auto& first_order = max_nth_order_interdependency(1);
+    const auto& second_order = max_nth_order_interdependency(2);
+    const auto& third_order = max_nth_order_interdependency(3);
+
+    ostrm << 'i' << ',' << 'j' << ',' << "max(aij)" << ',' << 'i' << ',' << 'j'
+          << ',' << "max(aij^2)" << ',' << 'i' << ',' << 'j' << ','
+          << "max(aij^3)\n";
+    for (Index i = 0; i < num_systems(); ++i) {
+        ostrm << first_order[i].function[0] << ',' << first_order[i].function[1]
+              << ',' << first_order[i].value << ','
+              << second_order[i].function[0] << ','
+              << second_order[i].function[1] << ',' << second_order[i].value
+              << ',' << third_order[i].function[0] << ','
+              << third_order[i].function[1] << ',' << third_order[i].value
+              << '\n';
     }
 }
 
@@ -260,7 +276,7 @@ void Iim::Diim::read_io_table(const std::string& amat_file)
     Stdutils::fopen(istrm, amat_file);
     if (amatrix_type == input_output || amatrix_type == interdependency) {
         Numlib::Mat<double> io_tmp;
-        csv_reader(istrm, funcs, io_tmp);
+        csv_reader(istrm, infra, io_tmp);
         if (amatrix_type == input_output) {
             xoutput = io_tmp.row(io_tmp.rows() - 1);
             io_table = io_tmp(Numlib::slice(0, io_tmp.rows() - 1),
@@ -271,13 +287,13 @@ void Iim::Diim::read_io_table(const std::string& amat_file)
         }
     }
     else if (amatrix_type == sparse_interdependency) {
-        csv_reader_sparse(istrm, funcs, io_table);
+        csv_reader_sparse(istrm, infra, io_table);
     }
 }
 
 void Iim::Diim::calc_tech_coeff_matrix()
 {
-    Index n = num_functions();
+    Index n = num_systems();
     amat = Numlib::zeros<Numlib::Mat<double>>(n, n);
     if (amatrix_type == input_output) {
         for (Index i = 0; i < n; ++i) {
@@ -292,7 +308,7 @@ void Iim::Diim::calc_tech_coeff_matrix()
 
 void Iim::Diim::calc_interdependency_matrix()
 {
-    Index n = num_functions();
+    Index n = num_systems();
     astar = Numlib::zeros<Numlib::Mat<double>>(n, n);
 
     if (amatrix_type == input_output) {
@@ -350,7 +366,7 @@ void Iim::Diim::init_tau_values(const std::string& tau_file)
 
 void Iim::Diim::init_kmatrix(const std::string& kmat_file)
 {
-    kmat = Numlib::identity(num_functions());
+    kmat = Numlib::identity(num_systems());
     if (!kmat_file.empty()) {
         std::ifstream istrm;
         Stdutils::fopen(istrm, kmat_file);
@@ -359,7 +375,7 @@ void Iim::Diim::init_kmatrix(const std::string& kmat_file)
         Numlib::Vec<double> values;
 
         csv_reader(istrm, header, values);
-        assert(header.size() == funcs.size());
+        assert(header.size() == infra.size());
         kmat.diag() = values;
         Numlib::closed_interval(kmat, 0.0, 1.0); // fix any bad input values
     }
@@ -393,10 +409,10 @@ void Iim::Diim::init_q0(const std::string& q0_file)
         std::vector<std::string> header;
 
         csv_reader(istrm, header, q0);
-        assert(header.size() == funcs.size());
+        assert(header.size() == infra.size());
         Numlib::closed_interval(q0, 0.0, 1.0); // fix any bad input values
     }
     else {
-        q0 = Numlib::zeros<Numlib::Vec<double>>(num_functions());
+        q0 = Numlib::zeros<Numlib::Vec<double>>(num_systems());
     }
 }

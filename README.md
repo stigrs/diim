@@ -48,7 +48,9 @@ DIIM is released under the [MIT](LICENSE) license.
 
 ## Usage of Third Party Libraries
 
-This project makes use of the [Catch2](https://https://github.com/catchorg/Catch2) testing library and the [cxxopts](https://github.com/jarro2783/cxxopts) library. Please see the [ThirdPartyNotices.txt](ThirdPartyNotices.txt) file for details regarding the licensing of Catch2 and cxxopts.
+This project makes use of the [Catch2](https://https://github.com/catchorg/Catch2) 
+testing library. Please see the [ThirdPartyNotices.txt](ThirdPartyNotices.txt) 
+file for details regarding the licensing of Catch2.
 
 ## Quick Start 
 

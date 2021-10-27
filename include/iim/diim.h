@@ -19,8 +19,8 @@
 namespace Iim {
 
 // DIIM provides the Demand-Reduction and Recovery Dynamic Inoperability
-// Input-Output Model (DIIM) for interdependent functions as described in
-// the papers:
+// Input-Output Model (DIIM) for interdependent infrastructures as described
+// in the papers:
 //
 // - Haimes, Y. Y., Horowitz, B. M., Lambert, J. H., Santos, J. R., Lian, C. &
 //   Crowther, K. G. (2005). Inoperability input-output model for interdependent
@@ -32,8 +32,8 @@ namespace Iim {
 //   Input-Output Model. Systems Engineering, 9, 241-258.
 //
 // DIIM also provides the Static Demand-Driven and Supply-Driven Inoperability
-// Input-Output Models (IIM) for interdependent functions as described in the
-// papers:
+// Input-Output Models (IIM) for interdependent infrastructures as described in
+// the papers:
 //
 // - Haimes, Y. Y & Jiang, P. (2001). Leontief-based model of risk in complex
 //   interconnected infrastructures. Journal of Infrastructure Systems, 7, 1-12.
@@ -71,13 +71,13 @@ public:
 
     ~Diim() = default;
 
-    // Number of functions (infrastructure systems) in the system.
-    Index num_functions() const { return narrow_cast<Index>(funcs.size()); }
+    // Number of infrastructure systems.
+    Index num_systems() const { return narrow_cast<Index>(infra.size()); }
 
-    // Return infrastructure functions;
-    const std::vector<std::string>& functions() const { return funcs; }
+    // Return names of infrastructure systems.
+    const std::vector<std::string>& infrastructures() const { return infra; }
 
-    // Return as-planned production per infrastructure function.
+    // Return as-planned production per infrastructure system.
     const Numlib::Vec<double>& as_planned_production() const { return xoutput; }
 
     // Return Leontief technical coefficients.
@@ -126,9 +126,9 @@ public:
     //
     Numlib::Vec<double> overall_influence() const;
 
-    // Calculate n-th order interdependency index between two functions i and j.
-    double interdependency_index(const std::string& ifunc,
-                                 const std::string& jfunc,
+    // Calculate n-th order interdependency index infrastructures i and j.
+    double interdependency_index(const std::string& i,
+                                 const std::string& j,
                                  int order = 1);
 
     // Calculate maximum n-th order interdependency index for each function.
@@ -168,7 +168,8 @@ public:
     Numlib::Vec<double> impact(const Numlib::Mat<double>& qt) const;
 
     // Run DIIM analysis.
-    void analysis(const std::string& run_type) const;
+    void analysis(const std::string& run_type,
+                  std::ostream& ostrm = std::cout) const;
 
 private:
     // Read input-output table or A* matrix from CSV file.
@@ -176,6 +177,7 @@ private:
     // Note:
     //   If input-output table is provided, last row must provide
     //   total outputs.
+    //
     void read_io_table(const std::string& amat_file);
 
     // Calculate Leontief technical coefficients matrix (A) from input-output
@@ -207,23 +209,50 @@ private:
     // Initialise tau values by reading from CSV file.
     void init_tau_values(const std::string& tau_file);
 
-    // Initialise K matrix by reading from CSV file. Set to identity matrix
-    // if no file is provided.
+    // Initialise K matrix by reading from CSV file.
+    //
+    // Note:
+    //   K matrix is initialised to identity matrix if no file is provided.
+    //
     void init_kmatrix(const std::string& kmat_file);
 
     // Calculate K matrix from lambda and tau values.
     void calc_kmatrix();
 
-    // Initialise q(0) by reading from CSV file. Set to zero if no file is
-    // provided.
+    // Initialise q(0) by reading from CSV file.
+    //
+    // Note:
+    //   q(0) is initialised to zero if no file is provided.
+    //
     void init_q0(const std::string& q0_file);
+
+    // Analyse dependencies and influence gains.
+    //
+    // Note:
+    //   Output is written in CSV format.
+    //
+    void analyse_influence(std::ostream& ostrm) const;
+
+    // Analyse first-, second- and third-order interdependencies.
+    //
+    // Note:
+    //   Output is written in CSV format.
+    //
+    void analyse_interdependency(std::ostream& ostrm) const;
+
+    // Analyse inoperabilities at equilibrium.
+    //
+    // Note:
+    //   Output is written in CSV format.
+    //
+    void analyse_inoperability(std::ostream& ostrm) const;
 
     Perturbation perturb; // representation of perturbation, c(t)
 
     Amatrix_t amatrix_type; // type of interdependency matrix
     Calc_mode_t calc_mode;  // type of calculation mode
 
-    std::vector<std::string> funcs; // list of functions
+    std::vector<std::string> infra; // list of functions
 
     Numlib::Mat<double> io_table; // industry x industry input-output table
     Numlib::Mat<double> amat;     // Leontief technical coefficients
@@ -239,23 +268,37 @@ private:
     int time_steps; // number of time steps
 };
 
-inline double Diim::interdependency_index(const std::string& ifunc,
-                                          const std::string& jfunc,
+inline double Diim::interdependency_index(const std::string& i,
+                                          const std::string& j,
                                           int order)
 {
     assert(order >= 1);
-    auto pos_i = std::find(funcs.begin(), funcs.end(), ifunc);
-    auto pos_j = std::find(funcs.begin(), funcs.end(), jfunc);
+    auto pos_i = std::find(infra.begin(), infra.end(), i);
+    auto pos_j = std::find(infra.begin(), infra.end(), j);
     Index ii = 0;
     Index jj = 0;
-    if (pos_i != funcs.end()) {
-        ii = pos_i - funcs.begin();
+    if (pos_i != infra.end()) {
+        ii = pos_i - infra.begin();
     }
-    if (pos_j != funcs.end()) {
-        jj = pos_j - funcs.begin();
+    if (pos_j != infra.end()) {
+        jj = pos_j - infra.begin();
     }
     auto res = Numlib::matrix_power(astar, order);
     return res(ii, jj);
+}
+
+inline void Diim::analysis(const std::string& run_type,
+                           std::ostream& ostrm) const
+{
+    if (run_type == "influence") {
+        analyse_influence(ostrm);
+    }
+    else if (run_type == "interdependency") {
+        analyse_interdependency(ostrm);
+    }
+    else {
+        throw std::runtime_error("bad run_type: " + run_type);
+    }
 }
 
 } // namespace Iim
