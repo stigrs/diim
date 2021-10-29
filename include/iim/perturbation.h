@@ -5,7 +5,7 @@
 // and conditions.
 
 #ifndef IIM_PERTURBATION_H
-#define IIM_PERTURBATIN_H
+#define IIM_PERTURBATION_H
 
 #include <numlib/matrix.h>
 #include <iostream>
