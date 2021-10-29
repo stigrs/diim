@@ -247,6 +247,20 @@ private:
     //
     void analyse_inoperability(std::ostream& ostrm) const;
 
+    // Analyse dynamic inoperability.
+    //
+    // Note:
+    //   Output is written in CSV format.
+    //
+    void analyse_dynamic(std::ostream& ostrm) const;
+
+    // Analyse dynamic recovery.
+    //
+    // Note:
+    //   Output is written in CSV format.
+    //
+    void analyse_recovery(std::ostream& ostrm) const;
+
     Perturbation perturb; // representation of perturbation, c(t)
 
     Amatrix_t amatrix_type; // type of interdependency matrix
@@ -295,6 +309,15 @@ inline void Diim::analysis(const std::string& run_type,
     }
     else if (run_type == "interdependency") {
         analyse_interdependency(ostrm);
+    }
+    else if (run_type == "inoperability") {
+        analyse_inoperability(ostrm);
+    }
+    else if (run_type == "dynamic") {
+        analyse_dynamic(ostrm);
+    }
+    else if (run_type == "recovery") {
+        analyse_recovery(ostrm);
     }
     else {
         throw std::runtime_error("bad run_type: " + run_type);

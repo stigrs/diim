@@ -11,6 +11,9 @@ configuration:
 image:
   - Visual Studio 2017
 
+init:
+  - iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+
 cache:
   - C:\cmake-3.8.0-win32-x86
   - C:\local
@@ -43,3 +46,6 @@ test_script:
   - ctest -C %CONFIGURATION% -j2
 
 deploy: off
+
+on_finish:
+  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))

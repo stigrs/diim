@@ -188,7 +188,11 @@ Iim::Diim::max_nth_order_interdependency(int order) const
 Numlib::Mat<double> Iim::Diim::dynamic_inoperability() const
 {
     Index n = num_systems();
-    auto qt = Numlib::zeros<Numlib::Mat<double>>(time_steps, n + 1);
+    int nt = time_steps;
+    if (time_steps == 0) {
+        nt = 1;
+    }
+    auto qt = Numlib::zeros<Numlib::Mat<double>>(nt, n + 1);
 
     Numlib::Vec<double> qk = q0;
 
@@ -205,7 +209,11 @@ Numlib::Mat<double> Iim::Diim::dynamic_inoperability() const
 Numlib::Mat<double> Iim::Diim::dynamic_recovery() const
 {
     Index n = num_systems();
-    auto qt = Numlib::zeros<Numlib::Mat<double>>(time_steps, n + 1);
+    int nt = time_steps;
+    if (time_steps == 0) {
+        nt = 1;
+    }
+    auto qt = Numlib::zeros<Numlib::Mat<double>>(nt, n + 1);
     auto qk = Numlib::zeros<Numlib::Vec<double>>(n);
     auto tmp = kmat * (Numlib::identity(n) - astar);
 
@@ -221,13 +229,15 @@ Numlib::Mat<double> Iim::Diim::dynamic_recovery() const
 
 Numlib::Vec<double> Iim::Diim::impact(const Numlib::Mat<double>& qt) const
 {
-    Numlib::Vec<double> qtot(num_systems());
+    auto qtot = Numlib::zeros<Numlib::Vec<double>>(num_systems());
 
-    double ti = qt(0, 0);
-    double tf = qt(qt.rows() - 1, 0);
+    if (time_steps > 0) {
+        double ti = qt(0, 0);
+        double tf = qt(qt.rows() - 1, 0);
 
-    for (Index j = 0; j < num_systems(); ++j) {
-        qtot(j) = Numlib::trapz(ti, tf, qt.column(j + 1));
+        for (Index j = 0; j < num_systems(); ++j) {
+            qtot(j) = Numlib::trapz(ti, tf, qt.column(j + 1));
+        }
     }
     return qtot;
 }
@@ -415,4 +425,64 @@ void Iim::Diim::analyse_interdependency(std::ostream& ostrm) const
               << third_order[i].function[1] << ',' << third_order[i].value
               << '\n';
     }
+}
+
+void Iim::Diim::analyse_inoperability(std::ostream& ostrm) const
+{
+    const auto& q = inoperability();
+
+    ostrm << "infrastructure" << ',' << "inoperability\n";
+    for (Index i = 0; i < num_systems(); ++i) {
+        ostrm << infra[i] << ',' << q(i) << '\n';
+    }
+}
+
+void Iim::Diim::analyse_dynamic(std::ostream& ostrm) const
+{
+    const auto& qt = dynamic_inoperability();
+    const auto& qtot = impact(qt);
+
+    ostrm << "time" << ',';
+    for (Index i = 0; i < num_systems() - 1; ++i) {
+        ostrm << infra[i] << ',';
+    }
+    ostrm << infra[num_systems() - 1] << '\n';
+
+    for (Index i = 0; i < qt.rows(); ++i) {
+        for (Index j = 0; j < qt.cols() - 1; ++j) {
+            ostrm << qt(i, j) << ',';
+        }
+        ostrm << qt(i, qt.cols() - 1) << '\n';
+    }
+
+    ostrm << "qtot" << ',';
+    for (Index j = 0; j < qtot.size() - 1; ++j) {
+        ostrm << qtot(j) << ',';
+    }
+    ostrm << qtot(qtot.size() - 1) << '\n';
+}
+
+void Iim::Diim::analyse_recovery(std::ostream& ostrm) const
+{
+    const auto& qt = dynamic_recovery();
+    const auto& qtot = impact(qt);
+
+    ostrm << "time" << ',';
+    for (Index i = 0; i < num_systems() - 1; ++i) {
+        ostrm << infra[i] << ',';
+    }
+    ostrm << infra[num_systems() - 1] << '\n';
+
+    for (Index i = 0; i < qt.rows(); ++i) {
+        for (Index j = 0; j < qt.cols() - 1; ++j) {
+            ostrm << qt(i, j) << ',';
+        }
+        ostrm << qt(i, qt.cols() - 1) << '\n';
+    }
+
+    ostrm << "qtot" << ',';
+    for (Index j = 0; j < qtot.size() - 1; ++j) {
+        ostrm << qtot(j) << ',';
+    }
+    ostrm << qtot(qtot.size() - 1) << '\n';
 }
