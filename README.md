@@ -1,5 +1,4 @@
-# Dynamic Inoperability Input-Output Model [![Build Status](https://ci.appveyor.com/api/projects/status/github/stigrs/diim?svg=true)](https://ci.appveyor.com/project/stigrs/diim)
-
+# Dynamic Inoperability Input-Output Model [![Build Status](https://app.travis-ci.com/stigrs/diim.svg?branch=main)](https://app.travis-ci.com/github/stigrs/diim)
 
 DIIM provides the Demand-Reduction and Recovery Dynamic Inoperability
 Input-Output Model (DIIM) for interdependent functions as described in
@@ -67,9 +66,7 @@ The test suite that exercises DIIM has been built and passes successfully
 on the following platforms:
 * GNU/Linux using GCC 6.5.0, 7.5.0
 * GNU/Linux using Clang 6.0
-* macOS 10.14.6 using Apple Xcode 11.0 
-* macOS 10.15.5 using Apple Xcode 12.0.1 
-* Windows using Visual Studio 2017 (x86 and x64)
+* Windows using Visual Studio 2019 (x86 and x64)
 
 ### Obtaining the Source Code
 
