@@ -8,7 +8,7 @@ DIIM
 End
 
 Perturbation
-  pfunction
+  pinfra
     1 [ SectorC ]
   cvalue
     1 [ 0.12 ]

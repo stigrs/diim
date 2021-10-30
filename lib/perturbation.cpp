@@ -11,17 +11,17 @@
 #include <cassert>
 
 Iim::Perturbation::Perturbation(std::istream& istrm,
-                                const std::vector<std::string>& functions_)
-    : functions(functions_)
+                                const std::vector<std::string>& infra_)
+    : infra(infra_)
 {
     using namespace Stdutils;
 
     auto pos = find_token(istrm, std::string("Perturbation"));
     if (pos != -1) {
-        get_token_value(istrm, pos, "pfunction", pfunction, pfunction);
+        get_token_value(istrm, pos, "pinfra", pinfra, pinfra);
         get_token_value(istrm, pos, "cvalue", cvalue, cvalue);
     }
-    assert(pfunction.size() == cvalue.size());
+    assert(pinfra.size() == cvalue.size());
 
     std::string line;
     int ntime; // number of timings to be read
@@ -43,7 +43,7 @@ Iim::Perturbation::Perturbation(std::istream& istrm,
         }
     }
     else {
-        ptime.resize(pfunction.size());
+        ptime.resize(pinfra.size());
         for (std::size_t i = 0; i < ptime.size(); ++i) {
             ptime[i] = {0, 0};
         }
@@ -64,15 +64,14 @@ Numlib::Vec<double> Iim::Perturbation::cstar(int time) const
 
 void Iim::Perturbation::init_perturbation()
 {
-    Index n = narrow_cast<Index>(functions.size());
+    Index n = narrow_cast<Index>(infra.size());
     c0 = Numlib::zeros<Numlib::Vec<double>>(n);
 
-    if (!pfunction.empty()) {
-        for (Index i = 0; i < pfunction.size(); ++i) {
-            auto pos =
-                std::find(functions.begin(), functions.end(), pfunction(i));
-            if (pos != functions.end()) {
-                Index indx = narrow_cast<Index>(pos - functions.begin());
+    if (!pinfra.empty()) {
+        for (Index i = 0; i < pinfra.size(); ++i) {
+            auto pos = std::find(infra.begin(), infra.end(), pinfra(i));
+            if (pos != infra.end()) {
+                Index indx = narrow_cast<Index>(pos - infra.begin());
                 pindex.push_back(indx); // store for later use
             }
         }

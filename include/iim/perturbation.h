@@ -18,12 +18,14 @@ namespace Iim {
 // Class for creating perturbations for the Dynamic Inoperability Input-Output
 // Model.
 //
+// TODO:
+//   Implement several types of perturbations.
+//
 class Perturbation {
 public:
     Perturbation() = default;
 
-    Perturbation(std::istream& istrm,
-                 const std::vector<std::string>& functions_);
+    Perturbation(std::istream& istrm, const std::vector<std::string>& infra_);
 
     // Copy semantics:
     Perturbation(const Perturbation&) = default;
@@ -42,13 +44,13 @@ private:
     // Initialise perturbation.
     void init_perturbation();
 
-    std::vector<std::string> functions;    // list of infrastructure functions
-    std::vector<Index> pindex;             // indices of perturbed functions
+    std::vector<std::string> infra; // list of infrastructure systems
+    std::vector<Index> pindex;      // indices of perturbed infrastructures
     std::vector<std::array<int, 2>> ptime; // timings for perturbations
 
-    Numlib::Vec<std::string> pfunction; // list with perturbed functions
-    Numlib::Vec<double> cvalue;         // list of perturbation magnitudes
-    Numlib::Vec<double> c0;             // initial degradation, c(t) = c(0)
+    Numlib::Vec<std::string> pinfra; // list with perturbed infrastructures
+    Numlib::Vec<double> cvalue;      // list of perturbation magnitudes
+    Numlib::Vec<double> c0;          // initial degradation, c(t) = c(0)
 };
 
 } // namespace Iim
