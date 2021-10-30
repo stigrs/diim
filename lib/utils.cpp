@@ -28,7 +28,7 @@ void Iim::csv_reader(std::istream& istrm,
         std::getline(ss, val, ',');
         data.push_back(std::stod(val));
     }
-    Numlib::Matrix_slice<1> ms(0, {narrow_cast<Index>(data.size())});
+    Numlib::Matrix_slice<1> ms(0, narrow_cast<Index>(data.size()));
     values = Numlib::Vec<double>(ms, data.data());
 }
 
