@@ -3,14 +3,28 @@ project(DIIM CXX)
 
 #-------------------------------------------------------------------------------
 #
+# Set installation directory:
+
+if (WIN32)
+    if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+        set(CMAKE_INSTALL_PREFIX $ENV{USERPROFILE} CACHE PATH "USERPROFILE" FORCE)
+    endif()
+else()
+    if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+        set(CMAKE_INSTALL_PREFIX $ENV{HOME} CACHE PATH "HOME" FORCE)
+    endif()
+endif()
+
+#-------------------------------------------------------------------------------
+#
 # Set compiler options:
 
 if(UNIX AND NOT APPLE)
     find_package(OpenMP)
 endif()
 
-# Enforce C++14 standard.
-set(CMAKE_CXX_STANDARD 14)
+# Enforce C++17 standard.
+set(CMAKE_CXX_STANDARD 17)
 
 # Export compile commands.
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -34,7 +48,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wpedantic -Wall -Wshadow -Wextra -Wno-missing-braces -Werror -Wno-error=strict-overflow")
 endif()
 if(MSVC)
-    set(CMAKE_CXX_FLAGS_RELEASE "/DNDEBUG /std:c++14 /W4 /WX /wd4100 /GR /EHsc /MT /O2")
+    set(CMAKE_CXX_FLAGS_RELEASE "/DNDEBUG /std:c++17 /W4 /WX /wd4100 /GR /EHsc /MT /O2")
 endif()
 
 # Set debugging compiler options.
@@ -45,7 +59,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wpedantic -Wall -Wshadow -Wextra -Wno-missing-braces -Werror -Wno-error=strict-overflow")
 endif()
 if(MSVC)
-    set(CMAKE_CXX_FLAGS_DEBUG "/std:c++14 /EHsc /W4 /WX /wd4100 /MT /GR /Zi /Od")
+    set(CMAKE_CXX_FLAGS_DEBUG "/std:c++17 /EHsc /W4 /WX /wd4100 /MT /GR /Zi /Od")
 endif()
 
 # Set OpenMP compiler options.
