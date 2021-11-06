@@ -1,5 +1,5 @@
 # Dynamic Inoperability Input-Output Model 
-[![Build Status](https://dev.azure.com/stigrs0020/stigrs/_apis/build/status/stigrs.diim?branchName=main)](https://dev.azure.com/stigrs0020/stigrs/_build/latest?definitionId=10&branchName=main)
+[![Build Status](https://dev.azure.com/stigrs0020/stigrs/_apis/build/status/stigrs.diim?branchName=main)](https://dev.azure.com/stigrs0020/stigrs/_build/latest?definitionId=10&branchName=main)[![Build status](https://ci.appveyor.com/api/projects/status/vehvxgwcunknxaw4?svg=true)](https://ci.appveyor.com/project/stigrs/diim)
 
 DIIM provides the Demand-Reduction and Recovery Dynamic Inoperability
 Input-Output Model (DIIM) for interdependent functions as described in
