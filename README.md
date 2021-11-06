@@ -1,4 +1,5 @@
 # Dynamic Inoperability Input-Output Model 
+[![Build Status](https://dev.azure.com/stigrs0020/stigrs/_apis/build/status/stigrs.diim?branchName=main)](https://dev.azure.com/stigrs0020/stigrs/_build/latest?definitionId=10&branchName=main)
 
 DIIM provides the Demand-Reduction and Recovery Dynamic Inoperability
 Input-Output Model (DIIM) for interdependent functions as described in
@@ -60,13 +61,14 @@ file for details regarding the licensing of Catch2.
 * [Stdutils](https://github.com/stigrs/stdutils.git)
 * [OpenBLAS](https://www.openblas.net/) 0.3.3 (Intel MKL is recommended)
 
-### Supported Platforms
+### Supported Compilers
 
-The test suite that exercises DIIM has been built and passes successfully 
-on the following platforms:
-* GNU/Linux using GCC 6.5.0, 7.5.0
-* GNU/Linux using Clang 6.0
-* Windows using Visual Studio 2019 (x86 and x64)
+| Compiler      | Versions Currently Tested |
+|:--------------|--------------------------:|
+| GCC           | 8                         |
+| Clang         | 10                        |
+| Visual Studio | VS2019 & VS2017           |
+| XCode         | 11.4 & 10.3               |
 
 ### Obtaining the Source Code
 
