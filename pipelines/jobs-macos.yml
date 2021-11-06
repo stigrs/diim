@@ -1,0 +1,37 @@
+parameters:
+  jobName: ''
+  imageName: ''
+
+jobs:
+- job:
+  displayName: ${{ parameters.imageName }}
+  pool:
+    vmImage: ${{ parameters.imageName }}
+  strategy:
+    matrix:
+      debug:
+        BUILD_TYPE: 'Debug'
+      release:
+        BUILD_TYPE: 'Release'
+  continueOnError: false
+
+  steps:
+  - script: brew install openblas
+    name: Prepare
+
+  - task: CMake@1
+    name: Configure
+    inputs:
+      workingDirectory: build
+      cmakeArgs: ' .. '
+
+  - task: CMake@1
+    name: Build
+    inputs:
+      workingDirectory: build
+      cmakeArgs: '--build . --config $(BUILD_TYPE)'
+
+  - script: ctest -C $(BUILD_TYPE) --output-on-failure --no-compress-output
+    name: CTest
+    workingDirectory: build
+    failOnStderr: true

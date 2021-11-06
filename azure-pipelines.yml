@@ -1,0 +1,47 @@
+trigger:
+  - master
+
+pr:
+  autoCancel: true
+
+# GCC
+stages:
+- stage: GCC
+  dependsOn: []
+  variables:
+  - name: CC
+    value: gcc
+  - name: CXX
+    value: g++
+  jobs:
+  - template: ./pipelines/jobs-linux.yml
+    parameters:
+      jobName: 'Validate GCC'
+      imageName: ubuntu-18.04
+
+# Clang
+- stage: Clang
+  dependsOn: []
+  variables:
+  - name: CC
+    value: clang
+  - name: CXX
+    value: clang++
+  jobs:
+  - template: ./pipelines/jobs-linux.yml
+    parameters:
+      jobName: 'Validate Clang'
+      imageName: ubuntu-18.04
+
+# Apple-Clang
+- stage: Apple_Clang
+  dependsOn: []
+  jobs:
+  - template: ./pipelines/jobs-macos.yml
+    parameters:
+      jobName: 'Validate Apple-Clang latest'
+      imageName: macos-10.15
+  - template: ./pipelines/jobs-macos.yml
+    parameters:
+      jobName: 'Validate Apple-Clang Previous'
+      imageName: macos-10.14

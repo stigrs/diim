@@ -1,4 +1,4 @@
-# Dynamic Inoperability Input-Output Model [![Build Status](https://app.travis-ci.com/stigrs/diim.svg?branch=main)](https://app.travis-ci.com/github/stigrs/diim)
+# Dynamic Inoperability Input-Output Model 
 
 DIIM provides the Demand-Reduction and Recovery Dynamic Inoperability
 Input-Output Model (DIIM) for interdependent functions as described in
