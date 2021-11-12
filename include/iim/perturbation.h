@@ -40,6 +40,28 @@ public:
     // Return perturbation [c*(t)].
     Numlib::Vec<double> cstar(int time = 0) const;
 
+    // Set perturbed infrastructures.
+    void set_perturbed_infrastructures(const Numlib::Vec<std::string>& names)
+    {
+        pinfra = names;
+        init_perturbation();
+    }
+
+    // Get perturbed infrastructures.
+    Numlib::Vec<std::string> get_perturbed_infrastructure() const
+    {
+        return pinfra;
+    }
+
+    // Get perturbation time period.
+    std::vector<std::array<int, 2>> get_perturbation_time_period() const
+    {
+        return ptime;
+    }
+
+    // Get perturbation magnitudes.
+    Numlib::Vec<double> get_perturbation_magnitude() const { return cvalue; }
+
 private:
     // Initialise perturbation.
     void init_perturbation();

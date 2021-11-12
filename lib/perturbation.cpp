@@ -5,10 +5,12 @@
 // and conditions.
 
 #include <iim/perturbation.h>
+#include <numlib/math.h>
 #include <stdutils/stdutils.h>
-#include <algorithm>
 #include <sstream>
 #include <cassert>
+#include <exception>
+#include <algorithm>
 
 Iim::Perturbation::Perturbation(std::istream& istrm,
                                 const std::vector<std::string>& infra_)
@@ -68,6 +70,7 @@ void Iim::Perturbation::init_perturbation()
     c0 = Numlib::zeros<Numlib::Vec<double>>(n);
 
     if (!pinfra.empty()) {
+        pindex.clear();
         for (Index i = 0; i < pinfra.size(); ++i) {
             auto pos = std::find(infra.begin(), infra.end(), pinfra(i));
             if (pos != infra.end()) {

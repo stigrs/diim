@@ -168,8 +168,7 @@ public:
     Numlib::Vec<double> impact(const Numlib::Mat<double>& qt) const;
 
     // Run DIIM analysis.
-    void analysis(const std::string& run_type,
-                  std::ostream& ostrm = std::cout) const;
+    void analysis(const std::string& run_type, std::ostream& ostrm = std::cout);
 
 private:
     // Read input-output table or A* matrix from CSV file.
@@ -261,12 +260,18 @@ private:
     //
     void analyse_recovery(std::ostream& ostrm) const;
 
+    // Run DIIM single attack sampling.
+    void single_attack_sampling(std::ostream& ostrm = std::cout);
+
+    // Run DIIM hybrid attack sampling.
+    void hybrid_attack_sampling(std::ostream& ostrm = std::cout);
+
     Perturbation perturb; // representation of perturbation, c(t)
 
     Amatrix_t amatrix_type; // type of interdependency matrix
     Calc_mode_t calc_mode;  // type of calculation mode
 
-    std::vector<std::string> infra; // list of functions
+    std::vector<std::string> infra; // list of infrastructures
 
     Numlib::Mat<double> io_table; // industry x industry input-output table
     Numlib::Mat<double> amat;     // Leontief technical coefficients
@@ -280,6 +285,12 @@ private:
 
     double lambda;  // q(tau) value
     int time_steps; // number of time steps
+
+    int mc_sampl_max; // max number of Monte Carlo samplings
+    int mc_sampl_min; // min number of Monte Carlo samplings
+    double mc_conv;   // Monte Carlo convergence limit
+
+    const double kmat_max = 0.9999;
 };
 
 inline double Diim::interdependency_index(const std::string& i,
@@ -301,8 +312,7 @@ inline double Diim::interdependency_index(const std::string& i,
     return res(ii, jj);
 }
 
-inline void Diim::analysis(const std::string& run_type,
-                           std::ostream& ostrm) const
+inline void Diim::analysis(const std::string& run_type, std::ostream& ostrm)
 {
     if (run_type == "influence") {
         analyse_influence(ostrm);
@@ -318,6 +328,12 @@ inline void Diim::analysis(const std::string& run_type,
     }
     else if (run_type == "recovery") {
         analyse_recovery(ostrm);
+    }
+    else if (run_type == "single_attack") {
+        single_attack_sampling(ostrm);
+    }
+    else if (run_type == "hybrid_attack") {
+        hybrid_attack_sampling(ostrm);
     }
     else {
         throw std::runtime_error("bad run_type: " + run_type);

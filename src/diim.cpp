@@ -21,7 +21,9 @@ int main(int argc, char* argv[])
                   << "  interdependency\n"
                   << "  inoperability\n"
                   << "  dynamic\n"
-                  << "  recovery\n";
+                  << "  recovery\n"
+                  << "  single_attack\n"
+                  << "  hybrid_attack\n";
         return 1;
     }
 

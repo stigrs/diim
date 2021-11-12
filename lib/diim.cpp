@@ -43,6 +43,9 @@ Iim::Diim::Diim(std::istream& istrm)
         get_token_value(istrm, pos, "tau_file", tau_file, std::string(""));
         get_token_value(istrm, pos, "q0_file", q0_file, std::string(""));
         get_token_value(istrm, pos, "time_steps", time_steps, time_steps);
+        get_token_value(istrm, pos, "mc_sampl_max", mc_sampl_max, 10000);
+        get_token_value(istrm, pos, "mc_sampl_min", mc_sampl_min, 1000);
+        get_token_value(istrm, pos, "mc_conv", mc_conv, 1.0e-5);
         // clang-format on
     }
     if (amatrix_type_str == "input-output") {
@@ -64,6 +67,7 @@ Iim::Diim::Diim(std::istream& istrm)
         calc_mode = supply;
     }
     assert(time_steps >= 0);
+    assert(mc_sampl_max > mc_sampl_min);
 
     // Read input-output table or A* matrix from CSV file:
     read_io_table(amat_file);
@@ -243,7 +247,7 @@ Numlib::Vec<double> Iim::Diim::impact(const Numlib::Mat<double>& qt) const
 }
 
 //------------------------------------------------------------------------------
-// Private functions:
+// Private functions
 
 void Iim::Diim::read_io_table(const std::string& amat_file)
 {
@@ -352,7 +356,7 @@ void Iim::Diim::init_kmatrix(const std::string& kmat_file)
         csv_reader(istrm, header, values);
         assert(header.size() == infra.size());
         kmat.diag() = values;
-        Numlib::closed_interval(kmat, 0.0, 1.0); // fix any bad input values
+        Numlib::closed_interval(kmat, 0.0, kmat_max); // fix bad input values
     }
     else if (!tau.empty()) {
         calc_kmatrix();
@@ -366,11 +370,11 @@ void Iim::Diim::calc_kmatrix()
         if ((1.0 - astar(i, i)) > 0.0) {
             kmat_diag(i) = (-std::log(lambda) / tau(i)) / (1.0 - astar(i, i));
             if (kmat_diag(i) > 1.0) {
-                kmat_diag(i) = 1.0; // truncate to the range [0.0, 1.0]
+                kmat_diag(i) = kmat_max; // truncate to the range [0.0, 1.0)
             }
         }
-        else { // truncate to the interval [0.0, 1.0]
-            kmat_diag(i) = 1.0;
+        else { // truncate to the interval [0.0, 1.0)
+            kmat_diag(i) = kmat_max;
         }
     }
 }
@@ -485,4 +489,38 @@ void Iim::Diim::analyse_recovery(std::ostream& ostrm) const
         ostrm << qtot(j) << ',';
     }
     ostrm << qtot(qtot.size() - 1) << '\n';
+}
+
+void Iim::Diim::single_attack_sampling(std::ostream& ostrm)
+{
+    ostrm << "infra" << ',' << "impact\n";
+
+    for (auto& infra_i : infra) {
+        Numlib::Vec<std::string> pinfra = {infra_i};
+        perturb.set_perturbed_infrastructures(pinfra);
+        auto qt = dynamic_inoperability();
+        auto qtot = impact(qt);
+
+        ostrm << infra_i << ',' << Numlib::sum(qtot) << '\n';
+    }
+}
+
+void Iim::Diim::hybrid_attack_sampling(std::ostream& ostrm)
+{
+    ostrm << "infra_i" << ',' << "infra_j" << ',' << "impact\n";
+
+    for (const auto& infra_i : infra) {
+        for (const auto& infra_j : infra) {
+            if (infra_i == infra_j) {
+                continue;
+            }
+            Numlib::Vec<std::string> pinfra = {infra_i, infra_j};
+            perturb.set_perturbed_infrastructures(pinfra);
+            auto qt = dynamic_inoperability();
+            auto qtot = impact(qt);
+
+            ostrm << pinfra(0) << ',' << pinfra(1) << ',' << Numlib::sum(qtot)
+                  << '\n';
+        }
+    }
 }
