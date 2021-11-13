@@ -286,7 +286,7 @@ private:
     double lambda;  // q(tau) value
     int time_steps; // number of time steps
 
-    const double kmat_max = 0.9999;
+    const double kmat_max = 0.9999; // k(i) = [0, 1)
 };
 
 inline double Diim::interdependency_index(const std::string& i,
