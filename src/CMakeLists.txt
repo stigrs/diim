@@ -25,6 +25,7 @@ endfunction()
 
 set(PROGRAMS 
     diim
+    diim_edit
 )
 
 foreach(program ${PROGRAMS})
