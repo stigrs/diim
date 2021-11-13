@@ -286,10 +286,6 @@ private:
     double lambda;  // q(tau) value
     int time_steps; // number of time steps
 
-    int mc_sampl_max; // max number of Monte Carlo samplings
-    int mc_sampl_min; // min number of Monte Carlo samplings
-    double mc_conv;   // Monte Carlo convergence limit
-
     const double kmat_max = 0.9999;
 };
 

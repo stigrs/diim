@@ -43,9 +43,6 @@ Iim::Diim::Diim(std::istream& istrm)
         get_token_value(istrm, pos, "tau_file", tau_file, std::string(""));
         get_token_value(istrm, pos, "q0_file", q0_file, std::string(""));
         get_token_value(istrm, pos, "time_steps", time_steps, time_steps);
-        get_token_value(istrm, pos, "mc_sampl_max", mc_sampl_max, 10000);
-        get_token_value(istrm, pos, "mc_sampl_min", mc_sampl_min, 1000);
-        get_token_value(istrm, pos, "mc_conv", mc_conv, 1.0e-5);
         // clang-format on
     }
     if (amatrix_type_str == "input-output") {
@@ -67,7 +64,6 @@ Iim::Diim::Diim(std::istream& istrm)
         calc_mode = supply;
     }
     assert(time_steps >= 0);
-    assert(mc_sampl_max > mc_sampl_min);
 
     // Read input-output table or A* matrix from CSV file:
     read_io_table(amat_file);
