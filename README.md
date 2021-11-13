@@ -65,8 +65,8 @@ file for details regarding the licensing of Catch2.
 
 | Compiler      | Versions Currently Tested |
 |:--------------|--------------------------:|
-| GCC           | 8                         |
-| Clang         | 10                        |
+| GCC           | 9, 8, 7                   |
+| Clang         | 10, 6                     |
 | Visual Studio | VS2019                    |
 | XCode         | 11.4 & 10.3               |
 
