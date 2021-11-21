@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.4.3)
+cmake_minimum_required(VERSION 3.14)
 project(DIIM_tests CXX)
 
 include_directories(${DIIM_SOURCE_DIR}/include)
@@ -26,51 +26,26 @@ foreach(csv_file_name ${CSV_FILES})
     file(COPY "${csv_file_name}" DESTINATION "${CMAKE_BINARY_DIR}/tests")
 endforeach()
 
-if(GIT_FOUND)
-    # Add catch
-    list(APPEND CATCH_CMAKE_ARGS
-        "-DCMAKE_INSTALL_PREFIX:STRING=${CMAKE_BINARY_DIR}/external"
-        "-DCATCH_BUILD_TESTING=OFF"
-    )
-    ExternalProject_Add(
-        catch2
-        PREFIX ${CMAKE_BINARY_DIR}/catch
-        GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-        GIT_TAG v2.3.0
-        CMAKE_ARGS ${CATCH_CMAKE_ARGS}
-        LOG_DOWNLOAD 1
-        UPDATE_DISCONNECTED 1
-    )
-else()
-    # Assume catch is installed in a system directory
-    add_custom_target(catch2)
-endif()
-
-# Prepare Catch library for other executables.
-add_library(Catch2 INTERFACE)
-target_include_directories(
-    Catch2 INTERFACE 
-    ${CMAKE_BINARY_DIR}/external/include
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  # Specify the commit you depend on and update it regularly.
+  URL https://github.com/google/googletest/archive/refs/heads/main.zip
 )
-
-# Create the main executable for each test.
-add_library(test_catch2 STATIC test.cpp)
-target_link_libraries(
-    test_catch2
-    Catch2
-)
-add_dependencies(test_catch2 catch2)
+# For Windows: Prevent overriding the parent project's compiler/linker settings
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
 
 function(add_diim_test name)
     add_executable(${name} ${name}.cpp)
     target_link_libraries (
         ${name} 
-        test_catch2
         iim
-	${BLAS_LIBRARIES}
+	    ${BLAS_LIBRARIES}
         ${Numlib_LIBRARIES}
+        gtest_main
     ) 
-    add_dependencies(${name} Catch2 Stdutils Numlib)
+    add_dependencies(${name} Stdutils Numlib)
     add_test(NAME ${name} COMMAND ${name})
 endfunction()
 

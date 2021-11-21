@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.4.3)
+cmake_minimum_required(VERSION 3.14)
 project(DIIM CXX)
 
 #-------------------------------------------------------------------------------
@@ -69,8 +69,6 @@ endif()
 
 #-------------------------------------------------------------------------------
 #
-# Include external dependencies:
-
 include(ExternalProject)
 find_package(Git)
 

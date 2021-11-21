@@ -48,15 +48,15 @@ DIIM is released under the [MIT](LICENSE) license.
 
 ## Usage of Third Party Libraries
 
-This project makes use of the [Catch2](https://https://github.com/catchorg/Catch2) 
-testing library. Please see the [ThirdPartyNotices.txt](ThirdPartyNotices.txt) 
-file for details regarding the licensing of Catch2.
+This project makes use of [GoogleTest](https://https://github.com/google/googletest). 
+Please see the [ThirdPartyNotices.txt](ThirdPartyNotices.txt) file for details 
+regarding the licensing of GoogleTest.
 
 ## Quick Start 
 
 ### Requirements
 
-* [CMake](https://cmake.org) 3.4.3
+* [CMake](https://cmake.org) 3.14
 * [Numlib](https://github.com/stigrs/numlib.git)
 * [Stdutils](https://github.com/stigrs/stdutils.git)
 * [OpenBLAS](https://www.openblas.net/) 0.3.3 (Intel MKL is recommended)
