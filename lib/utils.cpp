@@ -5,12 +5,13 @@
 // and conditions.
 
 #include <iim/utils.h>
+#include <scilib/linalg.h>
 #include <stdutils/stdutils.h>
 #include <sstream>
 
 void Iim::csv_reader(std::istream& istrm,
                      std::vector<std::string>& header,
-                     Numlib::Vec<double>& values)
+                     Scilib::Vector<double>& values)
 {
     header.clear();
 
@@ -28,13 +29,12 @@ void Iim::csv_reader(std::istream& istrm,
         std::getline(ss, val, ',');
         data.push_back(std::stod(val));
     }
-    Numlib::Matrix_slice<1> ms(0, narrow_cast<Index>(data.size()));
-    values = Numlib::Vec<double>(ms, data.data());
+    values = Scilib::Vector<double>(data, data.size());
 }
 
 void Iim::csv_reader(std::istream& istrm,
                      std::vector<std::string>& header,
-                     Numlib::Mat<double>& values)
+                     Scilib::Matrix<double>& values)
 {
     header.clear();
 
@@ -48,7 +48,7 @@ void Iim::csv_reader(std::istream& istrm,
         header.push_back(Stdutils::trim(val, " "));
     }
     // Read data:
-    Index nrows = 0;
+    std::size_t nrows = 0;
     std::vector<double> tmp;
     while (std::getline(istrm, line)) {
         if (line.empty()) {
@@ -60,14 +60,13 @@ void Iim::csv_reader(std::istream& istrm,
         }
         ++nrows;
     }
-    Index ncols = narrow_cast<Index>(header.size());
-    Numlib::Matrix_slice<2> ms(0, {nrows, ncols});
-    values = Numlib::Mat<double>(ms, tmp.data());
+    std::size_t ncols = header.size();
+    values = Scilib::Matrix<double>(tmp, nrows, ncols);
 }
 
 void Iim::csv_reader_sparse(std::istream& istrm,
                             std::vector<std::string>& header,
-                            Numlib::Mat<double>& values)
+                            Scilib::Matrix<double>& values)
 {
     header.clear();
 
@@ -81,18 +80,18 @@ void Iim::csv_reader_sparse(std::istream& istrm,
         header.push_back(Stdutils::trim(val, " "));
     }
     // Read data:
-    Index ncols = narrow_cast<Index>(header.size());
-    Index nrows = ncols;
-    values = Numlib::zeros<Numlib::Mat<double>>(nrows, ncols);
+    std::size_t ncols = header.size();
+    std::size_t nrows = ncols;
+    values = Scilib::Linalg::zeros<Scilib::Matrix<double>>(nrows, ncols);
     while (std::getline(istrm, line)) {
         if (line.empty()) {
             continue;
         }
         ss = std::stringstream(line);
         std::getline(ss, val, ',');
-        Index i = std::stoi(val);
+        std::size_t i = std::stoi(val);
         std::getline(ss, val, ',');
-        Index j = std::stoi(val);
+        std::size_t j = std::stoi(val);
         std::getline(ss, val, ',');
         double aij = std::stod(val);
         values(i, j) = aij;

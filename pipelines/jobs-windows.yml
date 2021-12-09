@@ -4,7 +4,7 @@ parameters:
 
 jobs:
 - job:
-  displayName: ${{ parameters.imageName }}
+  displayName: ${{ parameters.imageName }} 
   pool:
     vmImage: ${{ parameters.imageName }}
   strategy:
@@ -16,7 +16,10 @@ jobs:
   continueOnError: false
 
   steps:
-  - script: sudo apt-get install gfortran libopenblas-dev liblapacke-dev
+  - powershell: |
+      mkdir $(BLAS_DIR)
+      nuget install OpenBLAS -o $(BLAS_DIR)
+      $env:PATH="$(BLAS_ROOT)\win32\bin;$(BLAS_ROOT)\native\x64\bin;$env:PATH"
     name: Prepare
 
   - task: CMake@1

@@ -7,7 +7,7 @@
 #ifndef IIM_PERTURBATION_H
 #define IIM_PERTURBATION_H
 
-#include <numlib/matrix.h>
+#include <scilib/mdarray.h>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -38,19 +38,19 @@ public:
     ~Perturbation() = default;
 
     // Return perturbation [c*(t)].
-    Numlib::Vec<double> cstar(int time = 0) const;
+    Scilib::Vector<double> cstar(int time = 0) const;
 
     // Set perturbed infrastructures.
-    void set_perturbed_infrastructures(const Numlib::Vec<std::string>& names)
+    void set_perturbed_infrastructures(Scilib::Vector_view<std::string> names)
     {
         pinfra = names;
         init_perturbation();
     }
 
     // Get perturbed infrastructures.
-    Numlib::Vec<std::string> get_perturbed_infrastructure() const
+    constexpr auto get_perturbed_infrastructure() const
     {
-        return pinfra;
+        return pinfra.view();
     }
 
     // Get perturbation time period.
@@ -60,19 +60,19 @@ public:
     }
 
     // Get perturbation magnitudes.
-    Numlib::Vec<double> get_perturbation_magnitude() const { return cvalue; }
+    constexpr auto get_perturbation_magnitude() const { return cvalue.view(); }
 
 private:
     // Initialise perturbation.
     void init_perturbation();
 
-    std::vector<std::string> infra; // list of infrastructure systems
-    std::vector<Index> pindex;      // indices of perturbed infrastructures
+    std::vector<std::string> infra;  // list of infrastructure systems
+    std::vector<std::size_t> pindex; // indices of perturbed infrastructures
     std::vector<std::array<int, 2>> ptime; // timings for perturbations
 
-    Numlib::Vec<std::string> pinfra; // list with perturbed infrastructures
-    Numlib::Vec<double> cvalue;      // list of perturbation magnitudes
-    Numlib::Vec<double> c0;          // initial degradation, c(t) = c(0)
+    Scilib::Vector<std::string> pinfra; // list with perturbed infrastructures
+    Scilib::Vector<double> cvalue;      // list of perturbation magnitudes
+    Scilib::Vector<double> c0;          // initial degradation, c(t) = c(0)
 };
 
 } // namespace Iim

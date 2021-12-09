@@ -1,10 +1,20 @@
 cmake_minimum_required(VERSION 3.14)
-project(DIIM CXX)
+project(DIIM 
+    VERSION 0.0.1
+    LANGUAGES CXX
+)
 
-#-------------------------------------------------------------------------------
-#
-# Set installation directory:
+################################################################################
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
+################################################################################
+
+option(BUILD_TESTS "Build tests." ON)
+
+################################################################################
+
+# Set installation directory.
 if (WIN32)
     if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
         set(CMAKE_INSTALL_PREFIX $ENV{USERPROFILE} CACHE PATH "USERPROFILE" FORCE)
@@ -15,16 +25,59 @@ else()
     endif()
 endif()
 
-#-------------------------------------------------------------------------------
-#
-# Set compiler options:
+################################################################################
 
-if(UNIX AND NOT APPLE)
-    find_package(OpenMP)
+# Option to override which C++ standard to use
+set(DIIM_CXX_STANDARD DETECT CACHE STRING "Override the default CXX_STANDARD to compile with.")
+set_property(CACHE DIIM_CXX_STANDARD PROPERTY STRINGS DETECT 17 20)
+
+option(DIIM_ENABLE_CONCEPTS "Try to enable concepts support by giving extra flags." ON)
+
+# Decide on the standard to use
+if(DIIM_CXX_STANDARD STREQUAL "17")
+    if("cxx_std_17" IN_LIST CMAKE_CXX_COMPILE_FEATURES)
+        message(STATUS "Using C++17 standard")
+        set(CMAKE_CXX_STANDARD 17)
+    else()
+        message(FATAL_ERROR "Requested DIIM_CXX_STANDARD \"17\" not supported by provided C++ compiler")
+    endif()
+elseif(DIIM_CXX_STANDARD STREQUAL "20")
+    if("cxx_std_20" IN_LIST CMAKE_CXX_COMPILE_FEATURES)
+        message(STATUS "Using C++20 standard")
+        set(CMAKE_CXX_STANDARD 20)
+    else()
+        message(FATAL_ERROR "Requested DIIM_CXX_STANDARD \"20\" not supported by provided C++ compiler")
+    endif()
+else()
+    if("cxx_std_20" IN_LIST CMAKE_CXX_COMPILE_FEATURES)
+        set(CMAKE_CXX_STANDARD 20)
+        message(STATUS "Detected support for C++20 standard")
+    elseif("cxx_std_17" IN_LIST CMAKE_CXX_COMPILE_FEATURES)
+        set(CMAKE_CXX_STANDARD 17)
+        message(STATUS "Detected support for C++17 standard")
+    else()
+        message(FATAL_ERROR "Cannot detect CXX_STANDARD of C++17 or newer.")
+    endif()
 endif()
 
-# Enforce C++17 standard.
-set(CMAKE_CXX_STANDARD 17)
+if(DIIM_ENABLE_CONCEPTS)
+    if(CMAKE_CXX_STANDARD STREQUAL "20")
+        include(CheckCXXCompilerFlag)
+        CHECK_CXX_COMPILER_FLAG("-fconcepts" COMPILER_SUPPORTS_FCONCEPTS)
+        if(COMPILER_SUPPORTS_FCONCEPTS)
+            message(STATUS "-- Using \"-fconcepts\" to enable concepts support")
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fconcepts")
+        else()
+            CHECK_CXX_COMPILER_FLAG("-fconcepts-ts" COMPILER_SUPPORTS_FCONCEPTS_TS)
+            if(COMPILER_SUPPORTS_FCONCEPTS)
+                message(STATUS "-- Using \"-fconcepts-ts\" to enable concepts support")
+                set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fconcepts-ts")
+            endif()
+        endif()
+        # Otherwise, it's possible that the compiler supports concepts without flags,
+        # but if it doesn't, they just won't be used, which is fine
+    endif()
+endif()
 
 # Export compile commands.
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -37,118 +90,159 @@ endif()
 
 # Set default MSVC compiler options to avoid D9025 error.
 if(MSVC)
-    set(CMAKE_CXX_FLAGS "/DWIN32 /D_WINDOWS /D_CRT_SECURE_NO_WARNINGS")
+    set(CMAKE_CXX_FLAGS "/DWIN32 /D_WINDOWS")
 endif()
 
 # Set release compiler options.
 if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wpedantic -Wall -Wshadow -Wextra -Wno-maybe-uninitialized -Wno-missing-braces -Werror -Wno-error=strict-overflow")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wpedantic -Wall -Wshadow -Wextra -Wno-missing-braces -Werror -Wno-error=strict-overflow -Wno-maybe-uninitialized")
 endif()
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wpedantic -Wall -Wshadow -Wextra -Wno-missing-braces -Werror -Wno-error=strict-overflow")
 endif()
 if(MSVC)
-    set(CMAKE_CXX_FLAGS_RELEASE "/DNDEBUG /std:c++17 /W4 /WX /wd4100 /GR /EHsc /MT /O2")
+    set(CMAKE_CXX_FLAGS_RELEASE "/DNDEBUG /W4 /WX /wd4100 /GR /EHsc /MT /O2")
 endif()
 
 # Set debugging compiler options.
 if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wpedantic -Wall -Wshadow -Wextra -Wno-missing-braces -Werror -Wno-error=strict-overflow")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wpedantic -Wall -Wshadow -Wextra -Wno-missing-braces -Werror -Wno-error=strict-overflow -Wno-maybe-uninitialized")
 endif()
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wpedantic -Wall -Wshadow -Wextra -Wno-missing-braces -Werror -Wno-error=strict-overflow")
 endif()
 if(MSVC)
-    set(CMAKE_CXX_FLAGS_DEBUG "/std:c++17 /EHsc /W4 /WX /wd4100 /MT /GR /Zi /Od")
+    set(CMAKE_CXX_FLAGS_DEBUG "/EHsc /W4 /WX /wd4100 /MT /GR /Zi /Od")
 endif()
 
-# Set OpenMP compiler options.
-if(OpenMP_FOUND)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+################################################################################
+
+# mdspan is required.
+find_package(mdspan QUIET)
+if (NOT mdspan_FOUND)
+    message(STATUS "No installed mdspan found, fetching from Github")
+    include(FetchContent)
+    FetchContent_Declare(
+        mdspan
+        GIT_REPOSITORY https://github.com/kokkos/mdspan.git
+        GIT_TAG        stable
+    )
+    FetchContent_GetProperties(mdspan)
+    if(NOT mdspan_POPULATED)
+        FetchContent_Populate(mdspan)
+        add_subdirectory(${mdspan_SOURCE_DIR} ${mdspan_BINARY_DIR} EXCLUDE_FROM_ALL)
+    endif()
 endif()
 
-#-------------------------------------------------------------------------------
-#
-include(ExternalProject)
-find_package(Git)
-
-# BLAS and LAPACK is required.
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-if(DEFINED ENV{MKLROOT})
-	find_package(MKL)
-	if(MKL_FOUND)
-		add_definitions(${MKL_DEFINITIONS})
-		set(BLAS_INCLUDE_DIRS ${MKL_INCLUDE_DIRS})
-		set(BLAS_LIBRARIES ${MKL_LIBRARIES})
-	endif()
-else()
-    find_package(OpenBLAS)
+# Scilib is required.
+find_package(Scilib)
+if(Scilib_FOUND)
+    message(STATUS "Scilib found")
+endif()
+if (NOT Scilib_FOUND)
+    message(STATUS "No installed Scilib found, fetching from Github")
+    include(FetchContent)
+    FetchContent_Declare(
+        Scilib
+        GIT_REPOSITORY https://github.com/stigrs/scilib.git
+        GIT_TAG        main
+    )
+    FetchContent_GetProperties(Scilib)
+    if(NOT Scilib_POPULATED)
+        FetchContent_Populate(Scilib)
+        add_subdirectory(${Scilib_SOURCE_DIR} ${Scilib_BINARY_DIR} EXCLUDE_FROM_ALL)
+    endif()
 endif()
 
 # Stdutils is required.
 find_package(Stdutils)
 if(Stdutils_FOUND)
-    add_custom_target(Stdutils)
-else()
-    list(APPEND STDUTILS_CMAKE_ARGS
-        "-DCMAKE_INSTALL_PREFIX:STRING=${CMAKE_BINARY_DIR}/external"
-        "-DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}"
-        "-DBUILD_TESTS=OFF"
-    )
-    ExternalProject_Add(
-        Stdutils
-        PREFIX ${CMAKE_BINARY_DIR}/stdutils
+    message(STATUS "Stdutils found")
+endif()
+if (NOT Stdutils_FOUND)
+    message(STATUS "No installed Stdutils found, fetching from Github")
+    include(FetchContent)
+    FetchContent_Declare(
+        Scilib
         GIT_REPOSITORY https://github.com/stigrs/stdutils.git
-        CMAKE_ARGS ${STDUTILS_CMAKE_ARGS}
-        LOG_DOWNLOAD 1
-        UPDATE_DISCONNECTED 0
+        GIT_TAG        main
     )
-    set(Stdutils_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/external/include)
+    FetchContent_GetProperties(Stdutils)
+    if(NOT Scilib_POPULATED)
+        FetchContent_Populate(Stdutils)
+        add_subdirectory(${Stdutils_SOURCE_DIR} ${Stdutils_BINARY_DIR} EXCLUDE_FROM_ALL)
+    endif()
 endif()
 
-# Numlib is required.
-find_package(Numlib)
-if(Numlib_FOUND)
-    add_custom_target(Numlib)
+# BLAS and LAPACKE are required.
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+if(DEFINED ENV{MKLROOT})
+	find_package(MKL)
+	if(MKL_FOUND)
+	    message(STATUS "Intel MKL found")
+		add_definitions(${MKL_DEFINITIONS})
+		set(BLAS_INCLUDE_DIRS ${MKL_INCLUDE_DIRS})
+		set(LAPACKE_INCLUDE_DIRS ${MKL_INCLUDE_DIRS})
+        set(BLAS_LIBRARY_DIRS ${MKL_LIBRARY_DIRS})
+		set(BLAS_LIBRARIES ${MKL_LIBRARIES})
+	endif()
 else()
-    list(APPEND NUMLIB_CMAKE_ARGS
-        "-DCMAKE_INSTALL_PREFIX:STRING=${CMAKE_BINARY_DIR}/external"
-        "-DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}"
-        "-DBUILD_TESTS=OFF"
-        "-DBUILD_BENCH=OFF"
-        "-DBUILD_EXAMPLES=OFF"
-    )
-    ExternalProject_Add(
-        Numlib
-        PREFIX ${CMAKE_BINARY_DIR}/numlib
-        GIT_REPOSITORY https://github.com/stigrs/numlib.git
-        CMAKE_ARGS ${NUMLIB_CMAKE_ARGS}
-        LOG_DOWNLOAD 1
-        UPDATE_DISCONNECTED 0
-    )
-    set(Numlib_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/external/include)
-    set(Numlib_LIBRARY_DIRS ${CMAKE_BINARY_DIR}/external/lib)
-    set(Numlib_LIBRARIES "num")
+    find_package(OpenBLAS)
+	if(BLAS_FOUND)
+        MESSAGE(STATUS "OpenBLAS found")
+		add_definitions(${BLAS_DEFINITIONS})
+		set(BLAS_INCLUDE_DIRS ${BLAS_INCLUDE_DIRS})
+		set(LAPACKE_INCLUDE_DIRS ${BLAS_INCLUDE_DIRS})
+        set(BLAS_LIBRARY_DIRS ${BLAS_LIBRARY_DIRS})
+		set(BLAS_LIBRARIES ${BLAS_LIBRARIES})
+	endif()
 endif()
-
-#-------------------------------------------------------------------------------
-#
-# Build the software:
 
 add_subdirectory(lib)
-add_subdirectory(src)
 
-# Enable testing.
-option(BUILD_TESTS "Build tests." ON)
+add_library(diim INTERFACE)
+target_link_libraries(diim INTERFACE std::mdspan)
+
+target_include_directories(diim INTERFACE
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+)
+
+################################################################################
+
+install(TARGETS diim EXPORT DiimTargets
+  INCLUDES DESTINATION include
+)
+
+install(EXPORT DiimTargets
+    FILE DiimTargets.cmake
+    NAMESPACE Diim::
+    DESTINATION lib/cmake/diim
+)
+
+export(TARGETS diim
+    NAMESPACE Diim::
+    FILE DiimTargets.cmake
+)
+
+install(DIRECTORY include/diim DESTINATION include)
+
+include(CMakePackageConfigHelpers)
+configure_package_config_file(cmake/DiimConfig.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/DiimConfig.cmake
+  INSTALL_DESTINATION lib/cmake/diim
+)
+write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/DiimConfigVersion.cmake
+  COMPATIBILITY SameMajorVersion
+)
+
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/DiimConfig.cmake ${CMAKE_CURRENT_BINARY_DIR}/ScilibConfigVersion.cmake
+    DESTINATION lib/cmake/diim
+)
+
+################################################################################
 
 if(BUILD_TESTS)
     enable_testing()
     add_subdirectory(tests)
 endif()
-
-# Install target.
-install(
-    DIRECTORY include/iim
-    DESTINATION include
-    FILES_MATCHING PATTERN "*.h"
-)

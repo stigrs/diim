@@ -6,18 +6,18 @@
 
 #include <iim/diim.h>
 #include <iim/types.h>
-#include <numlib/matrix.h>
+#include <scilib/mdarray.h>
 #include <stdutils/stdutils.h>
 #include <gtest/gtest.h>
 #include <iostream>
-#include <cmath>
+#include <vector>
 
 TEST(TestDiim, TestCase1)
 {
     // Correct answer (Haimes & Jiang, 2001):
     // --------------------------------------
     // For c* = [0.0, 0.6], q = [0.571, 0.714]
-    Numlib::Vec<double> qans = {0.571, 0.714};
+    Scilib::Vector<double> qans({0.571, 0.714}, 2);
 
     std::ifstream istrm;
     Stdutils::fopen(istrm, "test_case1.inp");
@@ -25,8 +25,8 @@ TEST(TestDiim, TestCase1)
     Iim::Diim diim(istrm);
     auto q = diim.inoperability();
 
-    for (Index i = 0; i < q.size(); ++i) {
-        EXPECT_TRUE(std::abs(q(i) - qans(i)) < 0.001);
+    for (std::size_t i = 0; i < q.size(); ++i) {
+        EXPECT_NEAR(q(i), qans(i), 0.001);
     }
 }
 
@@ -35,7 +35,7 @@ TEST(TestDiim, TestCase2)
     // Correct answer (Haimes & Jiang, 2001):
     // --------------------------------------
     // For c* = [0.0, 0.6], q = [0.571, 0.714]
-    Numlib::Vec<double> qans = {0.571, 0.714};
+    Scilib::Vector<double> qans({0.571, 0.714}, 2);
 
     std::ifstream istrm;
     Stdutils::fopen(istrm, "test_case2.inp");
@@ -43,8 +43,8 @@ TEST(TestDiim, TestCase2)
     Iim::Diim diim(istrm);
     auto q = diim.inoperability();
 
-    for (Index i = 0; i < q.size(); ++i) {
-        EXPECT_TRUE(std::abs(q(i) - qans(i)) < 0.001);
+    for (std::size_t i = 0; i < q.size(); ++i) {
+        EXPECT_NEAR(q(i), qans(i), 0.001);
     }
 }
 
@@ -53,7 +53,7 @@ TEST(TestDiim, TestCase3)
     // Correct answer (Haimes & Jiang, 2001):
     // --------------------------------------
     // For c* = [0.0, 0.5, 0.0, 0.0], q = [0.70, 0.78, 1.0, 1.0]
-    Numlib::Vec<double> qans = {0.70, 0.78, 1.0, 1.0};
+    Scilib::Vector<double> qans({0.70, 0.78, 1.0, 1.0}, 4);
 
     std::ifstream istrm;
     Stdutils::fopen(istrm, "test_case3.inp");
@@ -61,8 +61,8 @@ TEST(TestDiim, TestCase3)
     Iim::Diim diim(istrm);
     auto q = diim.inoperability();
 
-    for (Index i = 0; i < q.size(); ++i) {
-        EXPECT_TRUE(std::abs(q(i) - qans(i)) < 0.01);
+    for (std::size_t i = 0; i < q.size(); ++i) {
+        EXPECT_NEAR(q(i), qans(i), 0.01);
     }
 }
 
@@ -71,7 +71,7 @@ TEST(TestDiim, TestCase4)
     // Correct answer (Haimes & Jiang, 2001):
     // --------------------------------------
     // For c* = [0.0, 0.0, 0.12], q = [0.04, 0.02, 0.14]
-    Numlib::Vec<double> qans = {0.04, 0.02, 0.14};
+    Scilib::Vector<double> qans({0.04, 0.02, 0.14}, 3);
 
     std::ifstream istrm;
     Stdutils::fopen(istrm, "test_case4.inp");
@@ -79,8 +79,8 @@ TEST(TestDiim, TestCase4)
     Iim::Diim diim(istrm);
     auto q = diim.inoperability();
 
-    for (Index i = 0; i < q.size(); ++i) {
-        EXPECT_TRUE(std::abs(q(i) - qans(i)) < 0.01);
+    for (std::size_t i = 0; i < q.size(); ++i) {
+        EXPECT_NEAR(q(i), qans(i), 0.01);
     }
 }
 
@@ -89,20 +89,26 @@ TEST(TestDiim, TestCase5)
     // Correct answer:
     // --------------:
     // Xu et al. (2011), eq. 31.
-    Numlib::Mat<double> amat_ans = {{0.14, 0.17, 0.26, 0.14},
-                                    {0.11, 0.20, 0.32, 0.28},
-                                    {0.20, 0.10, 0.26, 0.14},
-                                    {0.14, 0.17, 0.10, 0.28}};
+
+    // clang-format off
+    std::vector<double> ans_data = {
+        0.14, 0.17, 0.26, 0.14,
+        0.11, 0.20, 0.32, 0.28,
+        0.20, 0.10, 0.26, 0.14,
+        0.14, 0.17, 0.10, 0.28
+    };
+    // clang-format on
+    Scilib::Matrix<double> amat_ans(ans_data, 4, 4);
 
     std::ifstream istrm;
     Stdutils::fopen(istrm, "test_case5.inp");
 
     Iim::Diim diim(istrm);
-    const auto& amat = diim.tech_coeff();
+    const auto amat = diim.tech_coeff();
 
-    for (Index i = 0; i < amat.rows(); ++i) {
-        for (Index j = 0; j < amat.cols(); ++j) {
-            EXPECT_TRUE(std::abs(amat(i, j) - amat_ans(i, j)) < 0.015);
+    for (std::size_t i = 0; i < amat.extent(0); ++i) {
+        for (std::size_t j = 0; j < amat.extent(1); ++j) {
+            EXPECT_NEAR(amat(i, j), amat_ans(i, j), 0.015);
         }
     }
 }
@@ -112,10 +118,16 @@ TEST(TestDiim, TestCase6)
     // Correct answer:
     // --------------:
     // Xu et al. (2011), eq. 34.
-    Numlib::Mat<double> astar_ans = {{0.14, 0.11, 0.20, 0.14},
-                                     {0.17, 0.20, 0.10, 0.17},
-                                     {0.26, 0.32, 0.26, 0.10},
-                                     {0.14, 0.28, 0.14, 0.28}};
+
+    // clang-format off
+    std::vector<double> ans_data = {
+        0.14, 0.11, 0.20, 0.14,
+        0.17, 0.20, 0.10, 0.17,
+        0.26, 0.32, 0.26, 0.10,
+        0.14, 0.28, 0.14, 0.28
+    };
+    // clang-format on
+    Scilib::Matrix<double> astar_ans(ans_data, 4, 4);
 
     std::ifstream istrm;
     Stdutils::fopen(istrm, "test_case6.inp");
@@ -123,9 +135,9 @@ TEST(TestDiim, TestCase6)
     Iim::Diim diim(istrm);
     auto astar = diim.interdependency_matrix();
 
-    for (Index i = 0; i < astar.rows(); ++i) {
-        for (Index j = 0; j < astar.cols(); ++j) {
-            EXPECT_TRUE(std::abs(astar(i, j) - astar_ans(i, j)) < 0.015);
+    for (std::size_t i = 0; i < astar.extent(0); ++i) {
+        for (std::size_t j = 0; j < astar.extent(1); ++j) {
+            EXPECT_NEAR(astar(i, j), astar_ans(i, j), 0.015);
         }
     }
 }
@@ -135,7 +147,7 @@ TEST(TestDiim, TestCase7)
     // Correct answer (Lian & Haimes, 2006):
     // --------------------------------------
     // For c* = [0.0, 0.1], q = [0.066, 0.112]
-    Numlib::Vec<double> qans = {0.066, 0.112};
+    Scilib::Vector<double> qans({0.066, 0.112}, 2);
 
     std::ifstream istrm;
     Stdutils::fopen(istrm, "test_case7.inp");
@@ -143,8 +155,8 @@ TEST(TestDiim, TestCase7)
     Iim::Diim diim(istrm);
     auto q = diim.inoperability();
 
-    for (Index i = 0; i < q.size(); ++i) {
-        EXPECT_TRUE(std::abs(q(i) - qans(i)) < 0.001);
+    for (std::size_t i = 0; i < q.size(); ++i) {
+        EXPECT_NEAR(q(i), qans(i), 0.001);
     }
 }
 
@@ -164,10 +176,10 @@ TEST(TestDiim, TestCase8)
     auto res2 = diim.interdependency_index("Sector3", "Sector2", 3);
     auto res3 = diim.interdependency_index("Sector1", "Sector2", 3);
     auto res4 = diim.interdependency_index("Sector4", "Sector4", 3);
-    EXPECT_TRUE(std::abs(res1 - ans1) < 0.001);
-    EXPECT_TRUE(std::abs(res2 - ans2) < 0.001);
-    EXPECT_TRUE(std::abs(res3 - ans3) < 0.001);
-    EXPECT_TRUE(std::abs(res4 - ans4) < 0.001);
+    EXPECT_NEAR(res1, ans1, 0.001);
+    EXPECT_NEAR(res2, ans2, 0.001);
+    EXPECT_NEAR(res3, ans3, 0.001);
+    EXPECT_NEAR(res4, ans4, 0.001);
 }
 
 TEST(TestDiim, TestCase9)
@@ -200,7 +212,7 @@ TEST(TestDiim, TestCase9)
     for (std::size_t i = 0; i < res.size(); ++i) {
         EXPECT_TRUE(res[i].function[0] == ans[i].function[0]);
         EXPECT_TRUE(res[i].function[1] == ans[i].function[1]);
-        EXPECT_TRUE(std::abs(res[i].value - ans[i].value) < 0.001);
+        EXPECT_NEAR(res[i].value, ans[i].value, 0.001);
     }
 }
 
@@ -216,42 +228,42 @@ TEST(TestDiim, TestCase10)
     Iim::Diim diim(istrm);
     auto qans = diim.inoperability();
     auto qt = diim.dynamic_inoperability();
-    auto qres = qt.row(qt.rows() - 1)(Numlib::slice(1));
+    auto qres = Scilib::row(qt.view(), qt.extent(0) - 1);
 
-    for (Index i = 0; i < qres.size(); ++i) {
-        EXPECT_TRUE(std::abs(qres(i) - qans(i)) < 1.0e-6);
+    for (std::size_t i = 0; i < qans.size(); ++i) {
+        EXPECT_TRUE(std::abs(qres(i + 1) - qans(i)) < 1.0e-6);
     }
 }
 
 TEST(TestDiim, TestCase11)
 {
-    Numlib::Vec<double> qans = {0.0, 0.0};
+    Scilib::Vector<double> qans({0.0, 0.0}, 2);
 
     std::ifstream istrm;
     Stdutils::fopen(istrm, "test_case11.inp");
 
     Iim::Diim diim(istrm);
     auto qt = diim.dynamic_recovery();
-    auto qres = qt.row(qt.rows() - 1)(Numlib::slice(1));
+    auto qres = Scilib::row(qt.view(), qt.extent(0) - 1);
 
-    for (Index i = 0; i < qres.size(); ++i) {
-        EXPECT_TRUE(std::abs(qres(i) - qans(i)) < 1.0e-6);
+    for (std::size_t i = 0; i < qans.size(); ++i) {
+        EXPECT_TRUE(std::abs(qres(i + 1) - qans(i)) < 1.0e-6);
     }
 }
 
 TEST(TestDiim, TestCase12)
 {
     // Integrated using Numpy:
-    Numlib::Vec<double> qtot_ans = {1.980144350, 3.366317449};
+    Scilib::Vector<double> qtot_ans({1.980144350, 3.366317449}, 2);
 
     std::ifstream istrm;
     Stdutils::fopen(istrm, "test_case12.inp");
 
     Iim::Diim diim(istrm);
     auto qt = diim.dynamic_inoperability();
-    auto qtot = diim.impact(qt);
+    auto qtot = diim.impact(qt.view());
 
-    for (Index i = 0; i < qtot.size(); ++i) {
+    for (std::size_t i = 0; i < qtot.size(); ++i) {
         EXPECT_TRUE(std::abs(qtot(i) - qtot_ans(i)) < 1.0e-6);
     }
 }

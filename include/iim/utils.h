@@ -11,7 +11,7 @@
 
 #include <string>
 #include <vector>
-#include <numlib/matrix.h>
+#include <scilib/mdarray.h>
 
 namespace Iim {
 
@@ -23,7 +23,7 @@ namespace Iim {
 //
 void csv_reader(std::istream& istrm,
                 std::vector<std::string>& header,
-                Numlib::Vec<double>& values);
+                Scilib::Vector<double>& values);
 
 // Helper function for reading matrices from CSV files.
 //
@@ -33,7 +33,7 @@ void csv_reader(std::istream& istrm,
 //
 void csv_reader(std::istream& istrm,
                 std::vector<std::string>& header,
-                Numlib::Mat<double>& values);
+                Scilib::Matrix<double>& values);
 
 // Helper function for reading sparse matrices from CSV files.
 //
@@ -46,7 +46,7 @@ void csv_reader(std::istream& istrm,
 //
 void csv_reader_sparse(std::istream& istrm,
                        std::vector<std::string>& header,
-                       Numlib::Mat<double>& values);
+                       Scilib::Matrix<double>& values);
 
 } // namespace Iim
 
