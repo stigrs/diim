@@ -23,7 +23,7 @@ jobs:
     name: Configure
     inputs:
       workingDirectory: build
-      cmakeArgs: ' .. '
+      cmakeArgs: ' -DBUILD_BENCH=OFF .. '
 
   - task: CMake@1
     name: Build

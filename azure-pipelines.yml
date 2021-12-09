@@ -17,7 +17,7 @@ stages:
   - template: ./pipelines/jobs-linux.yml
     parameters:
       jobName: 'Validate GCC'
-      imageName: ubuntu-18.04
+      imageName: ubuntu-latest
 
 # Clang
 - stage: Clang
@@ -31,7 +31,19 @@ stages:
   - template: ./pipelines/jobs-linux.yml
     parameters:
       jobName: 'Validate Clang'
-      imageName: ubuntu-18.04
+      imageName: ubuntu-latest
+
+# MSVC
+- stage: MSVC
+  dependsOn: []
+  variables:
+    BLAS_DIR: "D:/openblas"
+    BLAS_ROOT: "D:/openblas/OpenBLAS.0.2.14.1/lib/native"
+  jobs:
+  - template: ./pipelines/jobs-windows.yml
+    parameters:
+      jobName: 'Validate MSVC latest'
+      imageName: windows-latest
 
 # Apple-Clang
 - stage: Apple_Clang
@@ -40,8 +52,4 @@ stages:
   - template: ./pipelines/jobs-macos.yml
     parameters:
       jobName: 'Validate Apple-Clang latest'
-      imageName: macos-10.15
-  - template: ./pipelines/jobs-macos.yml
-    parameters:
-      jobName: 'Validate Apple-Clang Previous'
-      imageName: macos-10.14
+      imageName: macos-latest

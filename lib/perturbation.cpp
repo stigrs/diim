@@ -5,7 +5,7 @@
 // and conditions.
 
 #include <iim/perturbation.h>
-#include <numlib/math.h>
+#include <scilib/linalg.h>
 #include <stdutils/stdutils.h>
 #include <sstream>
 #include <cassert>
@@ -53,9 +53,9 @@ Iim::Perturbation::Perturbation(std::istream& istrm,
     init_perturbation();
 }
 
-Numlib::Vec<double> Iim::Perturbation::cstar(int time) const
+Scilib::Vector<double> Iim::Perturbation::cstar(int time) const
 {
-    Numlib::Vec<double> ct = c0;
+    Scilib::Vector<double> ct = c0;
     for (std::size_t i = 0; i < ptime.size(); ++i) {
         if (time >= ptime[i][0] && time <= ptime[i][1]) {
             ct(pindex[i]) = cvalue(i);
@@ -66,15 +66,15 @@ Numlib::Vec<double> Iim::Perturbation::cstar(int time) const
 
 void Iim::Perturbation::init_perturbation()
 {
-    Index n = narrow_cast<Index>(infra.size());
-    c0 = Numlib::zeros<Numlib::Vec<double>>(n);
+    auto n = infra.size();
+    c0 = Scilib::Linalg::zeros<Scilib::Vector<double>>(n);
 
     if (!pinfra.empty()) {
         pindex.clear();
-        for (Index i = 0; i < pinfra.size(); ++i) {
+        for (std::size_t i = 0; i < pinfra.size(); ++i) {
             auto pos = std::find(infra.begin(), infra.end(), pinfra(i));
             if (pos != infra.end()) {
-                Index indx = narrow_cast<Index>(pos - infra.begin());
+                std::size_t indx = pos - infra.begin();
                 pindex.push_back(indx); // store for later use
             }
         }

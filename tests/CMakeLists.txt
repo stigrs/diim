@@ -3,14 +3,11 @@ project(DIIM_tests CXX)
 
 include_directories(${DIIM_SOURCE_DIR}/include)
 include_directories(${Stdutils_INCLUDE_DIRS})
-include_directories(${Numlib_INCLUDE_DIRS})
+include_directories(${Scilib_INCLUDE_DIRS})
 include_directories(${BLAS_INCLUDE_DIRS})
 include_directories(${LAPACKE_INCLUDE_DIRS})
 link_directories(${DIIM_BINARY_DIR})
-link_directories(${Numlib_LIBRARY_DIRS})
-if(MKL_FOUND)
-    link_directories(${MKL_LIBRARY_DIRS})
-endif()
+link_directories(${BLAS_LIBRARY_DIRS})
 
 # Copy *.inp files to build directory.
 file(GLOB INP_FILES RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}"
@@ -36,16 +33,20 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
+if(NOT TARGET std::mdspan)
+  find_package(mdspan REQUIRED)
+endif()
+
 function(add_diim_test name)
     add_executable(${name} ${name}.cpp)
     target_link_libraries (
         ${name} 
         iim
 	    ${BLAS_LIBRARIES}
-        ${Numlib_LIBRARIES}
+        ${Scilib_LIBRARIES}
         gtest_main
+        std::mdspan
     ) 
-    add_dependencies(${name} Stdutils Numlib)
     add_test(NAME ${name} COMMAND ${name})
 endfunction()
 

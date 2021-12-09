@@ -11,8 +11,8 @@
 #include <string>
 #include <vector>
 #include <algorithm>
-#include <numlib/matrix.h>
-#include <numlib/math.h>
+#include <scilib/mdarray.h>
+#include <scilib/linalg.h>
 #include <iim/perturbation.h>
 #include <iim/types.h>
 
@@ -72,19 +72,19 @@ public:
     ~Diim() = default;
 
     // Number of infrastructure systems.
-    Index num_systems() const { return narrow_cast<Index>(infra.size()); }
+    auto num_systems() const { return infra.size(); }
 
     // Return names of infrastructure systems.
     const std::vector<std::string>& infrastructures() const { return infra; }
 
     // Return as-planned production per infrastructure system.
-    const Numlib::Vec<double>& as_planned_production() const { return xoutput; }
+    constexpr auto as_planned_production() const { return xoutput.view(); }
 
     // Return Leontief technical coefficients.
-    const Numlib::Mat<double>& tech_coeff() const { return amat; }
+    constexpr auto tech_coeff() const { return amat.view(); }
 
     // Return interdependency matrix.
-    const Numlib::Mat<double>& interdependency_matrix() const { return astar; }
+    constexpr auto interdependency_matrix() const { return astar.view(); }
 
     // Calculate dependency index.
     //
@@ -94,7 +94,7 @@ public:
     // Note:
     //   Only defined for demand-driven IIM.
     //
-    Numlib::Vec<double> dependency() const;
+    Scilib::Vector<double> dependency() const;
 
     // Calculate influence gain.
     //
@@ -104,7 +104,7 @@ public:
     // Note:
     //   Only defined for demand-driven IIM.
     //
-    Numlib::Vec<double> influence() const;
+    Scilib::Vector<double> influence() const;
 
     // Calculate overall dependency index.
     //
@@ -114,7 +114,7 @@ public:
     // Note:
     //   Only defined for demand-driven IIM.
     //
-    Numlib::Vec<double> overall_dependency() const;
+    Scilib::Vector<double> overall_dependency() const;
 
     // Calculate overall influence gain.
     //
@@ -124,7 +124,7 @@ public:
     // Note:
     //   Only defined for demand-driven IIM.
     //
-    Numlib::Vec<double> overall_influence() const;
+    Scilib::Vector<double> overall_influence() const;
 
     // Calculate n-th order interdependency index infrastructures i and j.
     double interdependency_index(const std::string& i,
@@ -141,10 +141,10 @@ public:
     //   Haimes & Jiang (2001), eq. 14.
     //   Haimes et al. (2005), eq. 38.
     //
-    Numlib::Vec<double> inoperability() const
+    Scilib::Vector<double> inoperability() const
     {
         auto q = smat * perturb.cstar();
-        Numlib::closed_interval(q, 0.0, 1.0);
+        Scilib::Linalg::clip(q.view(), 0.0, 1.0);
         return q;
     }
 
@@ -155,17 +155,17 @@ public:
     //   Haimes et al. (2005), eq. 51.
     //   Lian & Haimes (2006), eq. 21.
     //
-    Numlib::Mat<double> dynamic_inoperability() const;
+    Scilib::Matrix<double> dynamic_inoperability() const;
 
     // Calculate the dynamic recovery of the infrastructure functions.
     //
     // Algorithm:
     //   Lian & Haimes (2006), eq. 26.
     //
-    Numlib::Mat<double> dynamic_recovery() const;
+    Scilib::Matrix<double> dynamic_recovery() const;
 
     // Compute impact by integrating q(t).
-    Numlib::Vec<double> impact(const Numlib::Mat<double>& qt) const;
+    Scilib::Vector<double> impact(Scilib::Matrix_view<double> qt) const;
 
     // Run DIIM analysis.
     void analysis(const std::string& run_type, std::ostream& ostrm = std::cout);
@@ -273,15 +273,15 @@ private:
 
     std::vector<std::string> infra; // list of infrastructures
 
-    Numlib::Mat<double> io_table; // industry x industry input-output table
-    Numlib::Mat<double> amat;     // Leontief technical coefficients
-    Numlib::Mat<double> astar;    // interdependency matrix
-    Numlib::Mat<double> smat;     // S matrix
-    Numlib::Mat<double> kmat;     // K matrix
+    Scilib::Matrix<double> io_table; // industry x industry input-output table
+    Scilib::Matrix<double> amat;     // Leontief technical coefficients
+    Scilib::Matrix<double> astar;    // interdependency matrix
+    Scilib::Matrix<double> smat;     // S matrix
+    Scilib::Matrix<double> kmat;     // K matrix
 
-    Numlib::Vec<double> xoutput; // as-planned production per function
-    Numlib::Vec<double> tau;     // recovery times to q(tau)
-    Numlib::Vec<double> q0;      // inoperabilities at start, q(0)
+    Scilib::Vector<double> xoutput; // as-planned production per function
+    Scilib::Vector<double> tau;     // recovery times to q(tau)
+    Scilib::Vector<double> q0;      // inoperabilities at start, q(0)
 
     double lambda;  // q(tau) value
     int time_steps; // number of time steps
@@ -296,15 +296,15 @@ inline double Diim::interdependency_index(const std::string& i,
     assert(order >= 1);
     auto pos_i = std::find(infra.begin(), infra.end(), i);
     auto pos_j = std::find(infra.begin(), infra.end(), j);
-    Index ii = 0;
-    Index jj = 0;
+    std::size_t ii = 0;
+    std::size_t jj = 0;
     if (pos_i != infra.end()) {
         ii = pos_i - infra.begin();
     }
     if (pos_j != infra.end()) {
         jj = pos_j - infra.begin();
     }
-    auto res = Numlib::matrix_power(astar, order);
+    auto res = Scilib::Linalg::matrix_power(astar.view(), order);
     return res(ii, jj);
 }
 
