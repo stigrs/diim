@@ -135,7 +135,7 @@ if (NOT mdspan_FOUND)
 endif()
 
 # Scilib is required.
-find_package(Scilib)
+find_package(Scilib QUIET)
 if(Scilib_FOUND)
     message(STATUS "Scilib found")
 endif()
@@ -155,7 +155,7 @@ if (NOT Scilib_FOUND)
 endif()
 
 # Stdutils is required.
-find_package(Stdutils)
+find_package(Stdutils QUIET)
 if(Stdutils_FOUND)
     message(STATUS "Stdutils found")
 endif()
