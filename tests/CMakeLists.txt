@@ -41,7 +41,7 @@ function(add_diim_test name)
     add_executable(${name} ${name}.cpp)
     target_link_libraries (
         ${name} 
-        iim
+        diim
 	    ${BLAS_LIBRARIES}
         ${Scilib_LIBRARIES}
         gtest_main

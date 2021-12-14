@@ -181,63 +181,58 @@ if(DEFINED ENV{MKLROOT})
 	if(MKL_FOUND)
 	    message(STATUS "Intel MKL found")
 		add_definitions(${MKL_DEFINITIONS})
-		set(BLAS_INCLUDE_DIRS ${MKL_INCLUDE_DIRS})
-		set(LAPACKE_INCLUDE_DIRS ${MKL_INCLUDE_DIRS})
-        set(BLAS_LIBRARY_DIRS ${MKL_LIBRARY_DIRS})
-		set(BLAS_LIBRARIES ${MKL_LIBRARIES})
 	endif()
 else()
     find_package(OpenBLAS)
 	if(BLAS_FOUND)
         MESSAGE(STATUS "OpenBLAS found")
 		add_definitions(${BLAS_DEFINITIONS})
-		set(BLAS_INCLUDE_DIRS ${BLAS_INCLUDE_DIRS})
-		set(LAPACKE_INCLUDE_DIRS ${BLAS_INCLUDE_DIRS})
-        set(BLAS_LIBRARY_DIRS ${BLAS_LIBRARY_DIRS})
-		set(BLAS_LIBRARIES ${BLAS_LIBRARIES})
 	endif()
 endif()
 
-add_subdirectory(lib)
-
-add_library(diim INTERFACE)
-target_link_libraries(diim INTERFACE std::mdspan)
-
-target_include_directories(diim INTERFACE
+add_library(diim_h INTERFACE)
+target_include_directories(diim_h INTERFACE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
 )
+target_link_libraries(diim_h INTERFACE std::mdspan)
+
+add_subdirectory(src)
+add_subdirectory(tools)
 
 ################################################################################
 
-install(TARGETS diim EXPORT DiimTargets
-  INCLUDES DESTINATION include
+set(INCLUDE_INSTALL_DIR include CACHE PATH "Installation directory for header files")
+set(LIB_INSTALL_DIR lib CACHE PATH "Installation directory for libraries")
+set(CMAKE_INSTALL_DIR lib/cmake/diim CACHE PATH "Installation directory for CMake files")
+
+install(TARGETS diim_h EXPORT DiimTargets
+  INCLUDES DESTINATION ${INCLUDE_INSTALL_DIR}
 )
 
 install(EXPORT DiimTargets
     FILE DiimTargets.cmake
-    NAMESPACE Diim::
-    DESTINATION lib/cmake/diim
+    DESTINATION ${CMAKE_INSTALL_DIR}
 )
 
-export(TARGETS diim
-    NAMESPACE Diim::
+export(TARGETS diim_h
     FILE DiimTargets.cmake
 )
 
-install(DIRECTORY include/diim DESTINATION include)
+install(DIRECTORY include/diim DESTINATION ${INCLUDE_INSTALL_DIR})
 
 include(CMakePackageConfigHelpers)
 configure_package_config_file(cmake/DiimConfig.cmake.in
   ${CMAKE_CURRENT_BINARY_DIR}/DiimConfig.cmake
-  INSTALL_DESTINATION lib/cmake/diim
+  INSTALL_DESTINATION ${CMAKE_INSTALL_DIR}
+  PATH_VARS INCLUDE_INSTALL_DIR
 )
 write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/DiimConfigVersion.cmake
   COMPATIBILITY SameMajorVersion
 )
 
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/DiimConfig.cmake ${CMAKE_CURRENT_BINARY_DIR}/ScilibConfigVersion.cmake
-    DESTINATION lib/cmake/diim
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/DiimConfig.cmake ${CMAKE_CURRENT_BINARY_DIR}/DiimConfigVersion.cmake
+    DESTINATION ${CMAKE_INSTALL_DIR}
 )
 
 ################################################################################

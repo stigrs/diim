@@ -4,7 +4,7 @@
 // LICENSE.txt or http://www.opensource.org/licenses/mit-license.php for terms
 // and conditions.
 
-#include <iim/utils.h>
+#include <diim/utils.h>
 #include <scilib/linalg.h>
 #include <stdutils/stdutils.h>
 #include <sstream>

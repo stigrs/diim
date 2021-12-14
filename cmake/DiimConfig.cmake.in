@@ -1,3 +1,11 @@
+# - Config file for the DIIM package
+#
+# It defines the following variables
+#  DIIM_INCLUDE_DIRS - include directories for DIIM
+#  DIIM_LIBRARIES    - libraries to link against
+
 @PACKAGE_INIT@
 
-include("${CMAKE_CURRENT_LIST_DIR}/diimTargets.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/DiimTargets.cmake")
+set_and_check(DIIM_INCLUDE_DIRS "@PACKAGE_INCLUDE_INSTALL_DIR@")
+set(DIIM_LIBRARIES iim)
