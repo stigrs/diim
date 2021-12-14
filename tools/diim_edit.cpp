@@ -5,8 +5,9 @@
 // and conditions.
 
 #include <stdutils/stdutils.h>
-#include <numlib/matrix.h>
-#include <iim/utils.h>
+#include <scilib/mdarray.h>
+#include <scilib/linalg.h>
+#include <diim/utils.h>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -18,19 +19,19 @@
 // Interdependency matrix editor.
 void amat_editor(const std::string& filename);
 void amat_editor_helper(const std::vector<std::string>& infra,
-                        Numlib::Mat<double>& amat);
+                        Scilib::Matrix<double>& amat);
 
 // Tau values editor.
 void tau_editor(const std::string& filename);
 void tau_editor_helper(const std::vector<std::string>& infra,
-                       Numlib::Vec<double>& tau);
+                       Scilib::Vector<double>& tau);
 
 void csv_writer(std::ostream& ostrm,
                 const std::vector<std::string>& infra,
-                Numlib::Mat<double>& amat);
+                Scilib::Matrix<double>& amat);
 void csv_writer(std::ostream& ostrm,
                 const std::vector<std::string>& infra,
-                Numlib::Vec<double>& tau);
+                Scilib::Vector<double>& tau);
 
 int main(int argc, char* argv[])
 {
@@ -60,14 +61,14 @@ void amat_editor(const std::string& filename)
     Stdutils::fopen(istrm, filename);
 
     std::vector<std::string> infra;
-    Numlib::Mat<double> amat;
+    Scilib::Matrix<double> amat;
 
     Iim::csv_reader(istrm, infra, amat);
     istrm.close();
 
     if (amat.empty()) {
         auto n = infra.size();
-        amat = Numlib::zeros<Numlib::Mat<double>>(n, n);
+        amat = Scilib::Linalg::zeros<Scilib::Matrix<double>>(n, n);
     }
     amat_editor_helper(infra, amat);
 
@@ -77,7 +78,7 @@ void amat_editor(const std::string& filename)
 }
 
 void amat_editor_helper(const std::vector<std::string>& infra,
-                        Numlib::Mat<double>& amat)
+                        Scilib::Matrix<double>& amat)
 {
     std::string line;
     std::string infra_i;
@@ -85,8 +86,8 @@ void amat_editor_helper(const std::vector<std::string>& infra,
 
     double aij = 0.0;
 
-    Index i = 0;
-    Index j = 0;
+    std::size_t i = 0;
+    std::size_t j = 0;
 
     std::cout << "Edit a*(i, j) coefficient? Enter 'quit/q' to stop.\n";
     while (std::getline(std::cin, line)) {
@@ -98,7 +99,7 @@ void amat_editor_helper(const std::vector<std::string>& infra,
 
         auto pos = std::find(infra.begin(), infra.end(), infra_i);
         if (pos != infra.end()) {
-            i = narrow_cast<Index>(pos - infra.begin());
+            i = pos - infra.begin();
         }
         else {
             throw std::runtime_error("bad i-value: " + infra_i);
@@ -106,7 +107,7 @@ void amat_editor_helper(const std::vector<std::string>& infra,
 
         pos = std::find(infra.begin(), infra.end(), infra_j);
         if (pos != infra.end()) {
-            j = narrow_cast<Index>(pos - infra.begin());
+            j = pos - infra.begin();
         }
         else {
             throw std::runtime_error("bad j-value: " + infra_i);
@@ -133,14 +134,14 @@ void tau_editor(const std::string& filename)
     Stdutils::fopen(istrm, filename);
 
     std::vector<std::string> infra;
-    Numlib::Vec<double> tau;
+    Scilib::Vector<double> tau;
 
     Iim::csv_reader(istrm, infra, tau);
     istrm.close();
 
     if (tau.empty()) {
         auto n = infra.size();
-        tau = Numlib::zeros<Numlib::Vec<double>>(n);
+        tau = Scilib::Linalg::zeros<Scilib::Vector<double>>(n);
     }
     tau_editor_helper(infra, tau);
 
@@ -150,14 +151,14 @@ void tau_editor(const std::string& filename)
 }
 
 void tau_editor_helper(const std::vector<std::string>& infra,
-                       Numlib::Vec<double>& tau)
+                       Scilib::Vector<double>& tau)
 {
     std::string line;
     std::string infra_i;
 
     double tau_i = 0.0;
 
-    Index i = 0;
+    std::size_t i = 0;
 
     std::cout << "Edit tau(i) value? Enter 'quit/q' to stop.\n";
     while (std::getline(std::cin, line)) {
@@ -169,7 +170,7 @@ void tau_editor_helper(const std::vector<std::string>& infra,
 
         auto pos = std::find(infra.begin(), infra.end(), infra_i);
         if (pos != infra.end()) {
-            i = narrow_cast<Index>(pos - infra.begin());
+            i = pos - infra.begin();
         }
         else {
             throw std::runtime_error("bad i-value: " + infra_i);
@@ -190,24 +191,24 @@ void tau_editor_helper(const std::vector<std::string>& infra,
 
 void csv_writer(std::ostream& ostrm,
                 const std::vector<std::string>& infra,
-                Numlib::Mat<double>& amat)
+                Scilib::Matrix<double>& amat)
 {
     for (std::size_t i = 0; i < infra.size() - 1; ++i) {
         ostrm << infra[i] << ',';
     }
     ostrm << infra[infra.size() - 1] << '\n';
 
-    for (Index i = 0; i < amat.rows(); ++i) {
-        for (Index j = 0; j < amat.cols() - 1; ++j) {
+    for (std::size_t i = 0; i < amat.extent(0); ++i) {
+        for (std::size_t j = 0; j < amat.extent(1) - 1; ++j) {
             ostrm << amat(i, j) << ',';
         }
-        ostrm << amat(i, amat.cols() - 1) << '\n';
+        ostrm << amat(i, amat.extent(1) - 1) << '\n';
     }
 }
 
 void csv_writer(std::ostream& ostrm,
                 const std::vector<std::string>& infra,
-                Numlib::Vec<double>& tau)
+                Scilib::Vector<double>& tau)
 {
     for (std::size_t i = 0; i < infra.size(); ++i) {
         ostrm << infra[i] << ',' << tau(i) << '\n';

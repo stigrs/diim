@@ -1,38 +1,36 @@
-cmake_minimum_required(VERSION 3.4.3)
-project(DIIM_apps CXX)
+cmake_minimum_required(VERSION 3.14)
+project(libdiim CXX)
 
 include_directories(${DIIM_SOURCE_DIR}/include)
 include_directories(${Stdutils_INCLUDE_DIRS})
-include_directories(${Numlib_INCLUDE_DIRS})
+include_directories(${Scilib_INCLUDE_DIRS})
 include_directories(${BLAS_INCLUDE_DIRS})
 include_directories(${LAPACKE_INCLUDE_DIRS})
 link_directories(${DIIM_BINARY_DIR})
-link_directories(${Numlib_LIBRARY_DIRS})
-if(MKL_FOUND)
-    link_directories(${MKL_LIBRARY_DIRS})
+link_directories(${BLAS_LIBRARY_DIRS})
+
+if(NOT TARGET std::mdspan)
+  find_package(mdspan REQUIRED)
 endif()
 
-function(add_app name)
-    add_executable(${name} ${name}.cpp)
-    target_link_libraries (
-        ${name} 
-        iim
-	    ${BLAS_LIBRARIES}
-        ${Numlib_LIBRARIES}
-    ) 
-    add_dependencies(${name} Stdutils Numlib)
-endfunction()
-
-set(PROGRAMS 
-    diim
-    diim_edit
+set(SRC_FILES
+    diim.cpp
+    perturbation.cpp
+    utils.cpp
 )
-
-foreach(program ${PROGRAMS})
-    add_app(${program})
-endforeach()
+add_library(
+    diim 
+    ${SRC_FILES}
+)
+target_link_libraries(
+    diim 
+    ${BLAS_LIBRARIES}
+    ${Scilib_LIBRARIES} 
+    std::mdspan
+) 
 
 install(
-    TARGETS ${PROGRAMS}
-    DESTINATION bin  
+    TARGETS diim
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
 )

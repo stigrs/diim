@@ -13,8 +13,8 @@
 #include <algorithm>
 #include <scilib/mdarray.h>
 #include <scilib/linalg.h>
-#include <iim/perturbation.h>
-#include <iim/types.h>
+#include <diim/perturbation.h>
+#include <diim/types.h>
 
 namespace Iim {
 

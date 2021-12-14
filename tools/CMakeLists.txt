@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
-project(libiim CXX)
+project(DIIM_tools CXX)
 
 include_directories(${DIIM_SOURCE_DIR}/include)
 include_directories(${Stdutils_INCLUDE_DIRS})
@@ -13,24 +13,27 @@ if(NOT TARGET std::mdspan)
   find_package(mdspan REQUIRED)
 endif()
 
-set(SRC_FILES
-    diim.cpp
-    perturbation.cpp
-    utils.cpp
+function(add_tool name)
+    add_executable(${name} ${name}.cpp)
+    target_link_libraries (
+        ${name} 
+        diim
+	    ${BLAS_LIBRARIES}
+        ${Scilib_LIBRARIES}
+        std::mdspan
+    ) 
+endfunction()
+
+set(PROGRAMS 
+    diim_run
+    diim_edit
 )
-add_library(
-    iim 
-    ${SRC_FILES}
-)
-target_link_libraries(
-    iim 
-    ${BLAS_LIBRARIES}
-    ${Scilib_LIBRARIES} 
-    std::mdspan
-) 
+
+foreach(program ${PROGRAMS})
+    add_tool(${program})
+endforeach()
 
 install(
-    TARGETS iim
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib
+    TARGETS ${PROGRAMS}
+    DESTINATION bin  
 )

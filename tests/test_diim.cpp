@@ -4,8 +4,8 @@
 // LICENSE.txt or http://www.opensource.org/licenses/mit-license.php for terms
 // and conditions.
 
-#include <iim/diim.h>
-#include <iim/types.h>
+#include <diim/diim.h>
+#include <diim/types.h>
 #include <scilib/mdarray.h>
 #include <stdutils/stdutils.h>
 #include <gtest/gtest.h>
