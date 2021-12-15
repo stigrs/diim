@@ -197,11 +197,12 @@ set(SRC_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils.cpp    
 )
 
-add_library(diim ${SRC_FILES})
+add_library(diim STATIC ${SRC_FILES})
 add_library(Diim::Diim ALIAS diim)
 
 target_link_libraries(
     diim 
+    PRIVATE
     std::mdspan
     Scilib::Scilib
     Stdutils::Stdutils
