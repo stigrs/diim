@@ -33,7 +33,7 @@ if(NOT TARGET std::mdspan)
   find_package(mdspan REQUIRED)
 endif()
 
-if(NOT TARGETd Scilib::Scilib)
+if(NOT TARGET Scilib::Scilib)
   find_package(scilib REQUIRED)
 endif()
 
@@ -41,7 +41,7 @@ if(NOT TARGET Stdutils::Stdutils)
   find_package(stdutils REQUIRED)
 endif()
 
-if(NOT TARGETd Diim::Diim)
+if(NOT TARGET Diim::Diim)
   find_package(diim REQUIRED)
 endif()
 
