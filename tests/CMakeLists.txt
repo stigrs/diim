@@ -1,12 +1,8 @@
 cmake_minimum_required(VERSION 3.14)
 project(DIIM_tests CXX)
 
-include_directories(${DIIM_SOURCE_DIR}/include)
-include_directories(${Stdutils_INCLUDE_DIRS})
-include_directories(${Scilib_INCLUDE_DIRS})
 include_directories(${BLAS_INCLUDE_DIRS})
 include_directories(${LAPACKE_INCLUDE_DIRS})
-link_directories(${DIIM_BINARY_DIR})
 link_directories(${BLAS_LIBRARY_DIRS})
 
 # Copy *.inp files to build directory.
@@ -37,15 +33,24 @@ if(NOT TARGET std::mdspan)
   find_package(mdspan REQUIRED)
 endif()
 
+if(NOT TARGET Scilib::Scilib)
+  find_package(scilib REQUIRED)
+endif()
+
+if(NOT TARGET Stdutils::Stdutils)
+  find_package(stdutils REQUIRED)
+endif()
+
 function(add_diim_test name)
     add_executable(${name} ${name}.cpp)
     target_link_libraries (
         ${name} 
-        diim
-	    ${BLAS_LIBRARIES}
-        ${Scilib_LIBRARIES}
+        PRIVATE
+        Scilib::Scilib
+        Stdutils::Stdutils
         gtest_main
         std::mdspan
+	    ${BLAS_LIBRARIES}
     ) 
     add_test(NAME ${name} COMMAND ${name})
 endfunction()

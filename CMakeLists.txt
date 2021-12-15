@@ -6,6 +6,10 @@ project(DIIM
 
 ################################################################################
 
+include(GNUInstallDirs)
+
+################################################################################
+
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 ################################################################################
@@ -127,55 +131,50 @@ if (NOT mdspan_FOUND)
         GIT_REPOSITORY https://github.com/kokkos/mdspan.git
         GIT_TAG        stable
     )
-    FetchContent_GetProperties(mdspan)
-    if(NOT mdspan_POPULATED)
-        FetchContent_Populate(mdspan)
-        add_subdirectory(${mdspan_SOURCE_DIR} ${mdspan_BINARY_DIR})
-    endif()
+    FetchContent_MakeAvailable(mdspan)
 endif()
 
 # Scilib is required.
-find_package(Scilib QUIET)
-if(Scilib_FOUND)
+find_package(scilib QUIET)
+if(scilib_FOUND)
     message(STATUS "Scilib found")
 endif()
-if (NOT Scilib_FOUND)
+if (NOT scilib_FOUND)
     message(STATUS "No installed Scilib found, fetching from Github")
     include(FetchContent)
     FetchContent_Declare(
-        Scilib
+        scilib
         GIT_REPOSITORY https://github.com/stigrs/scilib.git
         GIT_TAG        main
     )
-    FetchContent_GetProperties(Scilib)
-    if(NOT Scilib_POPULATED)
-        FetchContent_Populate(Scilib)
-        add_subdirectory(${Scilib_SOURCE_DIR} ${Scilib_BINARY_DIR})
-    endif()
+    FetchContent_MakeAvailable(scilib)
+endif()
+
+if(NOT TARGET Scilib::Scilib)
+  find_package(scilib REQUIRED)
 endif()
 
 # Stdutils is required.
-find_package(Stdutils QUIET)
-if(Stdutils_FOUND)
+find_package(stdutils QUIET)
+if(stdutils_FOUND)
     message(STATUS "Stdutils found")
 endif()
-if (NOT Stdutils_FOUND)
+if (NOT stdutils_FOUND)
     message(STATUS "No installed Stdutils found, fetching from Github")
     include(FetchContent)
     FetchContent_Declare(
-        Scilib
+        stdutils
         GIT_REPOSITORY https://github.com/stigrs/stdutils.git
-        GIT_TAG        main
+        GIT_TAG        master
     )
-    FetchContent_GetProperties(Stdutils)
-    if(NOT Scilib_POPULATED)
-        FetchContent_Populate(Stdutils)
-        add_subdirectory(${Stdutils_SOURCE_DIR} ${Stdutils_BINARY_DIR})
-    endif()
+    FetchContent_MakeAvailable(stdutils)
+endif()
+
+if(NOT TARGET Stdutils::Stdutils)
+  find_package(stdutils REQUIRED)
 endif()
 
 # BLAS and LAPACKE are required.
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 if(DEFINED ENV{MKLROOT})
 	find_package(MKL)
 	if(MKL_FOUND)
@@ -190,49 +189,63 @@ else()
 	endif()
 endif()
 
-add_library(diim_h INTERFACE)
-target_include_directories(diim_h INTERFACE
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>
-)
-target_link_libraries(diim_h INTERFACE std::mdspan)
-
-add_subdirectory(src)
-add_subdirectory(tools)
-
 ################################################################################
 
-set(INCLUDE_INSTALL_DIR include CACHE PATH "Installation directory for header files")
-set(LIB_INSTALL_DIR lib CACHE PATH "Installation directory for libraries")
-set(CMAKE_INSTALL_DIR lib/cmake/diim CACHE PATH "Installation directory for CMake files")
-
-install(TARGETS diim_h EXPORT DiimTargets
-  INCLUDES DESTINATION ${INCLUDE_INSTALL_DIR}
+set(SRC_FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/diim.cpp    
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/perturbation.cpp    
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils.cpp    
 )
+
+add_library(diim ${SRC_FILES})
+add_library(Diim::Diim ALIAS diim)
+
+target_link_libraries(
+    diim 
+    std::mdspan
+    Scilib::Scilib
+    Stdutils::Stdutils
+    ${BLAS_LIBRARIES}
+)
+
+target_include_directories(diim PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${BLAS_INCLUDE_DIRS}>
+    $<BUILD_INTERFACE:${LAPACKE_INCLUDE_DIRS}>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
+
+install(TARGETS diim
+    EXPORT DiimTargets
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}    
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}    
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}    
+    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}    
+)
+
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/diim DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 install(EXPORT DiimTargets
     FILE DiimTargets.cmake
-    DESTINATION ${CMAKE_INSTALL_DIR}
+    NAMESPACE Diim::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/diim
 )
-
-export(TARGETS diim_h
-    FILE DiimTargets.cmake
-)
-
-install(DIRECTORY include/diim DESTINATION ${INCLUDE_INSTALL_DIR})
 
 include(CMakePackageConfigHelpers)
-configure_package_config_file(cmake/DiimConfig.cmake.in
-  ${CMAKE_CURRENT_BINARY_DIR}/DiimConfig.cmake
-  INSTALL_DESTINATION ${CMAKE_INSTALL_DIR}
-  PATH_VARS INCLUDE_INSTALL_DIR
-)
-write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/DiimConfigVersion.cmake
-  COMPATIBILITY SameMajorVersion
+
+write_basic_package_version_file(
+    "${CMAKE_CURRENT_BINARY_DIR}/DiimConfigVersion.cmake"
+    COMPATIBILITY AnyNewerVersion
 )
 
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/DiimConfig.cmake ${CMAKE_CURRENT_BINARY_DIR}/DiimConfigVersion.cmake
-    DESTINATION ${CMAKE_INSTALL_DIR}
+configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/DiimConfig.cmake.in
+  "${CMAKE_CURRENT_BINARY_DIR}/DiimConfig.cmake"
+  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/diim
+)
+install(FILES 
+    "${CMAKE_CURRENT_BINARY_DIR}/DiimConfig.cmake" 
+    "${CMAKE_CURRENT_BINARY_DIR}/DiimConfigVersion.cmake"
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/diim
 )
 
 ################################################################################
