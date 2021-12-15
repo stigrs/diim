@@ -33,7 +33,7 @@ if(NOT TARGET std::mdspan)
   find_package(mdspan REQUIRED)
 endif()
 
-if(NOT TARGET Scilib::Scilib)
+if(NOT TARGETd Scilib::Scilib)
   find_package(scilib REQUIRED)
 endif()
 
@@ -41,11 +41,16 @@ if(NOT TARGET Stdutils::Stdutils)
   find_package(stdutils REQUIRED)
 endif()
 
+if(NOT TARGETd Diim::Diim)
+  find_package(diim REQUIRED)
+endif()
+
 function(add_diim_test name)
     add_executable(${name} ${name}.cpp)
     target_link_libraries (
         ${name} 
         PRIVATE
+        Diim::Diim
         Scilib::Scilib
         Stdutils::Stdutils
         gtest_main
