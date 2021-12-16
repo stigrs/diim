@@ -33,15 +33,15 @@ if(NOT TARGET std::mdspan)
     find_package(mdspan REQUIRED)
 endif()
 
-if(NOT TARGET Scilib::Scilib)
+if(NOT TARGET scilib::scilib)
     find_package(scilib REQUIRED)
 endif()
 
-if(NOT TARGET Stdutils::Stdutils)
+if(NOT TARGET stdutils::stdutils)
     find_package(stdutils REQUIRED)
 endif()
 
-if(NOT TARGET Diim::Diim)
+if(NOT TARGET diim::diim)
     find_package(diim REQUIRED)
 endif()
 
@@ -50,9 +50,9 @@ function(add_diim_test name)
     target_link_libraries (
         ${name} 
         PRIVATE
-        Diim::Diim
-        Scilib::Scilib
-        Stdutils::Stdutils
+        diim::diim
+        scilib::scilib
+        stdutils::stdutils
         gtest_main
         std::mdspan
 	    ${BLAS_LIBRARIES}
