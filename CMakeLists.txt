@@ -128,10 +128,13 @@ if (NOT mdspan_FOUND)
     include(FetchContent)
     FetchContent_Declare(
         mdspan
-        GIT_REPOSITORY https://github.com/kokkos/mdspan.git
-        GIT_TAG        stable
+        URL https://github.com/kokkos/mdspan/archive/9ffce0d2a3c4439d3112b06c7d3e0036b61b0ef2.zip
     )
     FetchContent_MakeAvailable(mdspan)
+endif()
+
+if(NOT TARGET std::mdspan)
+    find_package(mdspan REQUIRED)
 endif()
 
 # Scilib is required.
@@ -197,15 +200,15 @@ set(SRC_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils.cpp    
 )
 
-add_library(diim STATIC ${SRC_FILES})
+add_library(diim ${SRC_FILES})
 add_library(Diim::Diim ALIAS diim)
 
 target_link_libraries(
     diim 
     PRIVATE
-    std::mdspan
     Scilib::Scilib
     Stdutils::Stdutils
+    std::mdspan
     ${BLAS_LIBRARIES}
 )
 
