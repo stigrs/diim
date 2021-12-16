@@ -153,7 +153,7 @@ if (NOT scilib_FOUND)
     FetchContent_MakeAvailable(scilib)
 endif()
 
-if(NOT TARGET Scilib::Scilib)
+if(NOT TARGET scilib::scilib)
   find_package(scilib REQUIRED)
 endif()
 
@@ -173,7 +173,7 @@ if (NOT stdutils_FOUND)
     FetchContent_MakeAvailable(stdutils)
 endif()
 
-if(NOT TARGET Stdutils::Stdutils)
+if(NOT TARGET stdutils::stdutils)
   find_package(stdutils REQUIRED)
 endif()
 
@@ -201,13 +201,13 @@ set(SRC_FILES
 )
 
 add_library(diim ${SRC_FILES})
-add_library(Diim::Diim ALIAS diim)
+add_library(diim::diim ALIAS diim)
 
 target_link_libraries(
     diim 
     PRIVATE
-    Scilib::Scilib
-    Stdutils::Stdutils
+    scilib::scilib
+    stdutils::stdutils
     std::mdspan
     ${BLAS_LIBRARIES}
 )
@@ -220,7 +220,7 @@ target_include_directories(diim PUBLIC
 )
 
 install(TARGETS diim
-    EXPORT DiimTargets
+    EXPORT diimTargets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}    
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}    
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}    
@@ -229,26 +229,26 @@ install(TARGETS diim
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/diim DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
-install(EXPORT DiimTargets
-    FILE DiimTargets.cmake
-    NAMESPACE Diim::
+install(EXPORT diimTargets
+    FILE diimTargets.cmake
+    NAMESPACE diim::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/diim
 )
 
 include(CMakePackageConfigHelpers)
 
 write_basic_package_version_file(
-    "${CMAKE_CURRENT_BINARY_DIR}/DiimConfigVersion.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/diimConfigVersion.cmake"
     COMPATIBILITY AnyNewerVersion
 )
 
-configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/DiimConfig.cmake.in
-  "${CMAKE_CURRENT_BINARY_DIR}/DiimConfig.cmake"
+configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/diimConfig.cmake.in
+  "${CMAKE_CURRENT_BINARY_DIR}/diimConfig.cmake"
   INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/diim
 )
 install(FILES 
-    "${CMAKE_CURRENT_BINARY_DIR}/DiimConfig.cmake" 
-    "${CMAKE_CURRENT_BINARY_DIR}/DiimConfigVersion.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/diimConfig.cmake" 
+    "${CMAKE_CURRENT_BINARY_DIR}/diimConfigVersion.cmake"
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/diim
 )
 
