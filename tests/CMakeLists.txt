@@ -55,7 +55,7 @@ function(add_diim_test name)
         Stdutils::Stdutils
         gtest_main
         std::mdspan
-	      ${BLAS_LIBRARIES}
+	    ${BLAS_LIBRARIES}
     ) 
     add_test(NAME ${name} COMMAND ${name})
 endfunction()
