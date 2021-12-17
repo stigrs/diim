@@ -14,7 +14,12 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 ################################################################################
 
-option(BUILD_TESTS "Build tests." ON)
+set(Diim_STANDALONE_PROJECT OFF)
+if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
+    set(Diim_STANDALONE_PROJECT ON)
+endif()
+
+option(BUILD_TESTS "Build tests." ${Diim_STANDALONE_PROJECT})
 
 ################################################################################
 
@@ -31,40 +36,23 @@ endif()
 
 ################################################################################
 
-# Option to override which C++ standard to use
-set(DIIM_CXX_STANDARD DETECT CACHE STRING "Override the default CXX_STANDARD to compile with.")
-set_property(CACHE DIIM_CXX_STANDARD PROPERTY STRINGS DETECT 17 20)
-
-option(DIIM_ENABLE_CONCEPTS "Try to enable concepts support by giving extra flags." ON)
-
-# Decide on the standard to use
-if(DIIM_CXX_STANDARD STREQUAL "17")
-    if("cxx_std_17" IN_LIST CMAKE_CXX_COMPILE_FEATURES)
-        message(STATUS "Using C++17 standard")
-        set(CMAKE_CXX_STANDARD 17)
-    else()
-        message(FATAL_ERROR "Requested DIIM_CXX_STANDARD \"17\" not supported by provided C++ compiler")
-    endif()
-elseif(DIIM_CXX_STANDARD STREQUAL "20")
-    if("cxx_std_20" IN_LIST CMAKE_CXX_COMPILE_FEATURES)
-        message(STATUS "Using C++20 standard")
-        set(CMAKE_CXX_STANDARD 20)
-    else()
-        message(FATAL_ERROR "Requested DIIM_CXX_STANDARD \"20\" not supported by provided C++ compiler")
-    endif()
+if(WIN32)
+    option(BUILD_SHARED_LIBS "Compile shared libraries." OFF)
 else()
-    if("cxx_std_20" IN_LIST CMAKE_CXX_COMPILE_FEATURES)
-        set(CMAKE_CXX_STANDARD 20)
-        message(STATUS "Detected support for C++20 standard")
-    elseif("cxx_std_17" IN_LIST CMAKE_CXX_COMPILE_FEATURES)
-        set(CMAKE_CXX_STANDARD 17)
-        message(STATUS "Detected support for C++17 standard")
-    else()
-        message(FATAL_ERROR "Cannot detect CXX_STANDARD of C++17 or newer.")
-    endif()
+    option(BUILD_SHARED_LIBS "Compile shared libraries." ON)
 endif()
 
-if(DIIM_ENABLE_CONCEPTS)
+option(Diim_ENABLE_CONCEPTS "Try to enable concepts support by giving extra flags." ON)
+
+# Check if C++20 is available.
+if("cxx_std_20" IN_LIST CMAKE_CXX_COMPILE_FEATURES)
+    message(STATUS "Using C++20 standard")
+    set(CMAKE_CXX_STANDARD 20)
+else()
+    message(FATAL_ERROR "Requested DIIM_CXX_STANDARD \"20\" not supported by provided C++ compiler")
+endif()
+
+if(Diim_ENABLE_CONCEPTS)
     if(CMAKE_CXX_STANDARD STREQUAL "20")
         include(CheckCXXCompilerFlag)
         CHECK_CXX_COMPILER_FLAG("-fconcepts" COMPILER_SUPPORTS_FCONCEPTS)
@@ -78,45 +66,29 @@ if(DIIM_ENABLE_CONCEPTS)
                 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fconcepts-ts")
             endif()
         endif()
-        # Otherwise, it's possible that the compiler supports concepts without flags,
-        # but if it doesn't, they just won't be used, which is fine
     endif()
-endif()
-
-# Export compile commands.
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
-if(WIN32)
-    option(BUILD_SHARED_LIBS "Compile shared libraries." OFF)
-else()
-    option(BUILD_SHARED_LIBS "Compile shared libraries." ON)
-endif()
-
-# Set default MSVC compiler options to avoid D9025 error.
-if(MSVC)
-    set(CMAKE_CXX_FLAGS "/DWIN32 /D_WINDOWS")
 endif()
 
 # Set release compiler options.
 if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wpedantic -Wall -Wshadow -Wextra -Wno-missing-braces -Werror -Wno-error=strict-overflow -Wno-maybe-uninitialized")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wpedantic -Wall -Wshadow -Wextra -Wno-missing-braces -Werror -Wno-error=strict-overflow -Wno-maybe-uninitialized -std=c++2a")
 endif()
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wpedantic -Wall -Wshadow -Wextra -Wno-missing-braces -Werror -Wno-error=strict-overflow")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wpedantic -Wall -Wshadow -Wextra -Wno-missing-braces -Werror -Wno-error=strict-overflow -std=c++2a")
 endif()
 if(MSVC)
-    set(CMAKE_CXX_FLAGS_RELEASE "/DNDEBUG /W4 /WX /wd4100 /GR /EHsc /MT /O2")
+    set(CMAKE_CXX_FLAGS_RELEASE "/DNDEBUG /W4 /WX /wd4100 /GR /EHsc /MT /O2 -std:c++latest")
 endif()
 
 # Set debugging compiler options.
 if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wpedantic -Wall -Wshadow -Wextra -Wno-missing-braces -Werror -Wno-error=strict-overflow -Wno-maybe-uninitialized")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wpedantic -Wall -Wshadow -Wextra -Wno-missing-braces -Werror -Wno-error=strict-overflow -Wno-maybe-uninitialized -std=c++2a")
 endif()
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wpedantic -Wall -Wshadow -Wextra -Wno-missing-braces -Werror -Wno-error=strict-overflow")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wpedantic -Wall -Wshadow -Wextra -Wno-missing-braces -Werror -Wno-error=strict-overflow -std=c++2a")
 endif()
 if(MSVC)
-    set(CMAKE_CXX_FLAGS_DEBUG "/EHsc /W4 /WX /wd4100 /MT /GR /Zi /Od")
+    set(CMAKE_CXX_FLAGS_DEBUG "/EHsc /W4 /WX /wd4100 /MT /GR /Zi /Od -std:c++latest")
 endif()
 
 ################################################################################
