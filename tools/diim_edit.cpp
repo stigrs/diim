@@ -26,13 +26,6 @@ void tau_editor(const std::string& filename);
 void tau_editor_helper(const std::vector<std::string>& infra,
                        Scilib::Vector<double>& tau);
 
-void csv_writer(std::ostream& ostrm,
-                const std::vector<std::string>& infra,
-                Scilib::Matrix<double>& amat);
-void csv_writer(std::ostream& ostrm,
-                const std::vector<std::string>& infra,
-                Scilib::Vector<double>& tau);
-
 int main(int argc, char* argv[])
 {
     auto args = Stdutils::arguments(argc, argv);
@@ -74,7 +67,7 @@ void amat_editor(const std::string& filename)
 
     std::ofstream ostrm;
     Stdutils::fopen(ostrm, filename);
-    csv_writer(ostrm, infra, amat);
+    Iim::csv_writer(ostrm, infra, amat);
 }
 
 void amat_editor_helper(const std::vector<std::string>& infra,
@@ -147,7 +140,7 @@ void tau_editor(const std::string& filename)
 
     std::ofstream ostrm;
     Stdutils::fopen(ostrm, filename);
-    csv_writer(ostrm, infra, tau);
+    Iim::csv_writer(ostrm, infra, tau);
 }
 
 void tau_editor_helper(const std::vector<std::string>& infra,
@@ -186,31 +179,5 @@ void tau_editor_helper(const std::vector<std::string>& infra,
             tau(i) = tau_i;
             std::cout << "\nEdit new tau(i) value?\n";
         }
-    }
-}
-
-void csv_writer(std::ostream& ostrm,
-                const std::vector<std::string>& infra,
-                Scilib::Matrix<double>& amat)
-{
-    for (std::size_t i = 0; i < infra.size() - 1; ++i) {
-        ostrm << infra[i] << ',';
-    }
-    ostrm << infra[infra.size() - 1] << '\n';
-
-    for (std::size_t i = 0; i < amat.extent(0); ++i) {
-        for (std::size_t j = 0; j < amat.extent(1) - 1; ++j) {
-            ostrm << amat(i, j) << ',';
-        }
-        ostrm << amat(i, amat.extent(1) - 1) << '\n';
-    }
-}
-
-void csv_writer(std::ostream& ostrm,
-                const std::vector<std::string>& infra,
-                Scilib::Vector<double>& tau)
-{
-    for (std::size_t i = 0; i < infra.size(); ++i) {
-        ostrm << infra[i] << ',' << tau(i) << '\n';
     }
 }

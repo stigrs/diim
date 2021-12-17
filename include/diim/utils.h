@@ -48,6 +48,16 @@ void csv_reader_sparse(std::istream& istrm,
                        std::vector<std::string>& header,
                        Scilib::Matrix<double>& values);
 
+// Helper function for writing interdependency matrix to CSV file.
+void csv_writer(std::ostream& ostrm,
+                const std::vector<std::string>& infra,
+                Scilib::Matrix<double>& amat);
+
+// Helper function for writing tau data to CSV file.
+void csv_writer(std::ostream& ostrm,
+                const std::vector<std::string>& infra,
+                Scilib::Vector<double>& tau);
+
 } // namespace Iim
 
 #endif /* IIM_UTILS_H */

@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.17)
 project(DIIM_tools CXX)
 
-include_directories(${DIIM_SOURCE_DIR}/include)
 include_directories(${BLAS_INCLUDE_DIRS})
 include_directories(${LAPACKE_INCLUDE_DIRS})
+link_directories(${BLAS_LIBRARY_DIRS})
 
 if(NOT TARGET std::mdspan)
   find_package(mdspan REQUIRED)
@@ -35,8 +35,9 @@ function(add_tool name)
 endfunction()
 
 set(PROGRAMS 
-    diim_run
     diim_edit
+    diim_gen
+    diim_run
 )
 
 foreach(program ${PROGRAMS})

@@ -97,3 +97,29 @@ void Iim::csv_reader_sparse(std::istream& istrm,
         values(i, j) = aij;
     }
 }
+
+void Iim::csv_writer(std::ostream& ostrm,
+                     const std::vector<std::string>& infra,
+                     Scilib::Matrix<double>& amat)
+{
+    for (std::size_t i = 0; i < infra.size() - 1; ++i) {
+        ostrm << infra[i] << ',';
+    }
+    ostrm << infra[infra.size() - 1] << '\n';
+
+    for (std::size_t i = 0; i < amat.extent(0); ++i) {
+        for (std::size_t j = 0; j < amat.extent(1) - 1; ++j) {
+            ostrm << amat(i, j) << ',';
+        }
+        ostrm << amat(i, amat.extent(1) - 1) << '\n';
+    }
+}
+
+void Iim::csv_writer(std::ostream& ostrm,
+                     const std::vector<std::string>& infra,
+                     Scilib::Vector<double>& tau)
+{
+    for (std::size_t i = 0; i < infra.size(); ++i) {
+        ostrm << infra[i] << ',' << tau(i) << '\n';
+    }
+}
