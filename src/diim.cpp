@@ -354,7 +354,7 @@ void Iim::Diim::init_kmatrix(const std::string& kmat_file)
         assert(header.size() == infra.size());
         auto kmat_diag = Scilib::diag(kmat.view());
         Scilib::copy(values.view(), kmat_diag);
-        Scilib::Linalg::clip(kmat.view(), 0.0, kmat_max);
+        Scilib::Linalg::clip(kmat.view(), 0.0, kmat_max());
     }
     else if (!tau.empty()) {
         calc_kmatrix();
@@ -368,11 +368,11 @@ void Iim::Diim::calc_kmatrix()
         if ((1.0 - astar(i, i)) > 0.0) {
             kmat_diag(i) = (-std::log(lambda) / tau(i)) / (1.0 - astar(i, i));
             if (kmat_diag(i) > 1.0) {
-                kmat_diag(i) = kmat_max; // truncate to the range [0.0, 1.0)
+                kmat_diag(i) = kmat_max(); // truncate to the range [0.0, 1.0)
             }
         }
         else { // truncate to the interval [0.0, 1.0)
-            kmat_diag(i) = kmat_max;
+            kmat_diag(i) = kmat_max();
         }
     }
 }
