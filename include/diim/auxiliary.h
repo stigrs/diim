@@ -7,9 +7,9 @@
 #ifndef IIM_AUXILIARY_H
 #define IIM_AUXILIARY_H
 
+#include <stdutils/stdutils.h>
 #include <array>
 #include <cmath>
-#include <cassert>
 
 namespace Iim {
 namespace Consequence {
@@ -33,36 +33,24 @@ namespace Consequence {
     //
     inline double to_interdep(double consequence, int scale)
     {
-        assert(scale >= 0 && scale < 6);
+        Assert::dynamic(consequence >= 0.0 &&
+                            consequence <= static_cast<double>(scale),
+                        "bad consequence value");
 
-        // clang-format off
-        constexpr std::array<double, 6> a = {
-            0.0,
-            0.0,
-            0.0,
-            0.0,
-            0.01,
-            0.008
-        };
+        double a = 0.0;
+        double b = 0.0;
 
-        constexpr std::array<double, 6> b = {
-            0.0,
-            0.0,
-            0.0,
-            0.0,
-            2.821928095,
-            2.569323442
-        };
-        // clang-format on
-
-        double score = consequence;
-        if (score < 0.0) {
-            score = 0.0;
+        switch (scale) {
+        case 4:
+            a = 0.01;
+            b = 2.821928095;
+            break;
+        case 5:
+        default:
+            a = 0.008;
+            b = 2.569323442;
         }
-        if (score > static_cast<double>(scale)) {
-            score = static_cast<double>(scale);
-        }
-        return a[scale] * std::pow(score, b[scale]);
+        return a * std::pow(consequence, b);
     }
 
 } // namespace Consequence
