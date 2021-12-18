@@ -15,13 +15,14 @@
 #include <vector>
 
 // Interdependency matrix generator.
-void amat_generator(const std::string& filename, int scale = 5);
+void amat_generator(const std::string& filename, int scale);
 
 int main(int argc, char* argv[])
 {
     auto args = Stdutils::arguments(argc, argv);
-    if (args.size() != 2) {
-        std::cerr << "Usage: " << args[0] << " input_file.csv [scale]\n";
+    if (args.size() < 2) {
+        std::cerr << "Usage: " << args[0]
+                  << " input_file.csv [scale = {4, 5}]\n";
         return 1;
     }
     try {
@@ -29,7 +30,9 @@ int main(int argc, char* argv[])
         if (args.size() == 3) {
             scale = std::stoi(args[2]);
         }
-        amat_generator(args[1], scale);
+        if (scale == 4 || scale == 5) {
+            amat_generator(args[1], scale);
+        }
     }
     catch (std::exception& e) {
         std::cerr << "what: " << e.what() << '\n';
@@ -48,12 +51,9 @@ void amat_generator(const std::string& filename, int scale)
     Iim::csv_reader(istrm, infra, amat);
     istrm.close();
 
-    if (scale == 4) {
-        amat.apply([](double& x) { x = Iim::Consequence::to_interdep<4>(x); });
-    }
-    else if (scale == 5) {
-        amat.apply([](double& x) { x = Iim::Consequence::to_interdep<5>(x); });
-    }
+    amat.apply(
+        [](double& x, int val) { x = Iim::Consequence::to_interdep(x, val); },
+        scale);
 
     std::ofstream ostrm;
     Stdutils::fopen(ostrm, filename);
