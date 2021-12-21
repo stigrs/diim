@@ -53,7 +53,7 @@ regarding the licensing of GoogleTest.
 ### Requirements
 
 * [CMake](https://cmake.org) 3.13
-* [OpenBLAS](https://www.openblas.net/) 0.3.3 (Intel MKL is recommended)
+* [OpenBLAS](https://www.openblas.net/) (Intel MKL is recommended)
 
 ### Supported Compilers
 
@@ -84,7 +84,7 @@ into a directory called `diim`.
 2. Configure CMake to use the compiler of your choice (you can see a list by
    running `cmake --help`):
 
-        cmake -G "Visual Studio 15 2017" ..
+        cmake -G "Visual Studio 16 2019" ..
 
 3. Build the software (in this case in the Release configuration):
 
