@@ -58,12 +58,12 @@ if(Diim_ENABLE_CONCEPTS)
         CHECK_CXX_COMPILER_FLAG("-fconcepts" COMPILER_SUPPORTS_FCONCEPTS)
         if(COMPILER_SUPPORTS_FCONCEPTS)
             message(STATUS "-- Using \"-fconcepts\" to enable concepts support")
-            set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -fconcepts)
+            set(Diim_CXX_FLAGS ${CMAKE_CXX_FLAGS} -fconcepts)
         else()
             CHECK_CXX_COMPILER_FLAG("-fconcepts-ts" COMPILER_SUPPORTS_FCONCEPTS_TS)
             if(COMPILER_SUPPORTS_FCONCEPTS)
                 message(STATUS "-- Using \"-fconcepts-ts\" to enable concepts support")
-                set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -fconcepts-ts)
+                set(Diim_CXX_FLAGS ${CMAKE_CXX_FLAGS} -fconcepts-ts)
             endif()
         endif()
     endif()
@@ -71,19 +71,19 @@ endif()
 
 # Set compiler options.
 if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    set(Stdutils_CXX_FLAGS ${CMAKE_CXX_FLAGS} -Wpedantic -Wall -Wshadow -Wextra -Wno-missing-braces -Werror -Wno-error=strict-overflow -Wno-error=unused-parameter -Wno-maybe-uninitialized)
-    set(Stdutils_CXX_FLAGS_DEBUG ${Stdutils_CXX_FLAGS} -g)
-    set(Stdutils_CXX_FLAGS_RELEASE ${Stdutils_CXX_FLAGS} -O3)
+    set(Diim_CXX_FLAGS ${Diim_CXX_FLAGS} -Wpedantic -Wall -Wshadow -Wextra -Wno-missing-braces -Werror -Wno-error=strict-overflow -Wno-error=unused-parameter -Wno-maybe-uninitialized)
+    set(Diim_CXX_FLAGS_DEBUG ${Diim_CXX_FLAGS} -g)
+    set(Diim_CXX_FLAGS_RELEASE ${Diim_CXX_FLAGS} -O3)
 endif()
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    set(Stdutils_CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -Wpedantic -Wall -Wshadow -Wextra -Wno-missing-braces -Werror -Wno-error=strict-overflow)
-    set(Stdutils_CXX_FLAGS_DEBUG ${Stdutils_CXX_FLAGS} -g)
-    set(Stdutils_CXX_FLAGS_RELEASE ${Stdutils_CXX_FLAGS} -O3)
+    set(Diim_CMAKE_CXX_FLAGS ${Diim_CXX_FLAGS} -Wpedantic -Wall -Wshadow -Wextra -Wno-missing-braces -Werror -Wno-error=strict-overflow)
+    set(Diim_CXX_FLAGS_DEBUG ${Diim_CXX_FLAGS} -g)
+    set(Diim_CXX_FLAGS_RELEASE ${Diim_CXX_FLAGS} -O3)
 endif()
 if(MSVC)
-    set(Stdutils_CXX_FLAGS ${CMAKE_CXX_FLAGS} /W4 /WX /wd4100)
-    set(Stdutils_CXX_FLAGS_DEBUG ${Stdutils_CXX_FLAGS} /Zi /Od)
-    set(Stdutils_CXX_FLAGS_RELEASE ${Stdutils_CXX_FLAGS} /O2)
+    set(Diim_CXX_FLAGS ${Diim_CXX_FLAGS} /W4 /WX /wd4100)
+    set(Diim_CXX_FLAGS_DEBUG ${Diim_CXX_FLAGS} /Zi /Od)
+    set(Diim_CXX_FLAGS_RELEASE ${Diim_CXX_FLAGS} /O2)
 endif()
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -128,10 +128,10 @@ endif()
 
 # Stdutils is required.
 find_package(stdutils QUIET)
-if(stdutils_FOUND)
+if(Diim_FOUND)
     message(STATUS "Stdutils found")
 endif()
-if (NOT stdutils_FOUND)
+if (NOT Diim_FOUND)
     message(STATUS "No installed Stdutils found, fetching from Github")
     include(FetchContent)
     FetchContent_Declare(
@@ -184,8 +184,8 @@ target_link_libraries(
 target_compile_options(
     diim
     PRIVATE
-    "$<$<CONFIG:Debug>:${Stdutils_CXX_FLAGS_DEBUG}>"
-    "$<$<CONFIG:Release>:${Stdutils_CXX_FLAGS_RELEASE}>"
+    "$<$<CONFIG:Debug>:${Diim_CXX_FLAGS_DEBUG}>"
+    "$<$<CONFIG:Release>:${Diim_CXX_FLAGS_RELEASE}>"
 )
 
 target_include_directories(diim PUBLIC

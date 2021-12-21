@@ -35,8 +35,8 @@ function(add_tool name)
     target_compile_options(
         ${name}
         PRIVATE
-        "$<$<CONFIG:Debug>:${Stdutils_CXX_FLAGS_DEBUG}>"
-        "$<$<CONFIG:Release>:${Stdutils_CXX_FLAGS_RELEASE}>"
+        "$<$<CONFIG:Debug>:${Diim_CXX_FLAGS_DEBUG}>"
+        "$<$<CONFIG:Release>:${Diim_CXX_FLAGS_RELEASE}>"
     )
 endfunction()
 
