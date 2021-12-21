@@ -38,10 +38,6 @@ papers:
   dependency assessment using the input-output inoperability model.
   International Journal of Critical Infrastructure Protection, 2, 170-178.
 
-## Code of Conduct
-
-This project has adopted the [Covenant Code of Conduct](CODE_OF_CONDUCT.md).
-
 ## Licensing
 
 DIIM is released under the [MIT](LICENSE) license.
@@ -56,9 +52,7 @@ regarding the licensing of GoogleTest.
 
 ### Requirements
 
-* [CMake](https://cmake.org) 3.14
-* [Numlib](https://github.com/stigrs/numlib.git)
-* [Stdutils](https://github.com/stigrs/stdutils.git)
+* [CMake](https://cmake.org) 3.13
 * [OpenBLAS](https://www.openblas.net/) 0.3.3 (Intel MKL is recommended)
 
 ### Supported Compilers
