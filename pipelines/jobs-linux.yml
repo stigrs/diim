@@ -23,7 +23,7 @@ jobs:
     name: Configure
     inputs:
       workingDirectory: build
-      cmakeArgs: ' .. '
+      cmakeArgs: ' -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) .. '
 
   - task: CMake@1
     name: Build

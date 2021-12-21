@@ -58,38 +58,34 @@ if(Diim_ENABLE_CONCEPTS)
         CHECK_CXX_COMPILER_FLAG("-fconcepts" COMPILER_SUPPORTS_FCONCEPTS)
         if(COMPILER_SUPPORTS_FCONCEPTS)
             message(STATUS "-- Using \"-fconcepts\" to enable concepts support")
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fconcepts")
+            set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -fconcepts)
         else()
             CHECK_CXX_COMPILER_FLAG("-fconcepts-ts" COMPILER_SUPPORTS_FCONCEPTS_TS)
             if(COMPILER_SUPPORTS_FCONCEPTS)
                 message(STATUS "-- Using \"-fconcepts-ts\" to enable concepts support")
-                set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fconcepts-ts")
+                set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -fconcepts-ts)
             endif()
         endif()
     endif()
 endif()
 
-# Set release compiler options.
+# Set compiler options.
 if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wpedantic -Wall -Wshadow -Wextra -Wno-missing-braces -Werror -Wno-error=strict-overflow -Wno-maybe-uninitialized -std=c++2a")
+    set(Stdutils_CXX_FLAGS ${CMAKE_CXX_FLAGS} -Wpedantic -Wall -Wshadow -Wextra -Wno-missing-braces -Werror -Wno-error=strict-overflow -Wno-error=unused-parameter -Wno-maybe-uninitialized)
+    set(Stdutils_CXX_FLAGS_DEBUG ${Stdutils_CXX_FLAGS} -g)
+    set(Stdutils_CXX_FLAGS_RELEASE ${Stdutils_CXX_FLAGS} -O3)
 endif()
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wpedantic -Wall -Wshadow -Wextra -Wno-missing-braces -Werror -Wno-error=strict-overflow -std=c++2a")
+    set(Stdutils_CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -Wpedantic -Wall -Wshadow -Wextra -Wno-missing-braces -Werror -Wno-error=strict-overflow)
+    set(Stdutils_CXX_FLAGS_DEBUG ${Stdutils_CXX_FLAGS} -g)
+    set(Stdutils_CXX_FLAGS_RELEASE ${Stdutils_CXX_FLAGS} -O3)
 endif()
 if(MSVC)
-    set(CMAKE_CXX_FLAGS_RELEASE "/DNDEBUG /W4 /WX /wd4100 /GR /EHsc /MT /O2 -std:c++latest")
+    set(Stdutils_CXX_FLAGS ${CMAKE_CXX_FLAGS} /W4 /WX /wd4100)
+    set(Stdutils_CXX_FLAGS_DEBUG ${Stdutils_CXX_FLAGS} /Zi /Od)
+    set(Stdutils_CXX_FLAGS_RELEASE ${Stdutils_CXX_FLAGS} /O2)
 endif()
-
-# Set debugging compiler options.
-if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wpedantic -Wall -Wshadow -Wextra -Wno-missing-braces -Werror -Wno-error=strict-overflow -Wno-maybe-uninitialized -std=c++2a")
-endif()
-if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wpedantic -Wall -Wshadow -Wextra -Wno-missing-braces -Werror -Wno-error=strict-overflow -std=c++2a")
-endif()
-if(MSVC)
-    set(CMAKE_CXX_FLAGS_DEBUG "/EHsc /W4 /WX /wd4100 /MT /GR /Zi /Od -std:c++latest")
-endif()
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 ################################################################################
 
@@ -183,6 +179,13 @@ target_link_libraries(
     stdutils::stdutils
     std::mdspan
     ${BLAS_LIBRARIES}
+)
+
+target_compile_options(
+    diim
+    PRIVATE
+    "$<$<CONFIG:Debug>:${Stdutils_CXX_FLAGS_DEBUG}>"
+    "$<$<CONFIG:Release>:${Stdutils_CXX_FLAGS_RELEASE}>"
 )
 
 target_include_directories(diim PUBLIC

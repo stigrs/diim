@@ -57,6 +57,12 @@ function(add_diim_test name)
         std::mdspan
 	    ${BLAS_LIBRARIES}
     ) 
+    target_compile_options(
+        ${name}
+        PRIVATE
+        "$<$<CONFIG:Debug>:${Stdutils_CXX_FLAGS_DEBUG}>"
+        "$<$<CONFIG:Release>:${Stdutils_CXX_FLAGS_RELEASE}>"
+    )
     add_test(NAME ${name} COMMAND ${name})
 endfunction()
 
