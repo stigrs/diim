@@ -57,12 +57,13 @@ regarding the licensing of GoogleTest.
 
 ### Supported Compilers
 
-| Compiler      | Versions Currently Tested |
-|:--------------|--------------------------:|
-| GCC           | 9, 8, 7                   |
-| Clang         | 10, 6                     |
-| Visual Studio | VS2019                    |
-| XCode         | 11.4 & 10.3               |
+| Compiler      | Versions Tested |
+|:--------------|----------------:|
+| GCC           | 9               |
+| Clang         | 11              |
+| Visual Studio | VS2019          |
+| XCode         | 13.0            |
+| Intel         | 2021            |
 
 ### Obtaining the Source Code
 
