@@ -17,7 +17,7 @@ TEST(TestDiim, TestCase1)
     // Correct answer (Haimes & Jiang, 2001):
     // --------------------------------------
     // For c* = [0.0, 0.6], q = [0.571, 0.714]
-    Scilib::Vector<double> qans({0.571, 0.714}, 2);
+    Sci::Vector<double> qans({0.571, 0.714}, 2);
 
     std::ifstream istrm;
     Stdutils::fopen(istrm, "test_case1.inp");
@@ -35,7 +35,7 @@ TEST(TestDiim, TestCase2)
     // Correct answer (Haimes & Jiang, 2001):
     // --------------------------------------
     // For c* = [0.0, 0.6], q = [0.571, 0.714]
-    Scilib::Vector<double> qans({0.571, 0.714}, 2);
+    Sci::Vector<double> qans({0.571, 0.714}, 2);
 
     std::ifstream istrm;
     Stdutils::fopen(istrm, "test_case2.inp");
@@ -53,7 +53,7 @@ TEST(TestDiim, TestCase3)
     // Correct answer (Haimes & Jiang, 2001):
     // --------------------------------------
     // For c* = [0.0, 0.5, 0.0, 0.0], q = [0.70, 0.78, 1.0, 1.0]
-    Scilib::Vector<double> qans({0.70, 0.78, 1.0, 1.0}, 4);
+    Sci::Vector<double> qans({0.70, 0.78, 1.0, 1.0}, 4);
 
     std::ifstream istrm;
     Stdutils::fopen(istrm, "test_case3.inp");
@@ -71,7 +71,7 @@ TEST(TestDiim, TestCase4)
     // Correct answer (Haimes & Jiang, 2001):
     // --------------------------------------
     // For c* = [0.0, 0.0, 0.12], q = [0.04, 0.02, 0.14]
-    Scilib::Vector<double> qans({0.04, 0.02, 0.14}, 3);
+    Sci::Vector<double> qans({0.04, 0.02, 0.14}, 3);
 
     std::ifstream istrm;
     Stdutils::fopen(istrm, "test_case4.inp");
@@ -98,13 +98,13 @@ TEST(TestDiim, TestCase5)
         0.14, 0.17, 0.10, 0.28
     };
     // clang-format on
-    Scilib::Matrix<double> amat_ans(ans_data, 4, 4);
+    Sci::Matrix<double> amat_ans(ans_data, 4, 4);
 
     std::ifstream istrm;
     Stdutils::fopen(istrm, "test_case5.inp");
 
     Iim::Diim diim(istrm);
-    const auto amat = diim.tech_coeff();
+    auto amat = diim.tech_coeff();
 
     for (std::size_t i = 0; i < amat.extent(0); ++i) {
         for (std::size_t j = 0; j < amat.extent(1); ++j) {
@@ -127,7 +127,7 @@ TEST(TestDiim, TestCase6)
         0.14, 0.28, 0.14, 0.28
     };
     // clang-format on
-    Scilib::Matrix<double> astar_ans(ans_data, 4, 4);
+    Sci::Matrix<double> astar_ans(ans_data, 4, 4);
 
     std::ifstream istrm;
     Stdutils::fopen(istrm, "test_case6.inp");
@@ -147,7 +147,7 @@ TEST(TestDiim, TestCase7)
     // Correct answer (Lian & Haimes, 2006):
     // --------------------------------------
     // For c* = [0.0, 0.1], q = [0.066, 0.112]
-    Scilib::Vector<double> qans({0.066, 0.112}, 2);
+    Sci::Vector<double> qans({0.066, 0.112}, 2);
 
     std::ifstream istrm;
     Stdutils::fopen(istrm, "test_case7.inp");
@@ -228,7 +228,7 @@ TEST(TestDiim, TestCase10)
     Iim::Diim diim(istrm);
     auto qans = diim.inoperability();
     auto qt = diim.dynamic_inoperability();
-    auto qres = Scilib::row(qt.view(), qt.extent(0) - 1);
+    auto qres = Sci::row(qt, qt.extent(0) - 1);
 
     for (std::size_t i = 0; i < qans.size(); ++i) {
         EXPECT_TRUE(std::abs(qres(i + 1) - qans(i)) < 1.0e-6);
@@ -237,14 +237,14 @@ TEST(TestDiim, TestCase10)
 
 TEST(TestDiim, TestCase11)
 {
-    Scilib::Vector<double> qans({0.0, 0.0}, 2);
+    Sci::Vector<double> qans({0.0, 0.0}, 2);
 
     std::ifstream istrm;
     Stdutils::fopen(istrm, "test_case11.inp");
 
     Iim::Diim diim(istrm);
     auto qt = diim.dynamic_recovery();
-    auto qres = Scilib::row(qt.view(), qt.extent(0) - 1);
+    auto qres = Sci::row(qt, qt.extent(0) - 1);
 
     for (std::size_t i = 0; i < qans.size(); ++i) {
         EXPECT_TRUE(std::abs(qres(i + 1) - qans(i)) < 1.0e-6);
@@ -254,14 +254,14 @@ TEST(TestDiim, TestCase11)
 TEST(TestDiim, TestCase12)
 {
     // Integrated using Numpy:
-    Scilib::Vector<double> qtot_ans({1.980144350, 3.366317449}, 2);
+    Sci::Vector<double> qtot_ans({1.980144350, 3.366317449}, 2);
 
     std::ifstream istrm;
     Stdutils::fopen(istrm, "test_case12.inp");
 
     Iim::Diim diim(istrm);
     auto qt = diim.dynamic_inoperability();
-    auto qtot = diim.impact(qt.view());
+    auto qtot = diim.impact(qt);
 
     for (std::size_t i = 0; i < qtot.size(); ++i) {
         EXPECT_TRUE(std::abs(qtot(i) - qtot_ans(i)) < 1.0e-6);

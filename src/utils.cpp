@@ -11,7 +11,7 @@
 
 void Iim::csv_reader(std::istream& istrm,
                      std::vector<std::string>& header,
-                     Scilib::Vector<double>& values)
+                     Sci::Vector<double>& values)
 {
     header.clear();
 
@@ -29,12 +29,12 @@ void Iim::csv_reader(std::istream& istrm,
         std::getline(ss, val, ',');
         data.push_back(std::stod(val));
     }
-    values = Scilib::Vector<double>(data, data.size());
+    values = Sci::Vector<double>(data, data.size());
 }
 
 void Iim::csv_reader(std::istream& istrm,
                      std::vector<std::string>& header,
-                     Scilib::Matrix<double>& values)
+                     Sci::Matrix<double>& values)
 {
     header.clear();
 
@@ -61,12 +61,12 @@ void Iim::csv_reader(std::istream& istrm,
         ++nrows;
     }
     std::size_t ncols = header.size();
-    values = Scilib::Matrix<double>(tmp, nrows, ncols);
+    values = Sci::Matrix<double>(tmp, nrows, ncols);
 }
 
 void Iim::csv_reader_sparse(std::istream& istrm,
                             std::vector<std::string>& header,
-                            Scilib::Matrix<double>& values)
+                            Sci::Matrix<double>& values)
 {
     header.clear();
 
@@ -82,7 +82,7 @@ void Iim::csv_reader_sparse(std::istream& istrm,
     // Read data:
     std::size_t ncols = header.size();
     std::size_t nrows = ncols;
-    values = Scilib::Linalg::zeros<Scilib::Matrix<double>>(nrows, ncols);
+    values = Sci::Linalg::zeros<Sci::Matrix<double>>(nrows, ncols);
     while (std::getline(istrm, line)) {
         if (line.empty()) {
             continue;
@@ -100,7 +100,7 @@ void Iim::csv_reader_sparse(std::istream& istrm,
 
 void Iim::csv_writer(std::ostream& ostrm,
                      const std::vector<std::string>& infra,
-                     Scilib::Matrix<double>& amat)
+                     const Sci::Matrix<double>& amat)
 {
     for (std::size_t i = 0; i < infra.size() - 1; ++i) {
         ostrm << infra[i] << ',';
@@ -117,7 +117,7 @@ void Iim::csv_writer(std::ostream& ostrm,
 
 void Iim::csv_writer(std::ostream& ostrm,
                      const std::vector<std::string>& infra,
-                     Scilib::Vector<double>& tau)
+                     const Sci::Vector<double>& tau)
 {
     for (std::size_t i = 0; i < infra.size(); ++i) {
         ostrm << infra[i] << ',' << tau(i) << '\n';

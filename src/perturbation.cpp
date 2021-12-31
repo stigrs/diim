@@ -53,9 +53,9 @@ Iim::Perturbation::Perturbation(std::istream& istrm,
     init_perturbation();
 }
 
-Scilib::Vector<double> Iim::Perturbation::cstar(int time) const
+Sci::Vector<double> Iim::Perturbation::cstar(int time) const
 {
-    Scilib::Vector<double> ct = c0;
+    Sci::Vector<double> ct = c0;
     for (std::size_t i = 0; i < ptime.size(); ++i) {
         if (time >= ptime[i][0] && time <= ptime[i][1]) {
             ct(pindex[i]) = cvalue(i);
@@ -67,7 +67,7 @@ Scilib::Vector<double> Iim::Perturbation::cstar(int time) const
 void Iim::Perturbation::init_perturbation()
 {
     auto n = infra.size();
-    c0 = Scilib::Linalg::zeros<Scilib::Vector<double>>(n);
+    c0 = Sci::Linalg::zeros<Sci::Vector<double>>(n);
 
     if (!pinfra.empty()) {
         pindex.clear();

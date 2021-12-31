@@ -19,12 +19,12 @@
 // Interdependency matrix editor.
 void amat_editor(const std::string& filename);
 void amat_editor_helper(const std::vector<std::string>& infra,
-                        Scilib::Matrix<double>& amat);
+                        Sci::Matrix<double>& amat);
 
 // Tau values editor.
 void tau_editor(const std::string& filename);
 void tau_editor_helper(const std::vector<std::string>& infra,
-                       Scilib::Vector<double>& tau);
+                       Sci::Vector<double>& tau);
 
 int main(int argc, char* argv[])
 {
@@ -54,14 +54,14 @@ void amat_editor(const std::string& filename)
     Stdutils::fopen(istrm, filename);
 
     std::vector<std::string> infra;
-    Scilib::Matrix<double> amat;
+    Sci::Matrix<double> amat;
 
     Iim::csv_reader(istrm, infra, amat);
     istrm.close();
 
     if (amat.empty()) {
         auto n = infra.size();
-        amat = Scilib::Linalg::zeros<Scilib::Matrix<double>>(n, n);
+        amat = Sci::Linalg::zeros<Sci::Matrix<double>>(n, n);
     }
     amat_editor_helper(infra, amat);
 
@@ -71,7 +71,7 @@ void amat_editor(const std::string& filename)
 }
 
 void amat_editor_helper(const std::vector<std::string>& infra,
-                        Scilib::Matrix<double>& amat)
+                        Sci::Matrix<double>& amat)
 {
     std::string line;
     std::string infra_i;
@@ -127,14 +127,14 @@ void tau_editor(const std::string& filename)
     Stdutils::fopen(istrm, filename);
 
     std::vector<std::string> infra;
-    Scilib::Vector<double> tau;
+    Sci::Vector<double> tau;
 
     Iim::csv_reader(istrm, infra, tau);
     istrm.close();
 
     if (tau.empty()) {
         auto n = infra.size();
-        tau = Scilib::Linalg::zeros<Scilib::Vector<double>>(n);
+        tau = Sci::Linalg::zeros<Sci::Vector<double>>(n);
     }
     tau_editor_helper(infra, tau);
 
@@ -144,7 +144,7 @@ void tau_editor(const std::string& filename)
 }
 
 void tau_editor_helper(const std::vector<std::string>& infra,
-                       Scilib::Vector<double>& tau)
+                       Sci::Vector<double>& tau)
 {
     std::string line;
     std::string infra_i;

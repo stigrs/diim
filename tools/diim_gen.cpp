@@ -46,7 +46,7 @@ void amat_generator(const std::string& filename, int scale)
     Stdutils::fopen(istrm, filename);
 
     std::vector<std::string> infra;
-    Scilib::Matrix<double> amat;
+    Sci::Matrix<double> amat;
 
     Iim::csv_reader(istrm, infra, amat);
     istrm.close();

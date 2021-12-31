@@ -38,10 +38,10 @@ public:
     ~Perturbation() = default;
 
     // Return perturbation [c*(t)].
-    Scilib::Vector<double> cstar(int time = 0) const;
+    Sci::Vector<double> cstar(int time = 0) const;
 
     // Set perturbed infrastructures.
-    void set_perturbed_infrastructures(Scilib::Vector_view<std::string> names)
+    void set_perturbed_infrastructures(const Sci::Vector<std::string>& names)
     {
         pinfra = names;
         init_perturbation();
@@ -70,9 +70,9 @@ private:
     std::vector<std::size_t> pindex; // indices of perturbed infrastructures
     std::vector<std::array<int, 2>> ptime; // timings for perturbations
 
-    Scilib::Vector<std::string> pinfra; // list with perturbed infrastructures
-    Scilib::Vector<double> cvalue;      // list of perturbation magnitudes
-    Scilib::Vector<double> c0;          // initial degradation, c(t) = c(0)
+    Sci::Vector<std::string> pinfra; // list with perturbed infrastructures
+    Sci::Vector<double> cvalue;      // list of perturbation magnitudes
+    Sci::Vector<double> c0;          // initial degradation, c(t) = c(0)
 };
 
 } // namespace Iim

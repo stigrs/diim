@@ -72,10 +72,13 @@ public:
     ~Diim() = default;
 
     // Number of infrastructure systems.
-    auto num_systems() const { return infra.size(); }
+    constexpr auto num_systems() const { return infra.size(); }
 
     // Return names of infrastructure systems.
-    const std::vector<std::string>& infrastructures() const { return infra; }
+    constexpr const std::vector<std::string>& infrastructures() const
+    {
+        return infra;
+    }
 
     // Return as-planned production per infrastructure system.
     constexpr auto as_planned_production() const { return xoutput.view(); }
@@ -94,7 +97,7 @@ public:
     // Note:
     //   Only defined for demand-driven IIM.
     //
-    Scilib::Vector<double> dependency() const;
+    Sci::Vector<double> dependency() const;
 
     // Calculate influence gain.
     //
@@ -104,7 +107,7 @@ public:
     // Note:
     //   Only defined for demand-driven IIM.
     //
-    Scilib::Vector<double> influence() const;
+    Sci::Vector<double> influence() const;
 
     // Calculate overall dependency index.
     //
@@ -114,7 +117,7 @@ public:
     // Note:
     //   Only defined for demand-driven IIM.
     //
-    Scilib::Vector<double> overall_dependency() const;
+    Sci::Vector<double> overall_dependency() const;
 
     // Calculate overall influence gain.
     //
@@ -124,7 +127,7 @@ public:
     // Note:
     //   Only defined for demand-driven IIM.
     //
-    Scilib::Vector<double> overall_influence() const;
+    Sci::Vector<double> overall_influence() const;
 
     // Calculate n-th order interdependency index infrastructures i and j.
     double interdependency_index(const std::string& i,
@@ -141,10 +144,10 @@ public:
     //   Haimes & Jiang (2001), eq. 14.
     //   Haimes et al. (2005), eq. 38.
     //
-    Scilib::Vector<double> inoperability() const
+    Sci::Vector<double> inoperability() const
     {
         auto q = smat * perturb.cstar();
-        Scilib::Linalg::clip(q.view(), 0.0, 1.0);
+        Sci::Linalg::clip(q.view(), 0.0, 1.0);
         return q;
     }
 
@@ -155,17 +158,17 @@ public:
     //   Haimes et al. (2005), eq. 51.
     //   Lian & Haimes (2006), eq. 21.
     //
-    Scilib::Matrix<double> dynamic_inoperability() const;
+    Sci::Matrix<double> dynamic_inoperability() const;
 
     // Calculate the dynamic recovery of the infrastructure functions.
     //
     // Algorithm:
     //   Lian & Haimes (2006), eq. 26.
     //
-    Scilib::Matrix<double> dynamic_recovery() const;
+    Sci::Matrix<double> dynamic_recovery() const;
 
     // Compute impact by integrating q(t).
-    Scilib::Vector<double> impact(Scilib::Matrix_view<double> qt) const;
+    Sci::Vector<double> impact(const Sci::Matrix<double>& qt) const;
 
     // Run DIIM analysis.
     void analysis(const std::string& run_type, std::ostream& ostrm = std::cout);
@@ -273,15 +276,15 @@ private:
 
     std::vector<std::string> infra; // list of infrastructures
 
-    Scilib::Matrix<double> io_table; // industry x industry input-output table
-    Scilib::Matrix<double> amat;     // Leontief technical coefficients
-    Scilib::Matrix<double> astar;    // interdependency matrix
-    Scilib::Matrix<double> smat;     // S matrix
-    Scilib::Matrix<double> kmat;     // K matrix
+    Sci::Matrix<double> io_table; // industry x industry input-output table
+    Sci::Matrix<double> amat;     // Leontief technical coefficients
+    Sci::Matrix<double> astar;    // interdependency matrix
+    Sci::Matrix<double> smat;     // S matrix
+    Sci::Matrix<double> kmat;     // K matrix
 
-    Scilib::Vector<double> xoutput; // as-planned production per function
-    Scilib::Vector<double> tau;     // recovery times to q(tau)
-    Scilib::Vector<double> q0;      // inoperabilities at start, q(0)
+    Sci::Vector<double> xoutput; // as-planned production per function
+    Sci::Vector<double> tau;     // recovery times to q(tau)
+    Sci::Vector<double> q0;      // inoperabilities at start, q(0)
 
     double lambda;  // q(tau) value
     int time_steps; // number of time steps
@@ -304,7 +307,7 @@ inline double Diim::interdependency_index(const std::string& i,
     if (pos_j != infra.end()) {
         jj = pos_j - infra.begin();
     }
-    auto res = Scilib::Linalg::matrix_power(astar.view(), order);
+    auto res = Sci::Linalg::matrix_power(astar.view(), order);
     return res(ii, jj);
 }
 

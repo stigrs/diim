@@ -90,10 +90,10 @@ Iim::Diim::Diim(std::istream& istrm)
     perturb = Perturbation(istrm, infra);
 }
 
-Scilib::Vector<double> Iim::Diim::dependency() const
+Sci::Vector<double> Iim::Diim::dependency() const
 {
     auto n = num_systems();
-    auto res = Scilib::Linalg::zeros<Scilib::Vector<double>>(n);
+    auto res = Sci::Linalg::zeros<Sci::Vector<double>>(n);
     if (calc_mode == demand) {
         for (std::size_t i = 0; i < n; ++i) {
             double di = 0.0;
@@ -109,10 +109,10 @@ Scilib::Vector<double> Iim::Diim::dependency() const
     return res;
 }
 
-Scilib::Vector<double> Iim::Diim::influence() const
+Sci::Vector<double> Iim::Diim::influence() const
 {
     auto n = num_systems();
-    auto res = Scilib::Linalg::zeros<Scilib::Vector<double>>(n);
+    auto res = Sci::Linalg::zeros<Sci::Vector<double>>(n);
     if (calc_mode == demand) {
         for (std::size_t j = 0; j < n; ++j) {
             double rj = 0.0;
@@ -127,10 +127,10 @@ Scilib::Vector<double> Iim::Diim::influence() const
     }
     return res;
 }
-Scilib::Vector<double> Iim::Diim::overall_dependency() const
+Sci::Vector<double> Iim::Diim::overall_dependency() const
 {
     auto n = num_systems();
-    auto res = Scilib::Linalg::zeros<Scilib::Vector<double>>(n);
+    auto res = Sci::Linalg::zeros<Sci::Vector<double>>(n);
     if (calc_mode == demand) {
         for (std::size_t i = 0; i < n; ++i) {
             double di = 0.0;
@@ -146,10 +146,10 @@ Scilib::Vector<double> Iim::Diim::overall_dependency() const
     return res;
 }
 
-Scilib::Vector<double> Iim::Diim::overall_influence() const
+Sci::Vector<double> Iim::Diim::overall_influence() const
 {
     auto n = num_systems();
-    auto res = Scilib::Linalg::zeros<Scilib::Vector<double>>(n);
+    auto res = Sci::Linalg::zeros<Sci::Vector<double>>(n);
     if (calc_mode == demand) {
         for (std::size_t j = 0; j < n; ++j) {
             double rj = 0.0;
@@ -169,11 +169,11 @@ std::vector<Iim::Max_nth_order_interdep>
 Iim::Diim::max_nth_order_interdependency(int order) const
 {
     assert(order >= 1);
-    auto astar_n = Scilib::Linalg::matrix_power(astar.view(), order);
+    auto astar_n = Sci::Linalg::matrix_power(astar, order);
 
     std::vector<Max_nth_order_interdep> res;
     for (std::size_t i = 0; i < num_systems(); ++i) {
-        auto j = Scilib::Linalg::argmax(Scilib::row(astar_n.view(), i));
+        auto j = Sci::Linalg::argmax(Sci::row(astar_n, i));
         Max_nth_order_interdep tmp;
         tmp.function[0] = infra[i];
         tmp.function[1] = infra[j];
@@ -183,59 +183,58 @@ Iim::Diim::max_nth_order_interdependency(int order) const
     return res;
 }
 
-Scilib::Matrix<double> Iim::Diim::dynamic_inoperability() const
+Sci::Matrix<double> Iim::Diim::dynamic_inoperability() const
 {
     auto n = num_systems();
     int nt = time_steps;
     if (time_steps == 0) {
         nt = 1;
     }
-    auto qt = Scilib::Linalg::zeros<Scilib::Matrix<double>>(nt, n + 1);
+    auto qt = Sci::Linalg::zeros<Sci::Matrix<double>>(nt, n + 1);
 
-    Scilib::Vector<double> qk = q0;
+    Sci::Vector<double> qk = q0;
 
     for (int tk = 1; tk < time_steps; ++tk) {
         qk = kmat * (astar * qk + perturb.cstar(tk) - qk) + qk;
-        Scilib::Linalg::clip(qk.view(), 0.0, 1.0);
-        auto qt_k = Scilib::row(qt.view(), tk);
+        Sci::Linalg::clip(qk, 0.0, 1.0);
+        auto qt_k = Sci::row(qt, tk);
         qt_k(0) = tk;
-        Scilib::copy_n(qk.view(), qk.extent(0), qt_k, 1);
+        Sci::copy_n(qk.view(), qk.extent(0), qt_k, 1);
     }
     return qt;
 }
 
-Scilib::Matrix<double> Iim::Diim::dynamic_recovery() const
+Sci::Matrix<double> Iim::Diim::dynamic_recovery() const
 {
     auto n = num_systems();
     int nt = time_steps;
     if (time_steps == 0) {
         nt = 1;
     }
-    auto qt = Scilib::Linalg::zeros<Scilib::Matrix<double>>(nt, n + 1);
-    auto qk = Scilib::Linalg::zeros<Scilib::Vector<double>>(n);
-    auto tmp = kmat * (Scilib::Linalg::identity(n) - astar);
+    auto qt = Sci::Linalg::zeros<Sci::Matrix<double>>(nt, n + 1);
+    auto qk = Sci::Linalg::zeros<Sci::Vector<double>>(n);
+    auto tmp = kmat * (Sci::Linalg::identity(n) - astar);
 
     for (int tk = 0; tk < time_steps; ++tk) {
-        qk = Scilib::Linalg::expm(((-1.0 * tk) * tmp).view()) * q0;
-        Scilib::Linalg::clip(qk.view(), 0.0, 1.0);
-        auto qt_k = Scilib::row(qt.view(), tk);
+        qk = Sci::Linalg::expm(-1.0 * tk * tmp) * q0;
+        Sci::Linalg::clip(qk, 0.0, 1.0);
+        auto qt_k = Sci::row(qt, tk);
         qt_k(0) = tk;
-        Scilib::copy_n(qk.view(), qk.extent(0), qt_k, 1);
+        Sci::copy_n(qk.view(), qk.extent(0), qt_k, 1);
     }
     return qt;
 }
 
-Scilib::Vector<double> Iim::Diim::impact(Scilib::Matrix_view<double> qt) const
+Sci::Vector<double> Iim::Diim::impact(const Sci::Matrix<double>& qt) const
 {
-    auto qtot = Scilib::Linalg::zeros<Scilib::Vector<double>>(num_systems());
+    auto qtot = Sci::Linalg::zeros<Sci::Vector<double>>(num_systems());
 
     if (time_steps > 0) {
         double ti = qt(0, 0);
         double tf = qt(qt.extent(0) - 1, 0);
 
         for (std::size_t j = 0; j < num_systems(); ++j) {
-            qtot(j) =
-                Scilib::Integrate::trapz(ti, tf, Scilib::column(qt, j + 1));
+            qtot(j) = Sci::Integrate::trapz(ti, tf, Sci::column(qt, j + 1));
         }
     }
     return qtot;
@@ -249,13 +248,12 @@ void Iim::Diim::read_io_table(const std::string& amat_file)
     std::ifstream istrm;
     Stdutils::fopen(istrm, amat_file);
     if (amatrix_type == input_output || amatrix_type == interdependency) {
-        Scilib::Matrix<double> io_tmp;
+        Sci::Matrix<double> io_tmp;
         csv_reader(istrm, infra, io_tmp);
         if (amatrix_type == input_output) {
-            xoutput = Scilib::row(io_tmp.view(), io_tmp.extent(0) - 1);
-            io_table =
-                Scilib::submatrix(io_tmp.view(), {0, io_tmp.extent(0) - 1},
-                                  {0, io_tmp.extent(1)});
+            xoutput = Sci::row(io_tmp, io_tmp.extent(0) - 1);
+            io_table = Sci::submatrix(io_tmp, {0, io_tmp.extent(0) - 1},
+                                      {0, io_tmp.extent(1)});
         }
         else if (amatrix_type == interdependency) {
             io_table = io_tmp; // A* matrix is provided
@@ -269,7 +267,7 @@ void Iim::Diim::read_io_table(const std::string& amat_file)
 void Iim::Diim::calc_tech_coeff_matrix()
 {
     auto n = num_systems();
-    amat = Scilib::Linalg::zeros<Scilib::Matrix<double>>(n, n);
+    amat = Sci::Linalg::zeros<Sci::Matrix<double>>(n, n);
     if (amatrix_type == input_output) {
         for (std::size_t i = 0; i < n; ++i) {
             for (std::size_t j = 0; j < n; ++j) {
@@ -284,11 +282,11 @@ void Iim::Diim::calc_tech_coeff_matrix()
 void Iim::Diim::calc_interdependency_matrix()
 {
     auto n = num_systems();
-    astar = Scilib::Linalg::zeros<Scilib::Matrix<double>>(n, n);
+    astar = Sci::Linalg::zeros<Sci::Matrix<double>>(n, n);
 
     if (amatrix_type == input_output) {
         if (calc_mode == supply) { // Leung (2007), p. 301
-            astar = Scilib::Linalg::transposed(amat.view());
+            astar = Sci::Linalg::transposed(amat.view());
         }
         else if (calc_mode == demand) {
             for (std::size_t i = 0; i < n; ++i) {
@@ -303,17 +301,17 @@ void Iim::Diim::calc_interdependency_matrix()
     else { // interdependency matrix is provided
         astar = io_table;
     }
-    smat = Scilib::Linalg::inv((Scilib::Linalg::identity(n) - astar).view());
+    smat = Sci::Linalg::inv(Sci::Linalg::identity(n) - astar);
 }
 
 void Iim::Diim::check_stability()
 {
     auto n = astar.extent(0);
-    Scilib::Matrix<double> astar_tmp(astar); // work on a copy
-    Scilib::Matrix<std::complex<double>> evec(n, n);
-    Scilib::Vector<std::complex<double>> eval(n);
+    Sci::Matrix<double> astar_tmp(astar); // work on a copy
+    Sci::Matrix<std::complex<double>> evec(n, n);
+    Sci::Vector<std::complex<double>> eval(n);
 
-    Scilib::Linalg::eig(astar_tmp.view(), evec.view(), eval.view());
+    Sci::Linalg::eig(astar_tmp, evec, eval);
 
     double eval_largest = std::abs(eval(0)); // magnitude is used for comparison
     for (auto& ei : eval) {
@@ -342,19 +340,19 @@ void Iim::Diim::init_tau_values(const std::string& tau_file)
 
 void Iim::Diim::init_kmatrix(const std::string& kmat_file)
 {
-    kmat = Scilib::Linalg::identity(num_systems());
+    kmat = Sci::Linalg::identity(num_systems());
     if (!kmat_file.empty()) {
         std::ifstream istrm;
         Stdutils::fopen(istrm, kmat_file);
 
         std::vector<std::string> header;
-        Scilib::Vector<double> values;
+        Sci::Vector<double> values;
 
         csv_reader(istrm, header, values);
         assert(header.size() == infra.size());
-        auto kmat_diag = Scilib::diag(kmat.view());
-        Scilib::copy(values.view(), kmat_diag);
-        Scilib::Linalg::clip(kmat.view(), 0.0, kmat_max());
+        auto kmat_diag = Sci::diag(kmat);
+        Sci::copy(values.view(), kmat_diag);
+        Sci::Linalg::clip(kmat, 0.0, kmat_max());
     }
     else if (!tau.empty()) {
         calc_kmatrix();
@@ -363,7 +361,7 @@ void Iim::Diim::init_kmatrix(const std::string& kmat_file)
 
 void Iim::Diim::calc_kmatrix()
 {
-    auto kmat_diag = Scilib::diag(kmat.view());
+    auto kmat_diag = Sci::diag(kmat);
     for (std::size_t i = 0; i < kmat_diag.extent(0); ++i) {
         if ((1.0 - astar(i, i)) > 0.0) {
             kmat_diag(i) = (-std::log(lambda) / tau(i)) / (1.0 - astar(i, i));
@@ -387,10 +385,10 @@ void Iim::Diim::init_q0(const std::string& q0_file)
 
         csv_reader(istrm, header, q0);
         assert(header.size() == infra.size());
-        Scilib::Linalg::clip(q0.view(), 0.0, 1.0); // fix any bad input values
+        Sci::Linalg::clip(q0, 0.0, 1.0); // fix any bad input values
     }
     else {
-        q0 = Scilib::Linalg::zeros<Scilib::Vector<double>>(num_systems());
+        q0 = Sci::Linalg::zeros<Sci::Vector<double>>(num_systems());
     }
 }
 
@@ -441,8 +439,8 @@ void Iim::Diim::analyse_inoperability(std::ostream& ostrm) const
 
 void Iim::Diim::analyse_dynamic(std::ostream& ostrm) const
 {
-    const auto& qt = dynamic_inoperability();
-    const auto& qtot = impact(qt.view());
+    auto qt = dynamic_inoperability();
+    auto qtot = impact(qt);
 
     ostrm << "time" << ',';
     for (std::size_t i = 0; i < num_systems() - 1; ++i) {
@@ -467,7 +465,7 @@ void Iim::Diim::analyse_dynamic(std::ostream& ostrm) const
 void Iim::Diim::analyse_recovery(std::ostream& ostrm) const
 {
     auto qt = dynamic_recovery();
-    auto qtot = impact(qt.view());
+    auto qtot = impact(qt);
 
     ostrm << "time" << ',';
     for (std::size_t i = 0; i < num_systems() - 1; ++i) {
@@ -494,12 +492,12 @@ void Iim::Diim::single_attack_sampling(std::ostream& ostrm)
     ostrm << "infra" << ',' << "impact\n";
 
     for (auto& infra_i : infra) {
-        Scilib::Vector<std::string> pinfra({infra_i}, 1);
-        perturb.set_perturbed_infrastructures(pinfra.view());
+        Sci::Vector<std::string> pinfra({infra_i}, 1);
+        perturb.set_perturbed_infrastructures(pinfra);
         auto qt = dynamic_inoperability();
-        auto qtot = impact(qt.view());
+        auto qtot = impact(qt);
 
-        ostrm << infra_i << ',' << Scilib::Linalg::sum(qtot.view()) << '\n';
+        ostrm << infra_i << ',' << Sci::Linalg::sum(qtot) << '\n';
     }
 }
 
@@ -512,13 +510,13 @@ void Iim::Diim::hybrid_attack_sampling(std::ostream& ostrm)
             if (infra_i == infra_j) {
                 continue;
             }
-            Scilib::Vector<std::string> pinfra({infra_i, infra_j}, 2);
+            Sci::Vector<std::string> pinfra({infra_i, infra_j}, 2);
             perturb.set_perturbed_infrastructures(pinfra.view());
             auto qt = dynamic_inoperability();
-            auto qtot = impact(qt.view());
+            auto qtot = impact(qt);
 
             ostrm << pinfra(0) << ',' << pinfra(1) << ','
-                  << Scilib::Linalg::sum(qtot.view()) << '\n';
+                  << Sci::Linalg::sum(qtot) << '\n';
         }
     }
 }

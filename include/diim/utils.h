@@ -9,9 +9,9 @@
 #ifndef IIM_UTILS_H
 #define IIM_UTILS_H
 
+#include <scilib/mdarray.h>
 #include <string>
 #include <vector>
-#include <scilib/mdarray.h>
 
 namespace Iim {
 
@@ -23,7 +23,7 @@ namespace Iim {
 //
 void csv_reader(std::istream& istrm,
                 std::vector<std::string>& header,
-                Scilib::Vector<double>& values);
+                Sci::Vector<double>& values);
 
 // Helper function for reading matrices from CSV files.
 //
@@ -33,7 +33,7 @@ void csv_reader(std::istream& istrm,
 //
 void csv_reader(std::istream& istrm,
                 std::vector<std::string>& header,
-                Scilib::Matrix<double>& values);
+                Sci::Matrix<double>& values);
 
 // Helper function for reading sparse matrices from CSV files.
 //
@@ -46,17 +46,17 @@ void csv_reader(std::istream& istrm,
 //
 void csv_reader_sparse(std::istream& istrm,
                        std::vector<std::string>& header,
-                       Scilib::Matrix<double>& values);
+                       Sci::Matrix<double>& values);
 
 // Helper function for writing interdependency matrix to CSV file.
 void csv_writer(std::ostream& ostrm,
                 const std::vector<std::string>& infra,
-                Scilib::Matrix<double>& amat);
+                const Sci::Matrix<double>& amat);
 
 // Helper function for writing tau data to CSV file.
 void csv_writer(std::ostream& ostrm,
                 const std::vector<std::string>& infra,
-                Scilib::Vector<double>& tau);
+                const Sci::Vector<double>& tau);
 
 } // namespace Iim
 
