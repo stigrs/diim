@@ -72,7 +72,7 @@ public:
     ~Diim() = default;
 
     // Number of infrastructure systems.
-    constexpr auto num_systems() const { return infra.size(); }
+    auto num_systems() const { return infra.size(); }
 
     // Return names of infrastructure systems.
     constexpr const std::vector<std::string>& infrastructures() const
