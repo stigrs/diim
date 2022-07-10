@@ -14,7 +14,7 @@
 #include <cmath>
 #include <exception>
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 // Public functions:
 
 Iim::Diim::Diim(std::istream& istrm)
@@ -165,8 +165,7 @@ Sci::Vector<double> Iim::Diim::overall_influence() const
     return res;
 }
 
-std::vector<Iim::Max_nth_order_interdep>
-Iim::Diim::max_nth_order_interdependency(int order) const
+std::vector<Iim::Max_nth_order_interdep> Iim::Diim::max_nth_order_interdependency(int order) const
 {
     assert(order >= 1);
     auto astar_n = Sci::Linalg::matrix_power(astar, order);
@@ -240,7 +239,7 @@ Sci::Vector<double> Iim::Diim::impact(const Sci::Matrix<double>& qt) const
     return qtot;
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 // Private functions
 
 void Iim::Diim::read_io_table(const std::string& amat_file)
@@ -252,8 +251,8 @@ void Iim::Diim::read_io_table(const std::string& amat_file)
         csv_reader(istrm, infra, io_tmp);
         if (amatrix_type == input_output) {
             xoutput = Sci::row(io_tmp, io_tmp.extent(0) - 1);
-            io_table = Sci::submatrix(io_tmp, {0, io_tmp.extent(0) - 1},
-                                      {0, io_tmp.extent(1)});
+            io_table = Sci::slice(io_tmp, Sci::seq(0, io_tmp.extent(0) - 1),
+                                  Sci::seq(0, io_tmp.extent(1)));
         }
         else if (amatrix_type == interdependency) {
             io_table = io_tmp; // A* matrix is provided
@@ -286,7 +285,7 @@ void Iim::Diim::calc_interdependency_matrix()
 
     if (amatrix_type == input_output) {
         if (calc_mode == supply) { // Leung (2007), p. 301
-            astar = Sci::Linalg::transposed(amat.view());
+            astar = Sci::Linalg::transposed(amat);
         }
         else if (calc_mode == demand) {
             for (std::size_t i = 0; i < n; ++i) {
@@ -354,7 +353,7 @@ void Iim::Diim::init_kmatrix(const std::string& kmat_file)
         Sci::copy(values.view(), kmat_diag);
         Sci::Linalg::clip(kmat, 0.0, kmat_max());
     }
-    else if (!tau.empty()) {
+    else if (tau.size() > 0) {
         calc_kmatrix();
     }
 }
@@ -362,7 +361,7 @@ void Iim::Diim::init_kmatrix(const std::string& kmat_file)
 void Iim::Diim::calc_kmatrix()
 {
     auto kmat_diag = Sci::diag(kmat);
-    for (std::size_t i = 0; i < kmat_diag.extent(0); ++i) {
+    for (Sci::index i = 0; i < kmat_diag.extent(0); ++i) {
         if ((1.0 - astar(i, i)) > 0.0) {
             kmat_diag(i) = (-std::log(lambda) / tau(i)) / (1.0 - astar(i, i));
             if (kmat_diag(i) > 1.0) {
@@ -399,11 +398,11 @@ void Iim::Diim::analyse_influence(std::ostream& ostrm) const
     const auto& rho = influence();
     const auto& rho_overall = overall_influence();
 
-    ostrm << "function" << ',' << "delta" << ',' << "delta_overall" << ','
-          << "rho" << ',' << "rho_overall\n";
+    ostrm << "function" << ',' << "delta" << ',' << "delta_overall" << ',' << "rho" << ','
+          << "rho_overall\n";
     for (std::size_t i = 0; i < num_systems(); ++i) {
-        ostrm << infra[i] << ',' << delta(i) << ',' << delta_overall(i) << ','
-              << rho(i) << ',' << rho_overall(i) << '\n';
+        ostrm << infra[i] << ',' << delta(i) << ',' << delta_overall(i) << ',' << rho(i) << ','
+              << rho_overall(i) << '\n';
     }
 }
 
@@ -413,17 +412,14 @@ void Iim::Diim::analyse_interdependency(std::ostream& ostrm) const
     const auto& second_order = max_nth_order_interdependency(2);
     const auto& third_order = max_nth_order_interdependency(3);
 
-    ostrm << 'i' << ',' << 'j' << ',' << "max(aij)" << ',' << 'i' << ',' << 'j'
-          << ',' << "max(aij^2)" << ',' << 'i' << ',' << 'j' << ','
-          << "max(aij^3)\n";
+    ostrm << 'i' << ',' << 'j' << ',' << "max(aij)" << ',' << 'i' << ',' << 'j' << ','
+          << "max(aij^2)" << ',' << 'i' << ',' << 'j' << ',' << "max(aij^3)\n";
     for (std::size_t i = 0; i < num_systems(); ++i) {
-        ostrm << first_order[i].function[0] << ',' << first_order[i].function[1]
-              << ',' << first_order[i].value << ','
-              << second_order[i].function[0] << ','
-              << second_order[i].function[1] << ',' << second_order[i].value
-              << ',' << third_order[i].function[0] << ','
-              << third_order[i].function[1] << ',' << third_order[i].value
-              << '\n';
+        ostrm << first_order[i].function[0] << ',' << first_order[i].function[1] << ','
+              << first_order[i].value << ',' << second_order[i].function[0] << ','
+              << second_order[i].function[1] << ',' << second_order[i].value << ','
+              << third_order[i].function[0] << ',' << third_order[i].function[1] << ','
+              << third_order[i].value << '\n';
     }
 }
 
@@ -448,15 +444,15 @@ void Iim::Diim::analyse_dynamic(std::ostream& ostrm) const
     }
     ostrm << infra[num_systems() - 1] << '\n';
 
-    for (std::size_t i = 0; i < qt.extent(0); ++i) {
-        for (std::size_t j = 0; j < qt.extent(1) - 1; ++j) {
+    for (Sci::index i = 0; i < qt.extent(0); ++i) {
+        for (Sci::index j = 0; j < qt.extent(1) - 1; ++j) {
             ostrm << qt(i, j) << ',';
         }
         ostrm << qt(i, qt.extent(1) - 1) << '\n';
     }
 
     ostrm << "qtot" << ',';
-    for (std::size_t j = 0; j < qtot.extent(0) - 1; ++j) {
+    for (Sci::index j = 0; j < qtot.extent(0) - 1; ++j) {
         ostrm << qtot(j) << ',';
     }
     ostrm << qtot(qtot.extent(0) - 1) << '\n';
@@ -473,15 +469,15 @@ void Iim::Diim::analyse_recovery(std::ostream& ostrm) const
     }
     ostrm << infra[num_systems() - 1] << '\n';
 
-    for (std::size_t i = 0; i < qt.extent(0); ++i) {
-        for (std::size_t j = 0; j < qt.extent(1) - 1; ++j) {
+    for (Sci::index i = 0; i < qt.extent(0); ++i) {
+        for (Sci::index j = 0; j < qt.extent(1) - 1; ++j) {
             ostrm << qt(i, j) << ',';
         }
         ostrm << qt(i, qt.extent(1) - 1) << '\n';
     }
 
     ostrm << "qtot" << ',';
-    for (std::size_t j = 0; j < qtot.extent(0) - 1; ++j) {
+    for (Sci::index j = 0; j < qtot.extent(0) - 1; ++j) {
         ostrm << qtot(j) << ',';
     }
     ostrm << qtot(qtot.extent(0) - 1) << '\n';
@@ -515,8 +511,7 @@ void Iim::Diim::hybrid_attack_sampling(std::ostream& ostrm)
             auto qt = dynamic_inoperability();
             auto qtot = impact(qt);
 
-            ostrm << pinfra(0) << ',' << pinfra(1) << ','
-                  << Sci::Linalg::sum(qtot) << '\n';
+            ostrm << pinfra(0) << ',' << pinfra(1) << ',' << Sci::Linalg::sum(qtot) << '\n';
         }
     }
 }

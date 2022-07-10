@@ -48,16 +48,10 @@ public:
     }
 
     // Get perturbed infrastructures.
-    constexpr auto get_perturbed_infrastructure() const
-    {
-        return pinfra.view();
-    }
+    constexpr auto get_perturbed_infrastructure() const { return pinfra.view(); }
 
     // Get perturbation time period.
-    std::vector<std::array<int, 2>> get_perturbation_time_period() const
-    {
-        return ptime;
-    }
+    std::vector<std::array<int, 2>> get_perturbation_time_period() const { return ptime; }
 
     // Get perturbation magnitudes.
     constexpr auto get_perturbation_magnitude() const { return cvalue.view(); }
@@ -66,8 +60,8 @@ private:
     // Initialise perturbation.
     void init_perturbation();
 
-    std::vector<std::string> infra;  // list of infrastructure systems
-    std::vector<std::size_t> pindex; // indices of perturbed infrastructures
+    std::vector<std::string> infra;        // list of infrastructure systems
+    std::vector<std::size_t> pindex;       // indices of perturbed infrastructures
     std::vector<std::array<int, 2>> ptime; // timings for perturbations
 
     Sci::Vector<std::string> pinfra; // list with perturbed infrastructures

@@ -4,15 +4,15 @@ project(DIIM
     LANGUAGES CXX
 )
 
-################################################################################
+####################################################################################################
 
 include(GNUInstallDirs)
 
-################################################################################
+####################################################################################################
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-################################################################################
+####################################################################################################
 
 set(Diim_STANDALONE_PROJECT OFF)
 if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
@@ -21,7 +21,7 @@ endif()
 
 option(Diim_BUILD_TESTS "Build tests." ${Diim_STANDALONE_PROJECT})
 
-################################################################################
+####################################################################################################
 
 # Set installation directory.
 if (WIN32)
@@ -34,7 +34,7 @@ else()
     endif()
 endif()
 
-################################################################################
+####################################################################################################
 
 if(WIN32)
     option(BUILD_SHARED_LIBS "Compile shared libraries." OFF)
@@ -93,24 +93,7 @@ if(MSVC)
 endif()
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-################################################################################
-
-# mdspan is required.
-find_package(mdspan QUIET)
-if (NOT mdspan_FOUND)
-    message(STATUS "No installed mdspan found, fetching from Github")
-    include(FetchContent)
-    FetchContent_Declare(
-        mdspan
-        GIT_REPOSITORY  https://github.com/kokkos/mdspan.git
-        GIT_TAG         stable
-    )
-    FetchContent_MakeAvailable(mdspan)
-endif()
-
-if(NOT TARGET std::mdspan)
-    find_package(mdspan REQUIRED)
-endif()
+####################################################################################################
 
 # Scilib is required.
 find_package(scilib QUIET)
@@ -134,10 +117,10 @@ endif()
 
 # Stdutils is required.
 find_package(stdutils QUIET)
-if(Diim_FOUND)
+if(stdutils_FOUND)
     message(STATUS "Stdutils found")
 endif()
-if (NOT Diim_FOUND)
+if (NOT stdutils_FOUND)
     message(STATUS "No installed Stdutils found, fetching from Github")
     include(FetchContent)
     FetchContent_Declare(
@@ -167,7 +150,7 @@ else()
 	endif()
 endif()
 
-################################################################################
+####################################################################################################
 
 set(SRC_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/diim.cpp    
@@ -183,7 +166,6 @@ target_link_libraries(
     PRIVATE
     scilib::scilib
     stdutils::stdutils
-    std::mdspan
     ${BLAS_LIBRARIES}
 )
 
@@ -201,7 +183,7 @@ target_include_directories(diim PUBLIC
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-install(TARGETS diim
+install(TARGETS diim 
     EXPORT diimTargets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}    
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}    
@@ -234,11 +216,11 @@ install(FILES
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/diim
 )
 
-################################################################################
+####################################################################################################
 
 add_subdirectory(tools)
 
-################################################################################
+####################################################################################################
 
 if(Diim_BUILD_TESTS)
     enable_testing()

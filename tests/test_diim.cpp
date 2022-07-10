@@ -106,8 +106,8 @@ TEST(TestDiim, TestCase5)
     Iim::Diim diim(istrm);
     auto amat = diim.tech_coeff();
 
-    for (std::size_t i = 0; i < amat.extent(0); ++i) {
-        for (std::size_t j = 0; j < amat.extent(1); ++j) {
+    for (Sci::index i = 0; i < amat.extent(0); ++i) {
+        for (Sci::index j = 0; j < amat.extent(1); ++j) {
             EXPECT_NEAR(amat(i, j), amat_ans(i, j), 0.015);
         }
     }
@@ -135,8 +135,8 @@ TEST(TestDiim, TestCase6)
     Iim::Diim diim(istrm);
     auto astar = diim.interdependency_matrix();
 
-    for (std::size_t i = 0; i < astar.extent(0); ++i) {
-        for (std::size_t j = 0; j < astar.extent(1); ++j) {
+    for (Sci::index i = 0; i < astar.extent(0); ++i) {
+        for (Sci::index j = 0; j < astar.extent(1); ++j) {
             EXPECT_NEAR(astar(i, j), astar_ans(i, j), 0.015);
         }
     }

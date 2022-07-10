@@ -18,13 +18,11 @@
 
 // Interdependency matrix editor.
 void amat_editor(const std::string& filename);
-void amat_editor_helper(const std::vector<std::string>& infra,
-                        Sci::Matrix<double>& amat);
+void amat_editor_helper(const std::vector<std::string>& infra, Sci::Matrix<double>& amat);
 
 // Tau values editor.
 void tau_editor(const std::string& filename);
-void tau_editor_helper(const std::vector<std::string>& infra,
-                       Sci::Vector<double>& tau);
+void tau_editor_helper(const std::vector<std::string>& infra, Sci::Vector<double>& tau);
 
 int main(int argc, char* argv[])
 {
@@ -59,7 +57,7 @@ void amat_editor(const std::string& filename)
     Iim::csv_reader(istrm, infra, amat);
     istrm.close();
 
-    if (amat.empty()) {
+    if (amat.size() == 0) {
         auto n = infra.size();
         amat = Sci::Linalg::zeros<Sci::Matrix<double>>(n, n);
     }
@@ -70,8 +68,7 @@ void amat_editor(const std::string& filename)
     Iim::csv_writer(ostrm, infra, amat);
 }
 
-void amat_editor_helper(const std::vector<std::string>& infra,
-                        Sci::Matrix<double>& amat)
+void amat_editor_helper(const std::vector<std::string>& infra, Sci::Matrix<double>& amat)
 {
     std::string line;
     std::string infra_i;
@@ -111,10 +108,8 @@ void amat_editor_helper(const std::vector<std::string>& infra,
         }
 
         if (!infra_i.empty() && !infra_j.empty()) {
-            std::cout << "\nOld a*(" << infra_i << ", " << infra_j
-                      << ") = " << amat(i, j) << '\n'
-                      << "New a*(" << infra_i << ", " << infra_j
-                      << ") = " << aij << '\n';
+            std::cout << "\nOld a*(" << infra_i << ", " << infra_j << ") = " << amat(i, j) << '\n'
+                      << "New a*(" << infra_i << ", " << infra_j << ") = " << aij << '\n';
             amat(i, j) = aij;
             std::cout << "\nEdit new a*(i, j) coefficient?\n";
         }
@@ -132,7 +127,7 @@ void tau_editor(const std::string& filename)
     Iim::csv_reader(istrm, infra, tau);
     istrm.close();
 
-    if (tau.empty()) {
+    if (tau.size() == 0) {
         auto n = infra.size();
         tau = Sci::Linalg::zeros<Sci::Vector<double>>(n);
     }
@@ -143,8 +138,7 @@ void tau_editor(const std::string& filename)
     Iim::csv_writer(ostrm, infra, tau);
 }
 
-void tau_editor_helper(const std::vector<std::string>& infra,
-                       Sci::Vector<double>& tau)
+void tau_editor_helper(const std::vector<std::string>& infra, Sci::Vector<double>& tau)
 {
     std::string line;
     std::string infra_i;
@@ -169,8 +163,7 @@ void tau_editor_helper(const std::vector<std::string>& infra,
             throw std::runtime_error("bad i-value: " + infra_i);
         }
         if (tau_i < 0.0) {
-            throw std::runtime_error("bad tau(i) value: " +
-                                     std::to_string(tau_i));
+            throw std::runtime_error("bad tau(i) value: " + std::to_string(tau_i));
         }
 
         if (!infra_i.empty()) {

@@ -107,8 +107,8 @@ void Iim::csv_writer(std::ostream& ostrm,
     }
     ostrm << infra[infra.size() - 1] << '\n';
 
-    for (std::size_t i = 0; i < amat.extent(0); ++i) {
-        for (std::size_t j = 0; j < amat.extent(1) - 1; ++j) {
+    for (Sci::index i = 0; i < amat.extent(0); ++i) {
+        for (Sci::index j = 0; j < amat.extent(1) - 1; ++j) {
             ostrm << amat(i, j) << ',';
         }
         ostrm << amat(i, amat.extent(1) - 1) << '\n';

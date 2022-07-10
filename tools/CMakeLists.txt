@@ -5,10 +5,6 @@ include_directories(${BLAS_INCLUDE_DIRS})
 include_directories(${LAPACKE_INCLUDE_DIRS})
 link_directories(${BLAS_LIBRARY_DIRS})
 
-if(NOT TARGET std::mdspan)
-  find_package(mdspan REQUIRED)
-endif()
-
 if(NOT TARGET scilib::scilib)
     find_package(scilib REQUIRED)
 endif()
@@ -29,7 +25,6 @@ function(add_tool name)
         diim::diim
         scilib::scilib
         stdutils::stdutils
-        std::mdspan
 	    ${BLAS_LIBRARIES}
     ) 
     target_compile_options(

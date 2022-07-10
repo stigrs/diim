@@ -75,10 +75,7 @@ public:
     auto num_systems() const { return infra.size(); }
 
     // Return names of infrastructure systems.
-    constexpr const std::vector<std::string>& infrastructures() const
-    {
-        return infra;
-    }
+    constexpr const std::vector<std::string>& infrastructures() const { return infra; }
 
     // Return as-planned production per infrastructure system.
     constexpr auto as_planned_production() const { return xoutput.view(); }
@@ -130,13 +127,10 @@ public:
     Sci::Vector<double> overall_influence() const;
 
     // Calculate n-th order interdependency index infrastructures i and j.
-    double interdependency_index(const std::string& i,
-                                 const std::string& j,
-                                 int order = 1);
+    double interdependency_index(const std::string& i, const std::string& j, int order = 1);
 
     // Calculate maximum n-th order interdependency index for each function.
-    std::vector<Max_nth_order_interdep>
-    max_nth_order_interdependency(int order = 1) const;
+    std::vector<Max_nth_order_interdep> max_nth_order_interdependency(int order = 1) const;
 
     // Calculate inoperability for the infrastructure functions at equilibrium.
     //
@@ -292,9 +286,7 @@ private:
     constexpr double kmat_max() { return 0.9999; } // k(i) = [0, 1)
 };
 
-inline double Diim::interdependency_index(const std::string& i,
-                                          const std::string& j,
-                                          int order)
+inline double Diim::interdependency_index(const std::string& i, const std::string& j, int order)
 {
     assert(order >= 1);
     auto pos_i = std::find(infra.begin(), infra.end(), i);

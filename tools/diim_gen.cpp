@@ -21,8 +21,7 @@ int main(int argc, char* argv[])
 {
     auto args = Stdutils::arguments(argc, argv);
     if (args.size() < 2) {
-        std::cerr << "Usage: " << args[0]
-                  << " input_file.csv [scale = {4, 5}]\n";
+        std::cerr << "Usage: " << args[0] << " input_file.csv [scale = {4, 5}]\n";
         return 1;
     }
     try {
@@ -51,9 +50,7 @@ void amat_generator(const std::string& filename, int scale)
     Iim::csv_reader(istrm, infra, amat);
     istrm.close();
 
-    amat.apply(
-        [](double& x, int val) { x = Iim::Consequence::to_interdep(x, val); },
-        scale);
+    amat.apply([](double& x, int val) { x = Iim::Consequence::to_interdep(x, val); }, scale);
 
     std::ofstream ostrm;
     Stdutils::fopen(ostrm, filename);

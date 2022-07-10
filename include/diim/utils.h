@@ -21,9 +21,7 @@ namespace Iim {
 //   header1,value1
 //   header2,value2
 //
-void csv_reader(std::istream& istrm,
-                std::vector<std::string>& header,
-                Sci::Vector<double>& values);
+void csv_reader(std::istream& istrm, std::vector<std::string>& header, Sci::Vector<double>& values);
 
 // Helper function for reading matrices from CSV files.
 //
@@ -31,9 +29,7 @@ void csv_reader(std::istream& istrm,
 //   header1,header2
 //   value1,value2
 //
-void csv_reader(std::istream& istrm,
-                std::vector<std::string>& header,
-                Sci::Matrix<double>& values);
+void csv_reader(std::istream& istrm, std::vector<std::string>& header, Sci::Matrix<double>& values);
 
 // Helper function for reading sparse matrices from CSV files.
 //

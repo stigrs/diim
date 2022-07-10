@@ -29,10 +29,6 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
-if(NOT TARGET std::mdspan)
-    find_package(mdspan REQUIRED)
-endif()
-
 if(NOT TARGET scilib::scilib)
     find_package(scilib REQUIRED)
 endif()
@@ -54,7 +50,6 @@ function(add_diim_test name)
         scilib::scilib
         stdutils::stdutils
         gtest_main
-        std::mdspan
 	    ${BLAS_LIBRARIES}
     ) 
     target_compile_options(

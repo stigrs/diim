@@ -12,8 +12,7 @@
 #include <exception>
 #include <algorithm>
 
-Iim::Perturbation::Perturbation(std::istream& istrm,
-                                const std::vector<std::string>& infra_)
+Iim::Perturbation::Perturbation(std::istream& istrm, const std::vector<std::string>& infra_)
     : infra(infra_)
 {
     using namespace Stdutils;
@@ -69,7 +68,7 @@ void Iim::Perturbation::init_perturbation()
     auto n = infra.size();
     c0 = Sci::Linalg::zeros<Sci::Vector<double>>(n);
 
-    if (!pinfra.empty()) {
+    if (pinfra.size() > 0) {
         pindex.clear();
         for (std::size_t i = 0; i < pinfra.size(); ++i) {
             auto pos = std::find(infra.begin(), infra.end(), pinfra(i));

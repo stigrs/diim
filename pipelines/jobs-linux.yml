@@ -23,7 +23,7 @@ jobs:
     name: Configure
     inputs:
       workingDirectory: build
-      cmakeArgs: ' -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) .. '
+      cmakeArgs: ' -DCMAKE_CXX_COMPILER=g++-11 -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) .. '
 
   - task: CMake@1
     name: Build

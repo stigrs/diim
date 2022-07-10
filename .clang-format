@@ -1,11 +1,9 @@
-Language: Cpp
-Standard: Cpp11
-ColumnLimit: 80
+ColumnLimit: 100
 
 UseTab: Never
 IndentWidth: 4
 AccessModifierOffset: -4
-NamespaceIndentation: Inner
+NamespaceIndentation: None
 
 BinPackParameters: false
 BreakBeforeBraces: Stroustrup
@@ -26,3 +24,4 @@ SpaceAfterCStyleCast: true
 SpaceAfterTemplateKeyword: true
 FixNamespaceComments: true
 IndentCaseLabels: false
+IndentRequires: true

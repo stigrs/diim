@@ -17,7 +17,7 @@ stages:
   - template: ./pipelines/jobs-linux.yml
     parameters:
       jobName: 'Validate GCC'
-      imageName: ubuntu-latest
+      imageName: ubuntu-22.04
 
 # Clang
 - stage: Clang
@@ -31,7 +31,7 @@ stages:
   - template: ./pipelines/jobs-linux.yml
     parameters:
       jobName: 'Validate Clang'
-      imageName: ubuntu-latest
+      imageName: ubuntu-22.04
 
 # MSVC
 - stage: MSVC
@@ -52,4 +52,4 @@ stages:
   - template: ./pipelines/jobs-macos.yml
     parameters:
       jobName: 'Validate Apple-Clang latest'
-      imageName: macos-latest
+      imageName: macOS-12
