@@ -13,6 +13,7 @@
 #include <complex>
 #include <cmath>
 #include <exception>
+#include <gsl/gsl>
 
 //--------------------------------------------------------------------------------------------------
 // Public functions:
@@ -63,7 +64,7 @@ Iim::Diim::Diim(std::istream& istrm)
     else if (calc_mode_str == "supply" || calc_mode_str == "Supply") {
         calc_mode = supply;
     }
-    assert(time_steps >= 0);
+    Expects(time_steps >= 0);
 
     // Read input-output table or A* matrix from CSV file:
     read_io_table(amat_file);
@@ -167,7 +168,7 @@ Sci::Vector<double> Iim::Diim::overall_influence() const
 
 std::vector<Iim::Max_nth_order_interdep> Iim::Diim::max_nth_order_interdependency(int order) const
 {
-    assert(order >= 1);
+    Expects(order >= 1);
     auto astar_n = Sci::Linalg::matrix_power(astar, order);
 
     std::vector<Max_nth_order_interdep> res;
@@ -333,7 +334,7 @@ void Iim::Diim::init_tau_values(const std::string& tau_file)
         std::vector<std::string> header;
 
         csv_reader(istrm, header, tau);
-        assert(header.size() == tau.size());
+        Expects(header.size() == tau.size());
     }
 }
 
@@ -348,7 +349,7 @@ void Iim::Diim::init_kmatrix(const std::string& kmat_file)
         Sci::Vector<double> values;
 
         csv_reader(istrm, header, values);
-        assert(header.size() == infra.size());
+        Expects(header.size() == infra.size());
         auto kmat_diag = Sci::diag(kmat);
         Sci::copy(values.view(), kmat_diag);
         Sci::Linalg::clip(kmat, 0.0, kmat_max());
@@ -383,7 +384,7 @@ void Iim::Diim::init_q0(const std::string& q0_file)
         std::vector<std::string> header;
 
         csv_reader(istrm, header, q0);
-        assert(header.size() == infra.size());
+        Expects(header.size() == infra.size());
         Sci::Linalg::clip(q0, 0.0, 1.0); // fix any bad input values
     }
     else {

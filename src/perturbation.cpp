@@ -8,7 +8,7 @@
 #include <scilib/linalg.h>
 #include <stdutils/stdutils.h>
 #include <sstream>
-#include <cassert>
+#include <gsl/gsl>
 #include <exception>
 #include <algorithm>
 
@@ -22,7 +22,7 @@ Iim::Perturbation::Perturbation(std::istream& istrm, const std::vector<std::stri
         get_token_value(istrm, pos, "pinfra", pinfra, pinfra);
         get_token_value(istrm, pos, "cvalue", cvalue, cvalue);
     }
-    assert(pinfra.size() == cvalue.size());
+    Expects(pinfra.size() == cvalue.size());
 
     std::string line;
     int ntime; // number of timings to be read
@@ -33,13 +33,13 @@ Iim::Perturbation::Perturbation(std::istream& istrm, const std::vector<std::stri
     if (pos != -1) {
         istrm >> ntime;
         std::getline(istrm, line); // consume rest of line
-        assert(ntime >= 0);
+        Expects(ntime >= 0);
         for (int it = 0; it < ntime; ++it) {
             std::getline(istrm, line);
             std::stringstream iss(line);
             iss >> ti >> tf;
-            assert(ti >= 0 && tf >= 0);
-            assert(ti <= tf);
+            Expects(ti >= 0 && tf >= 0);
+            Expects(ti <= tf);
             ptime.push_back({ti, tf});
         }
     }
