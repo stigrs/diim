@@ -1,5 +1,4 @@
-# Dynamic Inoperability Input-Output Model 
-[![Build Status](https://dev.azure.com/stigrs0020/stigrs/_apis/build/status/stigrs.diim?branchName=main)](https://dev.azure.com/stigrs0020/stigrs/_build/latest?definitionId=10&branchName=main)
+# Dynamic Inoperability Input-Output Model [![CMake](https://github.com/stigrs/diim/actions/workflows/cmake.yml/badge.svg?branch=main)](https://github.com/stigrs/diim/actions/workflows/cmake.yml)
 
 DIIM provides the Demand-Reduction and Recovery Dynamic Inoperability
 Input-Output Model (DIIM) for interdependent functions as described in
@@ -59,9 +58,9 @@ regarding the licensing of GoogleTest.
 
 | Compiler      | Versions Tested |
 |:--------------|----------------:|
-| GCC           | 9               |
-| Clang         | 11              |
-| Visual Studio | VS2019          |
+| GCC           | 9, 10           |
+| Clang         | 10, 11, 12      |
+| Visual Studio | VS2022          |
 | XCode         | 13.0            |
 | Intel         | 2021            |
 
@@ -85,7 +84,7 @@ into a directory called `diim`.
 2. Configure CMake to use the compiler of your choice (you can see a list by
    running `cmake --help`):
 
-        cmake -G "Visual Studio 16 2019" ..
+        cmake -G "Visual Studio 17 2022" ..
 
 3. Build the software (in this case in the Release configuration):
 
