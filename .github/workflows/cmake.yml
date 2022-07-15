@@ -55,8 +55,12 @@ jobs:
       run: ctest -C ${{env.BUILD_TYPE}}
       
   build-windows:
-    runs-on: windows-latest
+    runs-on: ${{matrix.os}}
 
+    strategy:
+      matrix:
+        os: [windows-2022, windows-2019]
+        
     env:
       BLAS_DIR: "D:/a/openblas"
       BLAS_ROOT: "D:/a/openblas/OpenBLAS.0.2.14.1/lib/native"
