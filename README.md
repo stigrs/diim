@@ -1,4 +1,5 @@
-# Dynamic Inoperability Input-Output Model [![CMake](https://github.com/stigrs/diim/actions/workflows/cmake.yml/badge.svg?branch=main)](https://github.com/stigrs/diim/actions/workflows/cmake.yml)
+# Dynamic Inoperability Input-Output Model 
+[![CMake](https://github.com/stigrs/diim/actions/workflows/cmake.yml/badge.svg?branch=main)](https://github.com/stigrs/diim/actions/workflows/cmake.yml)
 
 DIIM provides the Demand-Reduction and Recovery Dynamic Inoperability
 Input-Output Model (DIIM) for interdependent functions as described in
@@ -60,7 +61,7 @@ regarding the licensing of GoogleTest.
 |:--------------|----------------:|
 | GCC           | 9, 10           |
 | Clang         | 10, 11, 12      |
-| Visual Studio | VS2022          |
+| Visual Studio | VS2019, VS2022  |
 | XCode         | 13.0            |
 | Intel         | 2021            |
 
