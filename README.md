@@ -44,9 +44,14 @@ DIIM is released under the [MIT](LICENSE) license.
 
 ## Usage of Third Party Libraries
 
-This project makes use of [GoogleTest](https://https://github.com/google/googletest). 
-Please see the [ThirdPartyNotices.txt](ThirdPartyNotices.txt) file for details 
-regarding the licensing of GoogleTest.
+This project makes use of the following third-party libraries:
+
+* [GoogleTest](https://github.com/google/googletest) 
+* [mdspan](https://github.com/kokkos/mdspan)
+* [stdBLAS](https://github.com/kokkos/stdBLAS)
+* [Microsoft.GSL](https://github.com/microsoft/GSL)
+
+Please see their websites for details regarding licensing terms.
 
 ## Quick Start 
 
