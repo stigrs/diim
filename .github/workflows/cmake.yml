@@ -12,10 +12,11 @@ env:
 
 jobs:
   build-linux:
+    runs-on: ubuntu-latest
+
     strategy:
       matrix:
         compiler: [g++-9, g++-10, clang++-10, clang++-11, clang++-12]
-    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
@@ -60,10 +61,10 @@ jobs:
     strategy:
       matrix:
         os: [windows-2022, windows-2019]
-        
+
     env:
-      BLAS_DIR: "D:/a/openblas"
-      BLAS_ROOT: "D:/a/openblas/OpenBLAS.0.2.14.1/lib/native"
+      MKL_DIR: "D:/a/"
+      MKLROOT: "D:/a/intelmkl.static.win-x64.2022.0.3.171/lib/native"
 
     steps:
     - uses: actions/checkout@v3
@@ -71,13 +72,10 @@ jobs:
     - name: Prepare
       # Install necessary software
       shell: pwsh
-      run: |
-        mkdir ${{env.BLAS_DIR}}
-        nuget install OpenBLAS -o ${{env.BLAS_DIR}}
-        $env:PATH="${{env.BLAS_ROOT}}\win32\bin;${{env.BLAS_ROOT}}\native\x64\bin;$env:PATH"
+      run: nuget install intelmkl.static.win-x64 -o ${{env.MKL_DIR}}
       
     - name: Configure CMake
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DScilib_BUILD_BENCH=OFF
 
     - name: Build
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
@@ -85,7 +83,7 @@ jobs:
     - name: Test
       working-directory: ${{github.workspace}}/build
       run: ctest -C ${{env.BUILD_TYPE}}
-      
+
   build-intel:
     runs-on: ubuntu-latest
 
