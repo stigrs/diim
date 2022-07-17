@@ -105,7 +105,7 @@ Sci::Vector<double> Iim::Diim::dependency() const
             }
             res(i) = di;
         }
-        res /= static_cast<double>(n - 1);
+        res /= gsl::narrow_cast<double>(n - 1);
     }
     return res;
 }
@@ -124,7 +124,7 @@ Sci::Vector<double> Iim::Diim::influence() const
             }
             res(j) = rj;
         }
-        res /= static_cast<double>(n - 1);
+        res /= gsl::narrow_cast<double>(n - 1);
     }
     return res;
 }
@@ -142,7 +142,7 @@ Sci::Vector<double> Iim::Diim::overall_dependency() const
             }
             res(i) = di;
         }
-        res /= static_cast<double>(n - 1);
+        res /= gsl::narrow_cast<double>(n - 1);
     }
     return res;
 }
@@ -161,7 +161,7 @@ Sci::Vector<double> Iim::Diim::overall_influence() const
             }
             res(j) = rj;
         }
-        res /= static_cast<double>(n - 1);
+        res /= gsl::narrow_cast<double>(n - 1);
     }
     return res;
 }

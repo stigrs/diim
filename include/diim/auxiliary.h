@@ -8,6 +8,7 @@
 #define IIM_AUXILIARY_H
 
 #include <stdutils/stdutils.h>
+#include <gsl/gsl>
 #include <array>
 #include <cmath>
 
@@ -33,8 +34,7 @@ namespace Consequence {
 //
 inline double to_interdep(double consequence, int scale)
 {
-    Assert::dynamic(consequence >= 0.0 && consequence <= static_cast<double>(scale),
-                    "bad consequence value");
+    Expects(consequence >= 0.0 && consequence <= gsl::narrow_cast<double>(scale));
 
     double a = 0.0;
     double b = 0.0;

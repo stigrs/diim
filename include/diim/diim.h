@@ -15,6 +15,7 @@
 #include <scilib/linalg.h>
 #include <diim/perturbation.h>
 #include <diim/types.h>
+#include <gsl/gsl>
 
 namespace Iim {
 
@@ -288,7 +289,7 @@ private:
 
 inline double Diim::interdependency_index(const std::string& i, const std::string& j, int order)
 {
-    assert(order >= 1);
+    Expects(order >= 1);
     auto pos_i = std::find(infra.begin(), infra.end(), i);
     auto pos_j = std::find(infra.begin(), infra.end(), j);
     std::size_t ii = 0;
