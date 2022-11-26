@@ -16,7 +16,7 @@ jobs:
 
     strategy:
       matrix:
-        compiler: [g++-9, g++-10, clang++-10, clang++-11, clang++-12]
+        compiler: [g++-9, g++-10, g++-11, clang++-12, clang++-13, clang++-14]
 
     steps:
     - uses: actions/checkout@v3
@@ -64,7 +64,7 @@ jobs:
 
     env:
       MKL_DIR: "D:/a/"
-      MKLROOT: "D:/a/intelmkl.static.win-x64.2022.0.3.171/lib/native"
+      MKLROOT: "D:/a/intelmkl.static.win-x64.2022.2.1.19754/lib/native"
 
     steps:
     - uses: actions/checkout@v3
