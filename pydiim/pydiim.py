@@ -157,9 +157,9 @@ class PyDIIM:
         """Run DIIM calculation."""
         try:
             with open(output_file, "w") as f:
-                process = subprocess.run(
-                    ["diim_run", self.__inp_file, run_type], stdout=f
-                )
+                subprocess.run(["diim_run", self.__inp_file, run_type], stdout=f, check=True)
             return read_csv(output_file)
+        except FileNotFoundError:
+            print("diim_run not found")
         except subprocess.CalledProcessError as err:
             print("running diim_run failed: ", err.output)
