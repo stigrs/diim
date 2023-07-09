@@ -14,6 +14,16 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 
+def score_to_interdependency(filename, score_scale):
+    """Transform score values to interdependencies."""
+    try:
+        subprocess.run(["diim_gen", filename, str(score_scale)], check=True)
+    except FileNotFoundError as exc:
+        print(f"{exc}")
+    except subprocess.CalledProcessError as exc:
+        print(f"{exc}")
+
+
 def read_csv(filename, encoding="latin1"):
     """Helper function for reading CSV files."""
     df = pd.read_csv(filename, encoding=encoding)
