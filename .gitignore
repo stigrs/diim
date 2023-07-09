@@ -12,8 +12,12 @@ tmp.*
 tags
 
 # Directories:
+__pycache__
 build
+dist 
 tmp
 .vs
 .vscode
+*.egg-info
 .ipynb_checkpoints
+.pytest_cache
