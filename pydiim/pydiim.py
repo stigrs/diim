@@ -160,7 +160,6 @@ class PyDIIM:
                 process = subprocess.run(
                     ["diim_run", self.__inp_file, run_type], stdout=f
                 )
-            if process.returncode == 0:
-                return read_csv(output_file)
-        except Exception:
-            print("running diim_run failed")
+            return read_csv(output_file)
+        except subprocess.CalledProcessError as err:
+            print("running diim_run failed: ", err.output)
