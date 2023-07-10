@@ -30,7 +30,7 @@ def read_csv(filename, encoding="latin1"):
     return df
 
 
-def bar_plot(xdata, ydata, xlabel=None, ylabel=None, title=None, figsize=(15, 5), dpi=300):
+def bar_plot(xdata, ydata, xlabel=None, ylabel=None, title=None, figsize=(10, 5), dpi=300):
     """Helper function for creating IIM plots."""
     _, ax = plt.subplots(figsize=figsize, dpi=dpi)
     ax.bar(xdata, ydata)
@@ -48,7 +48,7 @@ def grouped_bar_plot(xtick_labels,
                      legend=None, 
                      title=None, 
                      bar_width=0.4, 
-                     figsize=(15, 5), 
+                     figsize=(10, 5), 
                      dpi=300):
     """Helper function for creating grouped IIM bar plots."""
     _, ax = plt.subplots(figsize=figsize, dpi=dpi)
@@ -71,12 +71,22 @@ def grouped_bar_plot(xtick_labels,
     ax.set_title(title)
 
 
-def plot_dynamic(t_data, qt_data, labels, yscale="linear", xlabel="Time / hours", ylabel="Inoperability", dpi=300):
+def plot_dynamic(t_data, 
+                 data, 
+                 yscale="log", 
+                 xlabel="Time / hours", 
+                 ylabel="Inoperability", 
+                 figsize=(7, 5),
+                 dpi=300):
     """Helper function for plotting dynamic IIM data."""
+    qt_data = data.head(-1)
+    labels = qt_data.columns[1:]
+    t_data = qt_data[qt_data.columns[0]].to_numpy()
+    q_data = qt_data[qt_data.columns[1:]].to_numpy()
     marker = itertools.cycle((",", "+", ".", "^", "*", "o", ">", "<")) 
-    _, ax = plt.subplots(dpi=dpi)
+    _, ax = plt.subplots(figsize=figsize, dpi=dpi)
     for j in range(len(labels)):
-        ax.plot(t_data, qt_data[:, j], label=labels[j], marker=next(marker), linestyle="-")
+        ax.plot(t_data, q_data[:, j], label=labels[j], marker=next(marker), linestyle="-")
     plt.yscale(yscale)
     ax.yaxis.grid(color='gray', linestyle='dashed')
     ax.set_ylabel(ylabel)
