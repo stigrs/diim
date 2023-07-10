@@ -71,13 +71,7 @@ def grouped_bar_plot(xtick_labels,
     ax.set_title(title)
 
 
-def plot_dynamic(t_data, 
-                 data, 
-                 yscale="log", 
-                 xlabel="Time / hours", 
-                 ylabel="Inoperability", 
-                 figsize=(7, 5),
-                 dpi=300):
+def plot_dynamic(data, yscale="log", xlabel="Time / hours", ylabel="Inoperability", figsize=(7, 5), dpi=300):
     """Helper function for plotting dynamic IIM data."""
     qt_data = data.head(-1)
     labels = qt_data.columns[1:]
