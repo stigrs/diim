@@ -8,10 +8,10 @@
 
 import numpy as np
 import pandas as pd
-import itertools
 import subprocess
 import matplotlib.pyplot as plt
 import seaborn as sns
+from matplotlib.ticker import AutoLocator, AutoMinorLocator
 
 
 def score_to_interdependency(filename, score_scale):
@@ -71,28 +71,39 @@ def grouped_bar_plot(xtick_labels,
     ax.set_title(title)
 
 
-def plot_dynamic(data, yscale="log", xlabel="Time / hours", ylabel="Inoperability", figsize=(7, 5), dpi=300):
+def plot_dynamic(data, 
+                 ylim=None, 
+                 yscale="linear", 
+                 xlabel="Time / hours", 
+                 ylabel="Inoperability", 
+                 figsize=(9, 5), 
+                 dpi=300):
     """Helper function for plotting dynamic IIM data."""
     qt_data = data.head(-1)
     labels = qt_data.columns[1:]
     t_data = qt_data[qt_data.columns[0]].to_numpy()
     q_data = qt_data[qt_data.columns[1:]].to_numpy()
-    marker = itertools.cycle((",", "+", ".", "^", "*", "o", ">", "<")) 
     _, ax = plt.subplots(figsize=figsize, dpi=dpi)
+    colors = plt.cm.nipy_spectral(np.linspace(0, 1, len(labels)))
+    ax.set_prop_cycle("color", colors)
     for j in range(len(labels)):
-        ax.plot(t_data, q_data[:, j], label=labels[j], marker=next(marker), linestyle="-")
+        ax.plot(t_data, q_data[:, j], label=labels[j], linestyle="-", linewidth=2)
+    if ylim:
+        ax.set_ylim(ylim)
     plt.yscale(yscale)
     ax.yaxis.grid(color='gray', linestyle='dashed')
+    ax.xaxis.set_major_locator(AutoLocator())
+    ax.xaxis.set_minor_locator(AutoMinorLocator())
     ax.set_ylabel(ylabel)
     ax.set_xlabel(xlabel)
-    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.15), ncol=4)
+    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.15), ncol=5)
 
 
-def plot_heatmap(df, vmin=2.0, vmax=4.5, xlabel=None, ylabel=None, dpi=300):
+def plot_heatmap(df, vmin, vmax, xlabel=None, ylabel=None, cbar_label="Impact", dpi=300):
     """Helper function for creating heatmaps."""
     data = df.pivot("infra_i", "infra_j", "impact")
     _, ax = plt.subplots(dpi=dpi)
-    sns.heatmap(data, linewidth=0.5, vmin=vmin, vmax=vmax, cbar_kws={"label": "Impact"}, ax=ax)
+    sns.heatmap(data, linewidth=0.5, vmin=vmin, vmax=vmax, cbar_kws={"label": cbar_label}, ax=ax)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
 
@@ -120,7 +131,7 @@ class PyDIIM:
 
     def __gen_inp_file(self):
         """Generate input file."""
-        with open(self.__inp_file, "w") as f:
+        with open(self.__inp_file, "w", encoding="latin1") as f:
             f.write("DIIM\n")
             f.write("  amatrix_type\n")
             f.write("    {0}\n".format(self.config["amatrix_type"]))
@@ -173,7 +184,9 @@ class PyDIIM:
             with open(output_file, "w") as f:
                 subprocess.run(["diim_run", self.__inp_file, run_type], stdout=f, check=True)
             return read_csv(output_file)
-        except FileNotFoundError as exc:
+        except subprocess.FileNotFoundError as exc:
             print(f"{exc}")
         except subprocess.CalledProcessError as exc:
+            print(f"{exc}")
+        except Exception as exc:
             print(f"{exc}")
