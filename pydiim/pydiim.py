@@ -18,7 +18,7 @@ def score_to_interdependency(filename, score_scale):
     """Transform score values to interdependencies."""
     try:
         subprocess.run(["diim_gen", filename, str(score_scale)], check=True)
-    except FileNotFoundError as exc:
+    except subprocess.FileNotFoundError as exc:
         print(f"{exc}")
     except subprocess.CalledProcessError as exc:
         print(f"{exc}")
@@ -28,6 +28,11 @@ def read_csv(filename, encoding="latin1"):
     """Helper function for reading CSV files."""
     df = pd.read_csv(filename, encoding=encoding)
     return df
+
+
+def excel_writer(filename):
+    """Helper function for writing to Excel XLSX file."""
+    return pd.ExcelWriter(filename, engine="xlsxwriter")
 
 
 def bar_plot(xdata, ydata, xlabel=None, ylabel=None, title=None, figsize=(10, 5), dpi=300):
