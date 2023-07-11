@@ -26,8 +26,7 @@ def score_to_interdependency(filename, score_scale):
 
 def read_csv(filename, encoding="latin1"):
     """Helper function for reading CSV files."""
-    df = pd.read_csv(filename, encoding=encoding)
-    return df
+    return pd.read_csv(filename, encoding=encoding)
 
 
 def excel_writer(filename):
@@ -88,21 +87,26 @@ def plot_dynamic(data,
     labels = qt_data.columns[1:]
     t_data = qt_data[qt_data.columns[0]].to_numpy()
     q_data = qt_data[qt_data.columns[1:]].to_numpy()
+
     _, ax = plt.subplots(figsize=figsize, dpi=dpi)
     colors = plt.cm.nipy_spectral(np.linspace(0, 1, len(labels)))
     ax.set_prop_cycle("color", colors)
+
     for j in range(len(labels)):
         ax.plot(t_data, q_data[:, j], label=labels[j], linestyle="-", linewidth=2)
+
     if ylim:
         ax.set_ylim(ylim)
     plt.yscale(yscale)
+
     ax.yaxis.grid(color='gray', linestyle='dashed')
+
     ax.xaxis.set_major_locator(AutoLocator())
     ax.xaxis.set_minor_locator(AutoMinorLocator())
+
     ax.set_ylabel(ylabel)
     ax.set_xlabel(xlabel)
     ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.15), ncol=5)
-
 
 def plot_heatmap(df, vmin, vmax, xlabel=None, ylabel=None, cbar_label="Impact", dpi=300):
     """Helper function for creating heatmaps."""
