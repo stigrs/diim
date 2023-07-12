@@ -18,9 +18,9 @@ def score_to_interdependency(filename, score_scale):
     """Transform score values to interdependencies."""
     try:
         subprocess.run(["diim_gen", filename, str(score_scale)], check=True)
-    except subprocess.FileNotFoundError as exc:
-        print(f"{exc}")
     except subprocess.CalledProcessError as exc:
+        print(f"{exc}")
+    except Exception as exc:
         print(f"{exc}")
 
 
@@ -193,8 +193,6 @@ class PyDIIM:
             with open(output_file, "w") as f:
                 subprocess.run(["diim_run", self.__inp_file, run_type], stdout=f, check=True)
             return read_csv(output_file)
-        except subprocess.FileNotFoundError as exc:
-            print(f"{exc}")
         except subprocess.CalledProcessError as exc:
             print(f"{exc}")
         except Exception as exc:
