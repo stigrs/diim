@@ -183,7 +183,7 @@ target_include_directories(diim PUBLIC
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-install(TARGETS diim 
+install(TARGETS diim scilib mdspan linalg GSL
     EXPORT diimTargets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}    
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}    
