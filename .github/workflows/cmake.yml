@@ -64,7 +64,7 @@ jobs:
 
     env:
       MKL_DIR: "D:/a/"
-      MKLROOT: "D:/a/intelmkl.static.win-x64.2023.1.0.46356/lib/native"
+      MKLROOT: "D:/a/intelmkl.static.win-x64.2023.2.0.49496/lib/native"
 
     steps:
     - uses: actions/checkout@v3
