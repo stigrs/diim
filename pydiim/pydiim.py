@@ -14,10 +14,10 @@ import seaborn as sns
 from matplotlib.ticker import AutoLocator, AutoMinorLocator
 
 
-def score_to_interdependency(filename, score_scale):
+def score_to_interdependency(score_file, amat_file, score_scale):
     """Transform score values to interdependencies."""
     try:
-        subprocess.run(["diim_gen", filename, str(score_scale)], check=True)
+        subprocess.run(["diim_gen", score_file, amat_file, str(score_scale)], check=True)
     except subprocess.CalledProcessError as exc:
         print(f"{exc}")
     except Exception as exc:
