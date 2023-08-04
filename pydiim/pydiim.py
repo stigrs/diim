@@ -120,12 +120,12 @@ def plot_heatmap(df, vmin, vmax, xlabel=None, ylabel=None, cbar_label="Impact", 
 class PyDIIM:
     """Python wrapper for the DIIM code."""
 
-    def __init__(self, inp_file, config={}):
-        self.__inp_file = inp_file
+    def __init__(self, config={}, encoding="latin1"):
         self.config = {
+            "job_name": "diim",
             "amatrix_type": "input-output",
             "calc_mode": "demand",
-            "amat_file": self.__inp_file.removesuffix(".inp") + ".csv",
+            "amat_file": "diim_amat.csv",
             "kmat_file": None,
             "tau_file": None,
             "q0_file": None,
@@ -136,11 +136,12 @@ class PyDIIM:
             "ptime": [[]],
         }
         self.config.update(config)
-        self.__gen_inp_file()
+        self.__gen_inp_file(encoding)
 
-    def __gen_inp_file(self):
+    def __gen_inp_file(self, encoding):
         """Generate input file."""
-        with open(self.__inp_file, "w", encoding="latin1") as f:
+        self.__inp_file = self.config["job_name"] + ".inp"
+        with open(self.__inp_file, "w", encoding=encoding) as f:
             f.write("DIIM\n")
             f.write("  amatrix_type\n")
             f.write("    {0}\n".format(self.config["amatrix_type"]))
@@ -187,9 +188,10 @@ class PyDIIM:
                     )
                 f.write("End\n")
 
-    def run(self, run_type, output_file):
+    def run(self, run_type):
         """Run DIIM calculation."""
         try:
+            output_file = self.config["job_name"] + ".csv"
             with open(output_file, "w") as f:
                 subprocess.run(["diim_run", self.__inp_file, run_type], stdout=f, check=True)
             return read_csv(output_file)
