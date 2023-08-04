@@ -199,7 +199,7 @@ Sci::Matrix<double> Iim::Diim::dynamic_inoperability() const
         Sci::Linalg::clip(qk, 0.0, 1.0);
         auto qt_k = Sci::row(qt, tk);
         qt_k(0) = tk;
-        Sci::copy_n(qk.view(), qk.extent(0), qt_k, 1);
+        Sci::copy_n(qk.to_mdspan(), qk.extent(0), qt_k, 1);
     }
     return qt;
 }
@@ -220,7 +220,7 @@ Sci::Matrix<double> Iim::Diim::dynamic_recovery() const
         Sci::Linalg::clip(qk, 0.0, 1.0);
         auto qt_k = Sci::row(qt, tk);
         qt_k(0) = tk;
-        Sci::copy_n(qk.view(), qk.extent(0), qt_k, 1);
+        Sci::copy_n(qk.to_mdspan(), qk.extent(0), qt_k, 1);
     }
     return qt;
 }
@@ -351,7 +351,7 @@ void Iim::Diim::init_kmatrix(const std::string& kmat_file)
         csv_reader(istrm, header, values);
         Expects(header.size() == infra.size());
         auto kmat_diag = Sci::diag(kmat);
-        Sci::copy(values.view(), kmat_diag);
+        Sci::copy(values.to_mdspan(), kmat_diag);
         Sci::Linalg::clip(kmat, 0.0, kmat_max());
     }
     else if (tau.size() > 0) {
@@ -508,7 +508,7 @@ void Iim::Diim::hybrid_attack_sampling(std::ostream& ostrm)
                 continue;
             }
             Sci::Vector<std::string> pinfra({infra_i, infra_j}, 2);
-            perturb.set_perturbed_infrastructures(pinfra.view());
+            perturb.set_perturbed_infrastructures(pinfra.to_mdspan());
             auto qt = dynamic_inoperability();
             auto qtot = impact(qt);
 

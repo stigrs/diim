@@ -48,13 +48,13 @@ public:
     }
 
     // Get perturbed infrastructures.
-    constexpr auto get_perturbed_infrastructure() const { return pinfra.view(); }
+    constexpr auto get_perturbed_infrastructure() const { return pinfra.to_mdspan(); }
 
     // Get perturbation time period.
     std::vector<std::array<int, 2>> get_perturbation_time_period() const { return ptime; }
 
     // Get perturbation magnitudes.
-    constexpr auto get_perturbation_magnitude() const { return cvalue.view(); }
+    constexpr auto get_perturbation_magnitude() const { return cvalue.to_mdspan(); }
 
 private:
     // Initialise perturbation.

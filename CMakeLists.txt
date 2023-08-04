@@ -96,20 +96,14 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 ####################################################################################################
 
 # Scilib is required.
-find_package(scilib QUIET)
-if(scilib_FOUND)
-    message(STATUS "Scilib found")
-endif()
-if (NOT scilib_FOUND)
-    message(STATUS "No installed Scilib found, fetching from Github")
-    include(FetchContent)
-    FetchContent_Declare(
-        scilib
-        GIT_REPOSITORY https://github.com/stigrs/scilib.git
-        GIT_TAG        main
-    )
-    FetchContent_MakeAvailable(scilib)
-endif()
+message(STATUS "Fetch scilib from Github")
+include(FetchContent)
+FetchContent_Declare(
+    scilib
+    GIT_REPOSITORY https://github.com/stigrs/scilib.git
+    GIT_TAG        main
+)
+FetchContent_MakeAvailable(scilib)
 
 if(NOT TARGET scilib::scilib)
   find_package(scilib REQUIRED)
@@ -183,7 +177,7 @@ target_include_directories(diim PUBLIC
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-install(TARGETS diim scilib mdspan linalg GSL
+install(TARGETS diim scilib mdspan linalg
     EXPORT diimTargets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}    
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}    

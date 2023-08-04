@@ -79,13 +79,13 @@ public:
     constexpr const std::vector<std::string>& infrastructures() const { return infra; }
 
     // Return as-planned production per infrastructure system.
-    constexpr auto as_planned_production() const { return xoutput.view(); }
+    constexpr auto as_planned_production() const { return xoutput.to_mdspan(); }
 
     // Return Leontief technical coefficients.
-    constexpr auto tech_coeff() const { return amat.view(); }
+    constexpr auto tech_coeff() const { return amat.to_mdspan(); }
 
     // Return interdependency matrix.
-    constexpr auto interdependency_matrix() const { return astar.view(); }
+    constexpr auto interdependency_matrix() const { return astar.to_mdspan(); }
 
     // Calculate dependency index.
     //
@@ -142,7 +142,7 @@ public:
     Sci::Vector<double> inoperability() const
     {
         auto q = smat * perturb.cstar();
-        Sci::Linalg::clip(q.view(), 0.0, 1.0);
+        Sci::Linalg::clip(q.to_mdspan(), 0.0, 1.0);
         return q;
     }
 
@@ -300,7 +300,7 @@ inline double Diim::interdependency_index(const std::string& i, const std::strin
     if (pos_j != infra.end()) {
         jj = pos_j - infra.begin();
     }
-    auto res = Sci::Linalg::matrix_power(astar.view(), order);
+    auto res = Sci::Linalg::matrix_power(astar.to_mdspan(), order);
     return res(ii, jj);
 }
 
