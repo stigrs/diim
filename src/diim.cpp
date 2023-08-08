@@ -313,10 +313,10 @@ void Iim::Diim::check_stability()
 
     Sci::Linalg::eig(astar_tmp, evec, eval);
 
-    double eval_largest = std::abs(eval(0)); // magnitude is used for comparison
-    for (auto& ei : eval) {
-        if (std::abs(ei) > eval_largest) {
-            eval_largest = std::abs(ei);
+    double eval_largest = std::abs(eval[0]); // magnitude is used for comparison
+    for (Sci::index i = 0; i < eval.extent(0); ++i) {
+        if (std::abs(eval[i]) > eval_largest) {
+            eval_largest = std::abs(eval[i]);
         }
     }
     if (std::abs(eval_largest) >= 1.0) {
