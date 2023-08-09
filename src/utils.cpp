@@ -6,7 +6,6 @@
 
 #include <diim/utils.h>
 #include <scilib/linalg.h>
-#include <stdutils/stdutils.h>
 #include <sstream>
 
 void Iim::csv_reader(std::istream& istrm,
@@ -29,7 +28,8 @@ void Iim::csv_reader(std::istream& istrm,
         std::getline(ss, val, ',');
         data.push_back(std::stod(val));
     }
-    values = Sci::Vector<double>(data, data.size());
+    using extents_type = typename Sci::Vector<double>::extents_type;
+    values = Sci::Vector<double>(extents_type(data.size()), data);
 }
 
 void Iim::csv_reader(std::istream& istrm,
@@ -45,7 +45,7 @@ void Iim::csv_reader(std::istream& istrm,
     std::getline(istrm, line);
     std::stringstream ss(line);
     while (std::getline(ss, val, ',')) {
-        header.push_back(Stdutils::trim(val, " "));
+        header.push_back(__Detail::trim(val, " "));
     }
     // Read data:
     std::size_t nrows = 0;
@@ -61,7 +61,9 @@ void Iim::csv_reader(std::istream& istrm,
         ++nrows;
     }
     std::size_t ncols = header.size();
-    values = Sci::Matrix<double>(tmp, nrows, ncols);
+
+    using extents_type = typename Sci::Matrix<double>::extents_type;
+    values = Sci::Matrix<double>(extents_type(nrows, ncols), tmp);
 }
 
 void Iim::csv_reader_sparse(std::istream& istrm,
@@ -77,7 +79,7 @@ void Iim::csv_reader_sparse(std::istream& istrm,
     std::getline(istrm, line);
     std::stringstream ss(line);
     while (std::getline(ss, val, ',')) {
-        header.push_back(Stdutils::trim(val, " "));
+        header.push_back(__Detail::trim(val, " "));
     }
     // Read data:
     std::size_t ncols = header.size();

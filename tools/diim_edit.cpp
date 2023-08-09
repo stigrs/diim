@@ -4,7 +4,6 @@
 // LICENSE.txt or http://www.opensource.org/licenses/mit-license.php for terms
 // and conditions.
 
-#include <stdutils/stdutils.h>
 #include <scilib/mdarray.h>
 #include <scilib/linalg.h>
 #include <diim/utils.h>
@@ -12,6 +11,7 @@
 #include <fstream>
 #include <sstream>
 #include <exception>
+#include <stdexcept>
 #include <vector>
 #include <string>
 #include <algorithm>
@@ -26,18 +26,17 @@ void tau_editor_helper(const std::vector<std::string>& infra, Sci::Vector<double
 
 int main(int argc, char* argv[])
 {
-    auto args = Stdutils::arguments(argc, argv);
-    if (args.size() != 3) {
-        std::cerr << "Usage: " << args[0] << " [edit_mode] input_file.csv\n"
+    if (argc != 3) {
+        std::cerr << "Usage: " << argv[0] << " [edit_mode] input_file.csv\n"
                   << "edit_mode = [amat, tau]\n";
         return 1;
     }
     try {
-        if (args[1] == "amat") {
-            amat_editor(args[2]);
+        if (std::string(argv[1]) == "amat") {
+            amat_editor(argv[2]);
         }
-        else if (args[1] == "tau") {
-            tau_editor(args[2]);
+        else if (std::string(argv[1]) == "tau") {
+            tau_editor(argv[2]);
         }
     }
     catch (std::exception& e) {
@@ -48,8 +47,10 @@ int main(int argc, char* argv[])
 
 void amat_editor(const std::string& filename)
 {
-    std::ifstream istrm;
-    Stdutils::fopen(istrm, filename);
+    std::ifstream istrm(filename);
+    if (!istrm.is_open()) {
+        throw std::runtime_error("cannot open " + filename);
+    }
 
     std::vector<std::string> infra;
     Sci::Matrix<double> amat;
@@ -63,8 +64,10 @@ void amat_editor(const std::string& filename)
     }
     amat_editor_helper(infra, amat);
 
-    std::ofstream ostrm;
-    Stdutils::fopen(ostrm, filename);
+    std::ofstream ostrm(filename);
+    if (!ostrm.is_open()) {
+        throw std::runtime_error("cannot open " + filename);
+    }
     Iim::csv_writer(ostrm, infra, amat);
 }
 
@@ -118,8 +121,10 @@ void amat_editor_helper(const std::vector<std::string>& infra, Sci::Matrix<doubl
 
 void tau_editor(const std::string& filename)
 {
-    std::ifstream istrm;
-    Stdutils::fopen(istrm, filename);
+    std::ifstream istrm(filename);
+    if (!istrm.is_open()) {
+        throw std::runtime_error("cannot open " + filename);
+    }
 
     std::vector<std::string> infra;
     Sci::Vector<double> tau;
@@ -133,8 +138,10 @@ void tau_editor(const std::string& filename)
     }
     tau_editor_helper(infra, tau);
 
-    std::ofstream ostrm;
-    Stdutils::fopen(ostrm, filename);
+    std::ofstream ostrm(filename);
+    if (!ostrm.is_open()) {
+        throw std::runtime_error("cannot open " + filename);
+    }
     Iim::csv_writer(ostrm, infra, tau);
 }
 

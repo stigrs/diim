@@ -7,7 +7,6 @@
 #ifndef IIM_AUXILIARY_H
 #define IIM_AUXILIARY_H
 
-#include <stdutils/stdutils.h>
 #include <gsl/gsl>
 #include <array>
 #include <cmath>

@@ -1,9 +1,0 @@
-DIIM 
-  amatrix_type
-    input-output 
-  calc_mode
-    supply
-  amat_file
-    test_case5.csv
-End
-

@@ -9,8 +9,8 @@ if(NOT TARGET scilib::scilib)
     find_package(scilib REQUIRED)
 endif()
 
-if(NOT TARGET stdutils::stdutils)
-    find_package(stdutils REQUIRED)
+if(NOT TARGET nlohmann_json::nlohmann_json)
+    find_package(nlohmann_json REQUIRED)
 endif()
 
 if(NOT TARGET diim::diim)
@@ -24,7 +24,7 @@ function(add_tool name)
         PRIVATE
         diim::diim
         scilib::scilib
-        stdutils::stdutils
+        nlohmann_json::nlohmann_json
 	    ${BLAS_LIBRARIES}
     ) 
     target_compile_options(

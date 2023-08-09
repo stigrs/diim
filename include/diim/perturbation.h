@@ -8,7 +8,6 @@
 #define IIM_PERTURBATION_H
 
 #include <scilib/mdarray.h>
-#include <iostream>
 #include <string>
 #include <vector>
 #include <array>
@@ -25,7 +24,7 @@ class Perturbation {
 public:
     Perturbation() = default;
 
-    Perturbation(std::istream& istrm, const std::vector<std::string>& infra_);
+    Perturbation(const std::string& json_file, const std::vector<std::string>& infra_);
 
     // Copy semantics:
     Perturbation(const Perturbation&) = default;

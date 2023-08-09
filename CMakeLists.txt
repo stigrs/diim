@@ -109,24 +109,18 @@ if(NOT TARGET scilib::scilib)
   find_package(scilib REQUIRED)
 endif()
 
-# Stdutils is required.
-find_package(stdutils QUIET)
-if(stdutils_FOUND)
-    message(STATUS "Stdutils found")
-endif()
-if (NOT stdutils_FOUND)
-    message(STATUS "No installed Stdutils found, fetching from Github")
-    include(FetchContent)
-    FetchContent_Declare(
-        stdutils
-        GIT_REPOSITORY https://github.com/stigrs/stdutils.git
-        GIT_TAG        master
-    )
-    FetchContent_MakeAvailable(stdutils)
-endif()
+# JSON is required.
+message(STATUS "Fetch JSON from Github")
+include(FetchContent)
+FetchContent_Declare(
+    json
+    GIT_REPOSITORY https://github.com/nlohmann/json.git
+    GIT_TAG        v3.11.2
+)
+FetchContent_MakeAvailable(json)
 
-if(NOT TARGET stdutils::stdutils)
-  find_package(stdutils REQUIRED)
+if(NOT TARGET nlohmann_json::nlohmann_json)
+  find_package(nlohmann_json REQUIRED)
 endif()
 
 # BLAS and LAPACKE are required.
@@ -159,7 +153,7 @@ target_link_libraries(
     diim 
     PRIVATE
     scilib::scilib
-    stdutils::stdutils
+    nlohmann_json::nlohmann_json
     ${BLAS_LIBRARIES}
 )
 
@@ -177,7 +171,7 @@ target_include_directories(diim PUBLIC
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-install(TARGETS diim scilib mdspan linalg
+install(TARGETS diim scilib mdspan linalg nlohmann_json
     EXPORT diimTargets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}    
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}    

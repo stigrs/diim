@@ -1,0 +1,14 @@
+{ 
+    "DIIM": {
+        "amatrix_type": "interdependency",
+        "calc_mode": "demand",
+        "amat_file": "test_case12_amat.csv",
+        "kmat_file": "test_case12_kmat.csv",
+        "time_steps": 100
+    },
+    "Perturbation": {
+        "pinfra": ["Sector2"],
+        "cvalue": [0.1],
+        "ptime": [[0, 30]]
+    }
+}

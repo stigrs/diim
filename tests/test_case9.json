@@ -1,0 +1,7 @@
+{ 
+    "DIIM": {
+        "amatrix_type": "interdependency",
+        "calc_mode": "demand",
+        "amat_file": "test_case9.csv"
+    }
+}

@@ -5,17 +5,14 @@
 // and conditions.
 
 #include <diim/diim.h>
-#include <stdutils/stdutils.h>
 #include <exception>
-#include <fstream>
 #include <iostream>
 #include <string>
 
 int main(int argc, char* argv[])
 {
-    auto args = Stdutils::arguments(argc, argv);
-    if (args.size() != 3) {
-        std::cerr << "Usage: " << args[0] << " inp_file run_type\n\n"
+    if (argc != 3) {
+        std::cerr << "Usage: " << argv[0] << " json_file run_type\n\n"
                   << "Valid run types:\n"
                   << "  influence\n"
                   << "  interdependency\n"
@@ -28,11 +25,8 @@ int main(int argc, char* argv[])
     }
 
     try {
-        std::ifstream istrm;
-        Stdutils::fopen(istrm, args[1]);
-
-        Iim::Diim diim(istrm);
-        diim.analysis(args[2]);
+        Iim::Diim diim(argv[1]);
+        diim.analysis(argv[2]);
     }
     catch (std::exception& e) {
         std::cerr << "what: " << e.what() << '\n';

@@ -5,11 +5,11 @@ include_directories(${BLAS_INCLUDE_DIRS})
 include_directories(${LAPACKE_INCLUDE_DIRS})
 link_directories(${BLAS_LIBRARY_DIRS})
 
-# Copy *.inp files to build directory.
-file(GLOB INP_FILES RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}"
-    "${CMAKE_CURRENT_SOURCE_DIR}/*.inp")
-foreach(inp_file_name ${INP_FILES})
-    file(COPY "${inp_file_name}" DESTINATION "${CMAKE_BINARY_DIR}/tests")
+# Copy *.json files to build directory.
+file(GLOB JSON_FILES RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}"
+    "${CMAKE_CURRENT_SOURCE_DIR}/*.json")
+foreach(json_file_name ${JSON_FILES})
+    file(COPY "${json_file_name}" DESTINATION "${CMAKE_BINARY_DIR}/tests")
 endforeach()
 
 # Copy *.csv files to build directory.
@@ -33,8 +33,8 @@ if(NOT TARGET scilib::scilib)
     find_package(scilib REQUIRED)
 endif()
 
-if(NOT TARGET stdutils::stdutils)
-    find_package(stdutils REQUIRED)
+if(NOT TARGET nlohmann_json::nlohmann_json)
+    find_package(nlohmann_json REQUIRED)
 endif()
 
 if(NOT TARGET diim::diim)
@@ -48,7 +48,7 @@ function(add_diim_test name)
         PRIVATE
         diim::diim
         scilib::scilib
-        stdutils::stdutils
+        nlohmann_json::nlohmann_json
         gtest_main
 	    ${BLAS_LIBRARIES}
     ) 

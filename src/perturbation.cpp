@@ -6,42 +6,36 @@
 
 #include <diim/perturbation.h>
 #include <scilib/linalg.h>
-#include <stdutils/stdutils.h>
+#include <nlohmann/json.hpp>
+#include <fstream>
 #include <sstream>
 #include <gsl/gsl>
 #include <exception>
 #include <algorithm>
 
-Iim::Perturbation::Perturbation(std::istream& istrm, const std::vector<std::string>& infra_)
+Iim::Perturbation::Perturbation(const std::string& json_file,
+                                const std::vector<std::string>& infra_)
     : infra(infra_)
 {
-    using namespace Stdutils;
+    // Parse config file:
 
-    auto pos = find_token(istrm, std::string("Perturbation"));
-    if (pos != -1) {
-        get_token_value(istrm, pos, "pinfra", pinfra, pinfra);
-        get_token_value(istrm, pos, "cvalue", cvalue, cvalue);
+    std::ifstream istrm(json_file);
+    if (!istrm.is_open()) {
+        throw std::runtime_error("cannot open " + json_file);
     }
-    Expects(pinfra.size() == cvalue.size());
+    nlohmann::json config = nlohmann::json::parse(istrm);
 
-    std::string line;
-    int ntime; // number of timings to be read
-    int ti;    // start time step
-    int tf;    // final time step
-
-    pos = find_token(istrm, std::string("ptime"));
-    if (pos != -1) {
-        istrm >> ntime;
-        std::getline(istrm, line); // consume rest of line
-        Expects(ntime >= 0);
-        for (int it = 0; it < ntime; ++it) {
-            std::getline(istrm, line);
-            std::stringstream iss(line);
-            iss >> ti >> tf;
-            Expects(ti >= 0 && tf >= 0);
-            Expects(ti <= tf);
-            ptime.push_back({ti, tf});
-        }
+    if (config["Perturbation"].find("pinfra") != config["Perturbation"].end()) {
+        auto pinfra_tmp = config["Perturbation"]["pinfra"].get<std::vector<std::string>>();
+        pinfra =
+            Sci::Vector<std::string>(stdex::dextents<Sci::index, 1>(pinfra_tmp.size()), pinfra_tmp);
+    }
+    if (config["Perturbation"].find("cvalue") != config["Perturbation"].end()) {
+        auto cvalue_tmp = config["Perturbation"]["cvalue"].get<std::vector<double>>();
+        cvalue = Sci::Vector<double>(stdex::dextents<Sci::index, 1>(cvalue_tmp.size()), cvalue_tmp);
+    }
+    if (config["Perturbation"].find("ptime") != config["Perturbation"].end()) {
+        ptime = config["Perturbation"]["ptime"].get<std::vector<std::array<int, 2>>>();
     }
     else {
         ptime.resize(pinfra.size());
@@ -49,6 +43,8 @@ Iim::Perturbation::Perturbation(std::istream& istrm, const std::vector<std::stri
             ptime[i] = {0, 0};
         }
     }
+    Expects(pinfra.size() == cvalue.size());
+
     init_perturbation();
 }
 

@@ -60,7 +60,7 @@ class Diim {
 public:
     Diim() = default;
 
-    Diim(std::istream& istrm);
+    Diim(const std::string& json_file);
 
     // Copy semantics:
     Diim(const Diim&) = default;

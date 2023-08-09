@@ -7,9 +7,10 @@
 #include <diim/diim.h>
 #include <diim/utils.h>
 #include <scilib/integrate.h>
-#include <stdutils/stdutils.h>
+#include <nlohmann/json.hpp>
 #include <fstream>
 #include <sstream>
+#include <stdexcept>
 #include <complex>
 #include <cmath>
 #include <exception>
@@ -18,34 +19,53 @@
 //--------------------------------------------------------------------------------------------------
 // Public functions:
 
-Iim::Diim::Diim(std::istream& istrm)
+Iim::Diim::Diim(const std::string& json_file)
 {
-    using namespace Stdutils;
-
     // Parse config file:
 
-    std::string amatrix_type_str;
-    std::string calc_mode_str;
-    std::string amat_file;
-    std::string kmat_file;
-    std::string tau_file;
-    std::string q0_file;
-
-    time_steps = 0;
-
-    auto pos = find_token(istrm, std::string("DIIM"));
-    if (pos != -1) {
-        // clang-format off
-        get_token_value(istrm, pos, "amatrix_type", amatrix_type_str, std::string("input-output"));
-        get_token_value(istrm, pos, "calc_mode", calc_mode_str, std::string("demand"));
-        get_token_value(istrm, pos, "lambda", lambda, 0.01);
-        get_token_value(istrm, pos, "amat_file", amat_file);
-        get_token_value(istrm, pos, "kmat_file", kmat_file, std::string(""));
-        get_token_value(istrm, pos, "tau_file", tau_file, std::string(""));
-        get_token_value(istrm, pos, "q0_file", q0_file, std::string(""));
-        get_token_value(istrm, pos, "time_steps", time_steps, time_steps);
-        // clang-format on
+    std::ifstream istrm(json_file);
+    if (!istrm.is_open()) {
+        throw std::runtime_error("cannot open " + json_file);
     }
+    nlohmann::json config = nlohmann::json::parse(istrm);
+
+    std::string amatrix_type_str = "interdependency";
+    if (config["DIIM"].find("amatrix_type") != config["DIIM"].end()) {
+        amatrix_type_str = config["DIIM"]["amatrix_type"].get<std::string>();
+    }
+    std::string calc_mode_str = "demand";
+    if (config["DIIM"].find("calc_mode") != config["DIIM"].end()) {
+        calc_mode_str = config["DIIM"]["calc_mode"].get<std::string>();
+    }
+    std::string amat_file;
+    if (config["DIIM"].find("amat_file") != config["DIIM"].end()) {
+        amat_file = config["DIIM"]["amat_file"].get<std::string>();
+    }
+    else {
+        throw std::runtime_error("amat_file not specified in " + json_file);
+    }
+    std::string kmat_file = "";
+    if (config["DIIM"].find("kmat_file") != config["DIIM"].end()) {
+        kmat_file = config["DIIM"]["kmat_file"].get<std::string>();
+    }
+    std::string tau_file = "";
+    if (config["DIIM"].find("tau_file") != config["DIIM"].end()) {
+        tau_file = config["DIIM"]["tau_file"].get<std::string>();
+    }
+    std::string q0_file = "";
+    if (config["DIIM"].find("q0_file") != config["DIIM"].end()) {
+        q0_file = config["DIIM"]["q0_file"].get<std::string>();
+    }
+    lambda = 0.01;
+    if (config["DIIM"].find("lambda") != config["DIIM"].end()) {
+        lambda = config["DIIM"]["lambda"].get<double>();
+    }
+    time_steps = 0;
+    if (config["DIIM"].find("time_steps") != config["DIIM"].end()) {
+        time_steps = config["DIIM"]["time_steps"].get<int>();
+    }
+    Expects(time_steps >= 0);
+
     if (amatrix_type_str == "input-output") {
         amatrix_type = input_output;
     }
@@ -64,7 +84,6 @@ Iim::Diim::Diim(std::istream& istrm)
     else if (calc_mode_str == "supply" || calc_mode_str == "Supply") {
         calc_mode = supply;
     }
-    Expects(time_steps >= 0);
 
     // Read input-output table or A* matrix from CSV file:
     read_io_table(amat_file);
@@ -88,7 +107,7 @@ Iim::Diim::Diim(std::istream& istrm)
     init_q0(q0_file);
 
     // Create perturbation:
-    perturb = Perturbation(istrm, infra);
+    perturb = Perturbation(json_file, infra);
 }
 
 Sci::Vector<double> Iim::Diim::dependency() const
@@ -245,8 +264,10 @@ Sci::Vector<double> Iim::Diim::impact(const Sci::Matrix<double>& qt) const
 
 void Iim::Diim::read_io_table(const std::string& amat_file)
 {
-    std::ifstream istrm;
-    Stdutils::fopen(istrm, amat_file);
+    std::ifstream istrm(amat_file);
+    if (!istrm.is_open()) {
+        throw std::runtime_error("cannot open " + amat_file);
+    }
     if (amatrix_type == input_output || amatrix_type == interdependency) {
         Sci::Matrix<double> io_tmp;
         csv_reader(istrm, infra, io_tmp);
@@ -328,9 +349,10 @@ void Iim::Diim::check_stability()
 void Iim::Diim::init_tau_values(const std::string& tau_file)
 {
     if (!tau_file.empty()) {
-        std::ifstream istrm;
-        Stdutils::fopen(istrm, tau_file);
-
+        std::ifstream istrm(tau_file);
+        if (!istrm.is_open()) {
+            throw std::runtime_error("cannot open " + tau_file);
+        }
         std::vector<std::string> header;
 
         csv_reader(istrm, header, tau);
@@ -342,9 +364,10 @@ void Iim::Diim::init_kmatrix(const std::string& kmat_file)
 {
     kmat = Sci::Linalg::identity(num_systems());
     if (!kmat_file.empty()) {
-        std::ifstream istrm;
-        Stdutils::fopen(istrm, kmat_file);
-
+        std::ifstream istrm(kmat_file);
+        if (!istrm.is_open()) {
+            throw std::runtime_error("cannot open " + kmat_file);
+        }
         std::vector<std::string> header;
         Sci::Vector<double> values;
 
@@ -378,9 +401,10 @@ void Iim::Diim::calc_kmatrix()
 void Iim::Diim::init_q0(const std::string& q0_file)
 {
     if (!q0_file.empty()) {
-        std::ifstream istrm;
-        Stdutils::fopen(istrm, q0_file);
-
+        std::ifstream istrm(q0_file);
+        if (!istrm.is_open()) {
+            throw std::runtime_error("cannot open " + q0_file);
+        }
         std::vector<std::string> header;
 
         csv_reader(istrm, header, q0);
@@ -489,7 +513,7 @@ void Iim::Diim::single_attack_sampling(std::ostream& ostrm)
     ostrm << "infra" << ',' << "impact\n";
 
     for (auto& infra_i : infra) {
-        Sci::Vector<std::string> pinfra({infra_i}, 1);
+        Sci::Vector<std::string> pinfra(stdex::dextents<Sci::index, 1>(1), {infra_i});
         perturb.set_perturbed_infrastructures(pinfra);
         auto qt = dynamic_inoperability();
         auto qtot = impact(qt);
@@ -507,7 +531,7 @@ void Iim::Diim::hybrid_attack_sampling(std::ostream& ostrm)
             if (infra_i == infra_j) {
                 continue;
             }
-            Sci::Vector<std::string> pinfra({infra_i, infra_j}, 2);
+            Sci::Vector<std::string> pinfra(stdex::dextents<Sci::index, 1>(2), {infra_i, infra_j});
             perturb.set_perturbed_infrastructures(pinfra.to_mdspan());
             auto qt = dynamic_inoperability();
             auto qtot = impact(qt);

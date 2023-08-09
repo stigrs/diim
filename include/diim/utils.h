@@ -15,6 +15,19 @@
 
 namespace Iim {
 
+namespace __Detail {
+
+// Trim leading and trailing characters from string.
+inline std::string trim(const std::string& str, const char* sep)
+{
+    const std::string::size_type pos = str.find_first_not_of(sep);
+    return (pos == std::string::npos)
+               ? std::string()
+               : str.substr(pos, str.find_last_not_of(sep) - pos + 1);
+}
+
+} // namespace __Detail
+
 // Helper function for reading arrays from CSV files.
 //
 // Data are read as:

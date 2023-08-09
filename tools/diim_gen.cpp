@@ -4,7 +4,6 @@
 // LICENSE.txt or http://www.opensource.org/licenses/mit-license.php for terms
 // and conditions.
 
-#include <stdutils/stdutils.h>
 #include <scilib/mdarray.h>
 #include <diim/auxiliary.h>
 #include <diim/utils.h>
@@ -19,18 +18,17 @@ void amat_generator(const std::string& score_file, const std::string& amat_file,
 
 int main(int argc, char* argv[])
 {
-    auto args = Stdutils::arguments(argc, argv);
-    if (args.size() < 3) {
-        std::cerr << "Usage: " << args[0] << " score_file.csv amat_file.csv [scale = {4, 5}]\n";
+    if (argc < 3) {
+        std::cerr << "Usage: " << argv[0] << " score_file.csv amat_file.csv [scale = {4, 5}]\n";
         return 1;
     }
     try {
         int scale = 5;
-        if (args.size() == 4) {
-            scale = std::stoi(args[3]);
+        if (argc == 4) {
+            scale = std::stoi(argv[3]);
         }
         if (scale == 4 || scale == 5) {
-            amat_generator(args[1], args[2], scale);
+            amat_generator(argv[1], argv[2], scale);
         }
     }
     catch (std::exception& e) {
@@ -41,8 +39,10 @@ int main(int argc, char* argv[])
 
 void amat_generator(const std::string& score_file, const std::string& amat_file, int scale)
 {
-    std::ifstream istrm;
-    Stdutils::fopen(istrm, score_file);
+    std::ifstream istrm(score_file);
+    if (!istrm.is_open()) {
+        throw std::runtime_error("cannot open " + score_file);
+    }
 
     std::vector<std::string> infra;
     Sci::Matrix<double> amat;
@@ -51,7 +51,9 @@ void amat_generator(const std::string& score_file, const std::string& amat_file,
 
     amat.apply([](double& x, int val) { x = Iim::Consequence::to_interdep(x, val); }, scale);
 
-    std::ofstream ostrm;
-    Stdutils::fopen(ostrm, amat_file);
+    std::ofstream ostrm(amat_file);
+    if (!ostrm.is_open()) {
+        throw std::runtime_error("cannot open " + amat_file);
+    }
     Iim::csv_writer(ostrm, infra, amat);
 }

@@ -1,0 +1,7 @@
+{ 
+    "DIIM": {
+        "amatrix_type": "input-output",
+        "calc_mode": "supply",
+        "amat_file": "test_case6.csv"
+    }
+}

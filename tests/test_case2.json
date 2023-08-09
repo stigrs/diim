@@ -1,0 +1,11 @@
+{ 
+    "DIIM": {
+        "amatrix_type": "sparse_interdependency",
+        "calc_mode": "demand",
+        "amat_file": "test_case2.csv"
+    },
+    "Perturbation": {
+        "pinfra": ["Sector2"],
+        "cvalue": [0.6]
+    }
+}
