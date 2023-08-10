@@ -122,6 +122,6 @@ void Iim::csv_writer(std::ostream& ostrm,
                      const Sci::Vector<double>& tau)
 {
     for (std::size_t i = 0; i < infra.size(); ++i) {
-        ostrm << infra[i] << ',' << tau(i) << '\n';
+        ostrm << infra[i] << ',' << tau[i] << '\n';
     }
 }

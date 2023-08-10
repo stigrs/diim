@@ -16,6 +16,10 @@
 #include <exception>
 #include <gsl/gsl>
 
+#ifndef JSON_DIAGNOSTICS
+#define JSON_DIAGNOSTICS 1
+#endif
+
 //--------------------------------------------------------------------------------------------------
 // Public functions:
 
@@ -56,10 +60,13 @@ Iim::Diim::Diim(const std::string& json_file)
     if (config["DIIM"].find("q0_file") != config["DIIM"].end()) {
         q0_file = config["DIIM"]["q0_file"].get<std::string>();
     }
+
     lambda = 0.01;
     if (config["DIIM"].find("lambda") != config["DIIM"].end()) {
         lambda = config["DIIM"]["lambda"].get<double>();
     }
+    Expects(lambda > 0.0 && lambda < 1.0);
+
     time_steps = 0;
     if (config["DIIM"].find("time_steps") != config["DIIM"].end()) {
         time_steps = config["DIIM"]["time_steps"].get<int>();
@@ -122,7 +129,7 @@ Sci::Vector<double> Iim::Diim::dependency() const
                     di += astar(i, j);
                 }
             }
-            res(i) = di;
+            res[i] = di;
         }
         res /= gsl::narrow_cast<double>(n - 1);
     }
@@ -141,7 +148,7 @@ Sci::Vector<double> Iim::Diim::influence() const
                     rj += astar(i, j);
                 }
             }
-            res(j) = rj;
+            res[j] = rj;
         }
         res /= gsl::narrow_cast<double>(n - 1);
     }
@@ -159,7 +166,7 @@ Sci::Vector<double> Iim::Diim::overall_dependency() const
                     di += smat(i, j);
                 }
             }
-            res(i) = di;
+            res[i] = di;
         }
         res /= gsl::narrow_cast<double>(n - 1);
     }
@@ -178,7 +185,7 @@ Sci::Vector<double> Iim::Diim::overall_influence() const
                     rj += smat(i, j);
                 }
             }
-            res(j) = rj;
+            res[j] = rj;
         }
         res /= gsl::narrow_cast<double>(n - 1);
     }
@@ -217,7 +224,7 @@ Sci::Matrix<double> Iim::Diim::dynamic_inoperability() const
         qk = kmat * (astar * qk + perturb.cstar(tk) - qk) + qk;
         Sci::Linalg::clip(qk, 0.0, 1.0);
         auto qt_k = Sci::row(qt, tk);
-        qt_k(0) = tk;
+        qt_k[0] = tk;
         Sci::copy_n(qk.to_mdspan(), qk.extent(0), qt_k, 1);
     }
     return qt;
@@ -238,7 +245,7 @@ Sci::Matrix<double> Iim::Diim::dynamic_recovery() const
         qk = Sci::Linalg::expm(-1.0 * tk * tmp) * q0;
         Sci::Linalg::clip(qk, 0.0, 1.0);
         auto qt_k = Sci::row(qt, tk);
-        qt_k(0) = tk;
+        qt_k[0] = tk;
         Sci::copy_n(qk.to_mdspan(), qk.extent(0), qt_k, 1);
     }
     return qt;
@@ -253,7 +260,7 @@ Sci::Vector<double> Iim::Diim::impact(const Sci::Matrix<double>& qt) const
         double tf = qt(qt.extent(0) - 1, 0);
 
         for (std::size_t j = 0; j < num_systems(); ++j) {
-            qtot(j) = Sci::Integrate::trapz(ti, tf, Sci::column(qt, j + 1));
+            qtot[j] = Sci::Integrate::trapz(ti, tf, Sci::column(qt, j + 1));
         }
     }
     return qtot;
@@ -292,8 +299,8 @@ void Iim::Diim::calc_tech_coeff_matrix()
     if (amatrix_type == input_output) {
         for (std::size_t i = 0; i < n; ++i) {
             for (std::size_t j = 0; j < n; ++j) {
-                if (xoutput(j) != 0.0) {
-                    amat(i, j) = io_table(i, j) / xoutput(j);
+                if (xoutput[j] != 0.0) {
+                    amat(i, j) = io_table(i, j) / xoutput[j];
                 }
             }
         }
@@ -312,8 +319,8 @@ void Iim::Diim::calc_interdependency_matrix()
         else if (calc_mode == demand) {
             for (std::size_t i = 0; i < n; ++i) {
                 for (std::size_t j = 0; j < n; ++j) {
-                    if (xoutput(i) != 0.0) {
-                        astar(i, j) = io_table(i, j) / xoutput(i);
+                    if (xoutput[i] != 0.0) {
+                        astar(i, j) = io_table(i, j) / xoutput[i];
                     }
                 }
             }
@@ -387,13 +394,13 @@ void Iim::Diim::calc_kmatrix()
     auto kmat_diag = Sci::diag(kmat);
     for (Sci::index i = 0; i < kmat_diag.extent(0); ++i) {
         if ((1.0 - astar(i, i)) > 0.0) {
-            kmat_diag(i) = (-std::log(lambda) / tau(i)) / (1.0 - astar(i, i));
-            if (kmat_diag(i) > 1.0) {
-                kmat_diag(i) = kmat_max(); // truncate to the range [0.0, 1.0)
+            kmat_diag[i] = (-std::log(lambda) / tau[i]) / (1.0 - astar(i, i));
+            if (kmat_diag[i] > 1.0) {
+                kmat_diag[i] = kmat_max(); // truncate to the range [0.0, 1.0)
             }
         }
         else { // truncate to the interval [0.0, 1.0)
-            kmat_diag(i) = kmat_max();
+            kmat_diag[i] = kmat_max();
         }
     }
 }
@@ -426,8 +433,8 @@ void Iim::Diim::analyse_influence(std::ostream& ostrm) const
     ostrm << "function" << ',' << "delta" << ',' << "delta_overall" << ',' << "rho" << ','
           << "rho_overall\n";
     for (std::size_t i = 0; i < num_systems(); ++i) {
-        ostrm << infra[i] << ',' << delta(i) << ',' << delta_overall(i) << ',' << rho(i) << ','
-              << rho_overall(i) << '\n';
+        ostrm << infra[i] << ',' << delta[i] << ',' << delta_overall[i] << ',' << rho[i] << ','
+              << rho_overall[i] << '\n';
     }
 }
 
@@ -454,7 +461,7 @@ void Iim::Diim::analyse_inoperability(std::ostream& ostrm) const
 
     ostrm << "infrastructure" << ',' << "inoperability\n";
     for (std::size_t i = 0; i < num_systems(); ++i) {
-        ostrm << infra[i] << ',' << q(i) << '\n';
+        ostrm << infra[i] << ',' << q[i] << '\n';
     }
 }
 
@@ -478,7 +485,7 @@ void Iim::Diim::analyse_dynamic(std::ostream& ostrm) const
 
     ostrm << "qtot" << ',';
     for (Sci::index j = 0; j < qtot.extent(0) - 1; ++j) {
-        ostrm << qtot(j) << ',';
+        ostrm << qtot[j] << ',';
     }
     ostrm << qtot(qtot.extent(0) - 1) << '\n';
 }
@@ -503,7 +510,7 @@ void Iim::Diim::analyse_recovery(std::ostream& ostrm) const
 
     ostrm << "qtot" << ',';
     for (Sci::index j = 0; j < qtot.extent(0) - 1; ++j) {
-        ostrm << qtot(j) << ',';
+        ostrm << qtot[j] << ',';
     }
     ostrm << qtot(qtot.extent(0) - 1) << '\n';
 }
@@ -536,7 +543,7 @@ void Iim::Diim::hybrid_attack_sampling(std::ostream& ostrm)
             auto qt = dynamic_inoperability();
             auto qtot = impact(qt);
 
-            ostrm << pinfra(0) << ',' << pinfra(1) << ',' << Sci::Linalg::sum(qtot) << '\n';
+            ostrm << pinfra[0] << ',' << pinfra[1] << ',' << Sci::Linalg::sum(qtot) << '\n';
         }
     }
 }

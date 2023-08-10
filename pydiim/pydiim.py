@@ -8,6 +8,7 @@
 
 import numpy as np
 import pandas as pd
+import json
 import subprocess
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -120,80 +121,52 @@ def plot_heatmap(df, vmin, vmax, xlabel=None, ylabel=None, cbar_label="Impact", 
 class PyDIIM:
     """Python wrapper for the DIIM code."""
 
-    def __init__(self, config={}, encoding="latin1"):
+    def __init__(self, user_config):
         self.config = {
             "job_name": "diim",
-            "amatrix_type": "input-output",
-            "calc_mode": "demand",
-            "amat_file": "diim_amat.csv",
-            "kmat_file": None,
-            "tau_file": None,
-            "q0_file": None,
-            "lambda_val": None,
-            "time_steps": None,
-            "pinfra": [],
-            "cvalue": [],
-            "ptime": [[]],
+            "DIIM": {
+                "amatrix_type": "input-output",
+                "calc_mode": "demand",
+                "amat_file": "diim_amat.csv",
+                "kmat_file": "",
+                "tau_file": "",
+                "q0_file": "",
+                "lambda_val": 0.01,
+                "time_steps": 0 
+            },
+            "Perturbation": {
+                "pinfra": [""],
+                "cvalue": [0.0],
+                "ptime": [[0, 0]] 
+            }
         }
-        self.config.update(config)
-        self.__gen_inp_file(encoding)
+        self.__json_file = None
+        if isinstance(user_config, str):
+            self.__json_file = user_config
+            self.config.update(self.__read_json_file())
+        elif isinstance(user_config, dict):
+            self.config.update(user_config)
+            self.__json_file = self.config["job_name"] + ".json"
+        self.__gen_json_file()
 
-    def __gen_inp_file(self, encoding):
-        """Generate input file."""
-        self.__inp_file = self.config["job_name"] + ".inp"
-        with open(self.__inp_file, "w", encoding=encoding) as f:
-            f.write("DIIM\n")
-            f.write("  amatrix_type\n")
-            f.write("    {0}\n".format(self.config["amatrix_type"]))
-            f.write("  calc_mode\n")
-            f.write("    {0}\n".format(self.config["calc_mode"]))
-            f.write("  amat_file\n")
-            f.write("    {0}\n".format(self.config["amat_file"]))
-            if self.config["kmat_file"]:
-                f.write("  kmat_file\n")
-                f.write("    {0}\n".format(self.config["kmat_file"]))
-            if self.config["tau_file"]:
-                f.write("  tau_file\n")
-                f.write("    {0}\n".format(self.config["tau_file"]))
-            if self.config["q0_file"]:
-                f.write("  q0_file\n")
-                f.write("    {0}\n".format(self.config["q0_file"]))
-            if self.config["lambda_val"]:
-                f.write("  lambda\n")
-                f.write("    {0}\n".format(self.config["lambda_val"]))
-            if self.config["time_steps"]:
-                f.write("  time_steps\n")
-                f.write("    {0}\n".format(self.config["time_steps"]))
-            f.write("End\n\n")
+    def __read_json_file(self):
+        """Read JSON input file."""
+        data = {}
+        with open(self.__json_file, "r") as f:
+            data = json.load(f)
+        return data
 
-            if len(self.config["pinfra"]) > 0:
-                f.write("Perturbation\n")
-                f.write("  pinfra\n")
-                f.write("    {0} [ ".format(len(self.config["pinfra"])))
-                for i in self.config["pinfra"]:
-                    f.write("{0} ".format(i))
-                f.write("]\n")
-                f.write("  cvalue\n")
-                f.write("    {0} [ ".format(len(self.config["cvalue"])))
-                for i in self.config["cvalue"]:
-                    f.write("{0} ".format(i))
-                f.write("]\n")
-                f.write("  ptime\n")
-                f.write("    {0}\n".format(len(self.config["ptime"])))
-                for i in range(len(self.config["ptime"])):
-                    f.write(
-                        "    {0} {1}\n".format(
-                            self.config["ptime"][i][0], self.config["ptime"][i][1]
-                        )
-                    )
-                f.write("End\n")
+    def __gen_json_file(self):
+        """Generate JSON input file."""
+        with open(self.__json_file, "w") as f:
+            json.dump(self.config, f)
 
     def run(self, run_type):
         """Run DIIM calculation."""
         try:
             output_file = self.config["job_name"] + ".csv"
             with open(output_file, "w") as f:
-                subprocess.run(["diim_run", self.__inp_file, run_type], stdout=f, check=True)
+                subprocess.run(["diim_run", self.__json_file, run_type], stdout=f, check=True)
             return read_csv(output_file)
         except subprocess.CalledProcessError as exc:
             print(f"{exc}")

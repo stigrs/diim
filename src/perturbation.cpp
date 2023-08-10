@@ -13,6 +13,10 @@
 #include <exception>
 #include <algorithm>
 
+#ifndef JSON_DIAGNOSTICS
+#define JSON_DIAGNOSTICS 1
+#endif
+
 Iim::Perturbation::Perturbation(const std::string& json_file,
                                 const std::vector<std::string>& infra_)
     : infra(infra_)
@@ -53,7 +57,7 @@ Sci::Vector<double> Iim::Perturbation::cstar(int time) const
     Sci::Vector<double> ct = c0;
     for (std::size_t i = 0; i < ptime.size(); ++i) {
         if (time >= ptime[i][0] && time <= ptime[i][1]) {
-            ct(pindex[i]) = cvalue(i);
+            ct(pindex[i]) = cvalue[i];
         }
     }
     return ct;
