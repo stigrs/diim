@@ -50,6 +50,8 @@ This project makes use of the following third-party libraries:
 * [mdspan](https://github.com/kokkos/mdspan)
 * [stdBLAS](https://github.com/kokkos/stdBLAS)
 * [Microsoft.GSL](https://github.com/microsoft/GSL)
+* [json](https://github.com/nlohmann/json)
+* [scilib](https://github.com/stigrs/scilib)
 
 Please see their websites for details regarding licensing terms.
 
@@ -64,17 +66,16 @@ Please see their websites for details regarding licensing terms.
 
 | Compiler      | Versions Tested |
 |:--------------|----------------:|
-| GCC           | 9, 10           |
-| Clang         | 10, 11, 12      |
+| GCC           | 10, 11          |
+| Clang         | 12, 13, 14      |
 | Visual Studio | VS2019, VS2022  |
-| XCode         | 13.0            |
-| Intel         | 2022            |
+| XCode         | 14.2            |
 
 ### Obtaining the Source Code
 
 The source code can be obtained from
 
-        git clone git@github.com:stigrs/diim.git
+        git clone https://github.com/stigrs/diim.git
 
 ### Building the Software
 
@@ -103,5 +104,9 @@ into a directory called `diim`.
 5. Install the software:
 
         cmake --build . --config Release --target install
+
+6. If you want to install the Python wrapper, `cd` to the directory `diim` and run `pip`:
+
+        pip install .
 
 All tests should pass, indicating that your platform is fully supported. 
