@@ -159,7 +159,7 @@ class PyDIIM:
     def __gen_json_file(self):
         """Generate JSON input file."""
         with open(self.__json_file, "w") as f:
-            json.dump(self.config, f)
+            json.dump(self.config, f, indent=4)
 
     def run(self, run_type):
         """Run DIIM calculation."""
