@@ -46,15 +46,10 @@ def bar_plot(xdata, ydata, xlabel=None, ylabel=None, title=None, figsize=(10, 5)
     plt.xticks(rotation=90)
 
 
-def grouped_bar_plot(xtick_labels, 
-                     data, 
-                     xlabel=None, 
-                     ylabel=None, 
-                     legend=None, 
-                     title=None, 
-                     bar_width=0.4, 
-                     figsize=(10, 5), 
-                     dpi=300):
+def grouped_bar_plot(
+        xtick_labels, data, xlabel=None, ylabel=None, legend=None, title=None, bar_width=0.4,
+        figsize=(10, 5),
+        dpi=300):
     """Helper function for creating grouped IIM bar plots."""
     _, ax = plt.subplots(figsize=figsize, dpi=dpi)
     ax.yaxis.grid(color='gray', linestyle='dashed')
@@ -76,13 +71,10 @@ def grouped_bar_plot(xtick_labels,
     ax.set_title(title)
 
 
-def plot_dynamic(data, 
-                 ylim=None, 
-                 yscale="linear", 
-                 xlabel="Time / hours", 
-                 ylabel="Inoperability", 
-                 figsize=(9, 5), 
-                 dpi=300):
+def plot_dynamic(
+        data, ylim=None, yscale="linear", xlabel="Time / hours", ylabel="Inoperability", title=None,
+        figsize=(9, 5),
+        dpi=300):
     """Helper function for plotting dynamic IIM data."""
     qt_data = data.head(-1)
     labels = qt_data.columns[1:]
@@ -107,15 +99,18 @@ def plot_dynamic(data,
 
     ax.set_ylabel(ylabel)
     ax.set_xlabel(xlabel)
+    ax.set_title(title)
     ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.15), ncol=5)
 
-def plot_heatmap(df, vmin, vmax, xlabel=None, ylabel=None, cbar_label="Impact", dpi=300):
+
+def plot_heatmap(df, vmin, vmax, xlabel=None, ylabel=None, title=None, cbar_label="Impact", dpi=300):
     """Helper function for creating heatmaps."""
     data = df.pivot("infra_i", "infra_j", "impact")
     _, ax = plt.subplots(dpi=dpi)
     sns.heatmap(data, linewidth=0.5, vmin=vmin, vmax=vmax, cbar_kws={"label": cbar_label}, ax=ax)
-    plt.xlabel(xlabel)
-    plt.ylabel(ylabel)
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    ax.set_title(title)
 
 
 class PyDIIM:
@@ -132,12 +127,12 @@ class PyDIIM:
                 "tau_file": "",
                 "q0_file": "",
                 "lambda_val": 0.01,
-                "time_steps": 0 
+                "time_steps": 0
             },
             "Perturbation": {
                 "pinfra": [""],
                 "cvalue": [0.0],
-                "ptime": [[0, 0]] 
+                "ptime": [[0, 0]]
             }
         }
         self.__json_file = None
