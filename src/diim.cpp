@@ -154,6 +154,7 @@ Sci::Vector<double> Iim::Diim::influence() const
     }
     return res;
 }
+
 Sci::Vector<double> Iim::Diim::overall_dependency() const
 {
     auto n = num_systems();
