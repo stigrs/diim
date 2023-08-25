@@ -35,7 +35,9 @@ def excel_writer(filename):
     return pd.ExcelWriter(filename, engine="xlsxwriter")
 
 
-def bar_plot(xdata, ydata, xlabel=None, ylabel=None, title=None, figsize=(10, 5), dpi=300):
+def bar_plot(
+        xdata, ydata, xlabel=None, ylabel=None, title=None, figsize=(10, 5),
+        dpi=300, filename=None):
     """Helper function for creating IIM plots."""
     _, ax = plt.subplots(figsize=figsize, dpi=dpi)
     ax.bar(xdata, ydata)
@@ -45,11 +47,14 @@ def bar_plot(xdata, ydata, xlabel=None, ylabel=None, title=None, figsize=(10, 5)
     ax.set_title(title)
     plt.xticks(rotation=90)
 
+    if filename:
+        plt.savefig(filename, dpi=dpi, bbox_inches="tight")
+
 
 def grouped_bar_plot(
         xtick_labels, data, xlabel=None, ylabel=None, legend=None, title=None, bar_width=0.4,
         figsize=(10, 5),
-        dpi=300):
+        dpi=300, filename=None):
     """Helper function for creating grouped IIM bar plots."""
     _, ax = plt.subplots(figsize=figsize, dpi=dpi)
     ax.yaxis.grid(color='gray', linestyle='dashed')
@@ -70,11 +75,14 @@ def grouped_bar_plot(
     ax.set_xlabel(xlabel)
     ax.set_title(title)
 
+    if filename:
+        plt.savefig(filename, dpi=dpi, bbox_inches="tight")
+
 
 def plot_dynamic(
         data, ylim=None, yscale="linear", xlabel="Time / hours", ylabel="Inoperability", title=None,
         figsize=(9, 5),
-        dpi=300):
+        dpi=300, filename=None):
     """Helper function for plotting dynamic IIM data."""
     qt_data = data.head(-1)
     labels = qt_data.columns[1:]
@@ -102,8 +110,13 @@ def plot_dynamic(
     ax.set_title(title)
     ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.15), ncol=5)
 
+    if filename:
+        plt.savefig(filename, dpi=dpi, bbox_inches="tight")
 
-def plot_heatmap(df, vmin, vmax, xlabel=None, ylabel=None, title=None, cbar_label="Impact", dpi=300):
+
+def plot_heatmap(
+        df, vmin, vmax, xlabel=None, ylabel=None, title=None, cbar_label="Impact", dpi=300,
+        filename=None):
     """Helper function for creating heatmaps."""
     data = df.pivot("infra_i", "infra_j", "impact")
     _, ax = plt.subplots(dpi=dpi)
@@ -111,6 +124,9 @@ def plot_heatmap(df, vmin, vmax, xlabel=None, ylabel=None, title=None, cbar_labe
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
     ax.set_title(title)
+
+    if filename:
+        plt.savefig(filename, dpi=dpi, bbox_inches="tight")
 
 
 class PyDIIM:
