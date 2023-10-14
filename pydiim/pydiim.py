@@ -118,7 +118,7 @@ def plot_heatmap(
         df, vmin, vmax, xlabel=None, ylabel=None, title=None, cbar_label="Impact", dpi=300,
         filename=None):
     """Helper function for creating heatmaps."""
-    data = df.pivot("infra_i", "infra_j", "impact")
+    data = df.pivot(index="infra_i", columns="infra_j", values="impact")
     _, ax = plt.subplots(dpi=dpi)
     sns.heatmap(data, linewidth=0.5, vmin=vmin, vmax=vmax, cbar_kws={"label": cbar_label}, ax=ax)
     ax.set_xlabel(xlabel)
