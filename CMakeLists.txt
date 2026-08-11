@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.5...3.13)
 project(DIIM 
     VERSION 0.0.1
     LANGUAGES CXX
@@ -115,7 +115,7 @@ include(FetchContent)
 FetchContent_Declare(
     json
     GIT_REPOSITORY https://github.com/nlohmann/json.git
-    GIT_TAG        v3.11.2
+    GIT_TAG        v3.12.0
 )
 FetchContent_MakeAvailable(json)
 
@@ -171,7 +171,7 @@ target_include_directories(diim PUBLIC
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-install(TARGETS diim scilib mdspan linalg nlohmann_json
+install(TARGETS diim scilib nlohmann_json
     EXPORT diimTargets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}    
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}    

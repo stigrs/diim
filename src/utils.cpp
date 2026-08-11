@@ -4,9 +4,18 @@
 // LICENSE.txt or http://www.opensource.org/licenses/mit-license.php for terms
 // and conditions.
 
+#ifdef _MSC_VER 
+#pragma warning(push)
+#pragma warning(disable : 4190)
+#endif
+
 #include <diim/utils.h>
 #include <scilib/linalg.h>
 #include <sstream>
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 void Iim::csv_reader(std::istream& istrm,
                      std::vector<std::string>& header,

@@ -4,11 +4,20 @@
 // LICENSE.txt or http://www.opensource.org/licenses/mit-license.php for terms
 // and conditions.
 
+#ifdef _MSC_VER 
+#pragma warning(push)
+#pragma warning(disable : 4190)
+#endif
+
 #include <diim/diim.h>
 #include <diim/types.h>
 #include <scilib/mdarray.h>
 #include <gtest/gtest.h>
 #include <vector>
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 TEST(TestDiim, TestCase1)
 {
@@ -84,7 +93,7 @@ TEST(TestDiim, TestCase5)
         0.14, 0.17, 0.10, 0.28
     };
     // clang-format on
-    Sci::Matrix<double> amat_ans(stdex::dextents<Sci::index, 2>(4, 4), ans_data);
+    Sci::Matrix<double> amat_ans(Kokkos::dextents<Sci::index, 2>(4, 4), ans_data);
 
     Iim::Diim diim("test_case5.json");
     auto amat = diim.tech_coeff();
@@ -110,7 +119,7 @@ TEST(TestDiim, TestCase6)
         0.14, 0.28, 0.14, 0.28
     };
     // clang-format on
-    Sci::Matrix<double> astar_ans(stdex::dextents<Sci::index, 2>(4, 4), ans_data);
+    Sci::Matrix<double> astar_ans(Kokkos::dextents<Sci::index, 2>(4, 4), ans_data);
 
     Iim::Diim diim("test_case6.json");
     auto astar = diim.interdependency_matrix();

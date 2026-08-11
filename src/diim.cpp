@@ -4,6 +4,11 @@
 // LICENSE.txt or http://www.opensource.org/licenses/mit-license.php for terms
 // and conditions.
 
+#ifdef _MSC_VER 
+#pragma warning(push)
+#pragma warning(disable : 4190)
+#endif
+
 #include <diim/diim.h>
 #include <diim/utils.h>
 #include <scilib/integrate.h>
@@ -15,6 +20,10 @@
 #include <cmath>
 #include <exception>
 #include <gsl/gsl>
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 #ifndef JSON_DIAGNOSTICS
 #define JSON_DIAGNOSTICS 1
@@ -521,7 +530,7 @@ void Iim::Diim::single_attack_sampling(std::ostream& ostrm)
     ostrm << "infra" << ',' << "impact\n";
 
     for (auto& infra_i : infra) {
-        Sci::Vector<std::string> pinfra(stdex::dextents<Sci::index, 1>(1), {infra_i});
+        Sci::Vector<std::string> pinfra(Kokkos::dextents<Sci::index, 1>(1), {infra_i});
         perturb.set_perturbed_infrastructures(pinfra);
         auto qt = dynamic_inoperability();
         auto qtot = impact(qt);
@@ -539,7 +548,7 @@ void Iim::Diim::hybrid_attack_sampling(std::ostream& ostrm)
             if (infra_i == infra_j) {
                 continue;
             }
-            Sci::Vector<std::string> pinfra(stdex::dextents<Sci::index, 1>(2), {infra_i, infra_j});
+            Sci::Vector<std::string> pinfra(Kokkos::dextents<Sci::index, 1>(2), {infra_i, infra_j});
             perturb.set_perturbed_infrastructures(pinfra.to_mdspan());
             auto qt = dynamic_inoperability();
             auto qtot = impact(qt);

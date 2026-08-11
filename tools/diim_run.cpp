@@ -4,10 +4,19 @@
 // LICENSE.txt or http://www.opensource.org/licenses/mit-license.php for terms
 // and conditions.
 
+#ifdef _MSC_VER 
+#pragma warning(push)
+#pragma warning(disable : 4190)
+#endif
+
 #include <diim/diim.h>
 #include <exception>
 #include <iostream>
 #include <string>
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 int main(int argc, char* argv[])
 {

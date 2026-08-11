@@ -4,6 +4,11 @@
 // LICENSE.txt or http://www.opensource.org/licenses/mit-license.php for terms
 // and conditions.
 
+#ifdef _MSC_VER 
+#pragma warning(push)
+#pragma warning(disable : 4190)
+#endif
+
 #include <diim/perturbation.h>
 #include <scilib/linalg.h>
 #include <nlohmann/json.hpp>
@@ -12,6 +17,10 @@
 #include <gsl/gsl>
 #include <exception>
 #include <algorithm>
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 #ifndef JSON_DIAGNOSTICS
 #define JSON_DIAGNOSTICS 1
@@ -32,11 +41,11 @@ Iim::Perturbation::Perturbation(const std::string& json_file,
     if (config["Perturbation"].find("pinfra") != config["Perturbation"].end()) {
         auto pinfra_tmp = config["Perturbation"]["pinfra"].get<std::vector<std::string>>();
         pinfra =
-            Sci::Vector<std::string>(stdex::dextents<Sci::index, 1>(pinfra_tmp.size()), pinfra_tmp);
+            Sci::Vector<std::string>(Kokkos::dextents<Sci::index, 1>(pinfra_tmp.size()), pinfra_tmp);
     }
     if (config["Perturbation"].find("cvalue") != config["Perturbation"].end()) {
         auto cvalue_tmp = config["Perturbation"]["cvalue"].get<std::vector<double>>();
-        cvalue = Sci::Vector<double>(stdex::dextents<Sci::index, 1>(cvalue_tmp.size()), cvalue_tmp);
+        cvalue = Sci::Vector<double>(Kokkos::dextents<Sci::index, 1>(cvalue_tmp.size()), cvalue_tmp);
     }
     if (config["Perturbation"].find("ptime") != config["Perturbation"].end()) {
         ptime = config["Perturbation"]["ptime"].get<std::vector<std::array<int, 2>>>();

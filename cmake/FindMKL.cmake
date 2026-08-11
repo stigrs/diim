@@ -25,7 +25,7 @@
 # endif()
 
 if(WIN32)
-	if(${CMAKE_CL_64} EQUAL 1)
+	if(${CMAKE_SIZEOF_VOID_P} EQUAL 8)
 		if (CMAKE_CXX_COMPILER_ID MATCHES "IntelLLVM")
 			set(INT_LIB "mkl_intel_ilp64.lib")
 			set(SEQ_LIB "mkl_intel_thread.lib")
@@ -72,7 +72,7 @@ endif()
 
 find_path(MKL_INCLUDE_DIRS mkl.h HINTS $ENV{MKLROOT}/include)
 if(WIN32)
-	if(${CMAKE_CL_64} EQUAL 1)
+	if(${CMAKE_SIZEOF_VOID_P} EQUAL 8)
 		find_path(MKL_LIBRARY_DIRS mkl_core.lib HINTS $ENV{MKLROOT}/lib $ENV{MKLROOT}/lib/intel64 $ENV{MKLROOT}/win-x64)
 		set(MKL_DEFINITIONS /DUSE_MKL /DMKL_ILP64)
 	else()

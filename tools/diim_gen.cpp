@@ -4,6 +4,11 @@
 // LICENSE.txt or http://www.opensource.org/licenses/mit-license.php for terms
 // and conditions.
 
+#ifdef _MSC_VER 
+#pragma warning(push)
+#pragma warning(disable : 4190)
+#endif
+
 #include <scilib/mdarray.h>
 #include <diim/auxiliary.h>
 #include <diim/utils.h>
@@ -12,6 +17,10 @@
 #include <exception>
 #include <string>
 #include <vector>
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 // Interdependency matrix generator.
 void amat_generator(const std::string& score_file, const std::string& amat_file, int scale);

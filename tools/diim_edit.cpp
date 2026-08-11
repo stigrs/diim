@@ -4,6 +4,11 @@
 // LICENSE.txt or http://www.opensource.org/licenses/mit-license.php for terms
 // and conditions.
 
+#ifdef _MSC_VER 
+#pragma warning(push)
+#pragma warning(disable : 4190)
+#endif
+
 #include <scilib/mdarray.h>
 #include <scilib/linalg.h>
 #include <diim/utils.h>
@@ -15,6 +20,10 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 // Interdependency matrix editor.
 void amat_editor(const std::string& filename);
